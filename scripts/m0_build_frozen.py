@@ -26,6 +26,7 @@ sys.path.insert(0, str(PROJECT_ROOT / "encoding"))
 
 from src.config_loader import load_config
 from ridge_utils.stimulus_utils import load_textgrids
+from ridge_utils.dsutils import DEFAULT_BAD_WORDS
 
 TR_DURATION = 2.0  # 秒，LeBel 数据集固定 TR
 
@@ -59,19 +60,28 @@ def build_story_manifest(cfg: dict) -> pd.DataFrame:
 # ── 2. Word index ──────────────────────────────────────────────────────────────
 
 def _parse_textgrid_words(grid) -> list[tuple]:
-    """从项目自带的 ridge_utils TextGrid 对象的 word tier 返回 [(word, onset_s, offset_s), ...]。"""
+    """从 word tier 返回 [(word, onset_s, offset_s), ...]。
+
+    过滤规则必须与原始 LeBel 流程 ridge_utils.dsutils.make_word_ds 逐字一致，
+    否则词序列错位 → H=8/32/128 上下文窗口锚点错误。原始流程：
+    对每个标记做 lower().strip("{}").strip() 归一化后，剔除 DEFAULT_BAD_WORDS
+    （sentence_start/end、br/lg/ls/ns 等非语言标记、sp 静音）。
+    """
     word_tier = next(t for t in grid.tiers if t.nameid == "word")
     words = []
-    for start_s, end_s, label in word_tier.simple_transcript:
-        w = label.strip()
-        # 跳过静音标记和空白
-        if w and w not in ("sp", "{B_TRANS}", "{E_TRANS}"):
-            words.append((w, float(start_s), float(end_s)))
+    for start_s, end_s, label in word_tier.make_simple_transcript():
+        if label.lower().strip("{}").strip() not in DEFAULT_BAD_WORDS:
+            words.append((label, float(start_s), float(end_s)))
     return words
 
 
 def build_word_index(cfg: dict, stories: list[str]) -> pd.DataFrame:
-    """从 TextGrids 构建词级索引，记录 TR 映射和有效性标记。"""
+    """从 TextGrids 构建词级索引（词序列与 make_word_ds 逐字一致）。
+
+    注意：不在此处生成「词→TR」映射。真实对齐由 ridge_utils 的 lanczos 插值
+    （downsample_word_vectors）完成，且 TR 时间轴有 start_time=10s 偏移，
+    简单的 onset//TR 整除会得到错误的映射，故刻意不写入冻结文件。
+    """
     data_dir = str(Path(cfg["datasets"]["textgrid_dir"]).parent.parent.parent)
     grids = load_textgrids(sorted(stories), data_dir)
 
@@ -94,11 +104,12 @@ def build_word_index(cfg: dict, stories: list[str]) -> pd.DataFrame:
                 "word":           word,
                 "onset_s":        round(onset_s, 4),
                 "offset_s":       round(offset_s, 4),
-                "tr_index":       int(onset_s / TR_DURATION),
-                # H=128：该词有至少 128 个前驱词（0-based 位置 >= 128）
+                # H=128：该词在「本故事」内有至少 128 个前驱词（位置 >= 128）。
+                # 该标记适用于所有故事的特征提取（决定哪些词可做编码目标）。
                 "eligible_h128":  local_id >= 128,
-                # 评分掩码：跳过故事前 100 秒（transient BOLD 响应）
-                "score_after_100s": onset_s > 100.0,
+                # 词起始晚于故事内 100s 的标记。仅供参考——真实「跳过前 100s」
+                # 的评分掩码在 held-out 评分阶段按 TR 时间轴施加，不在此处生效。
+                "onset_after_100s": onset_s > 100.0,
             })
             global_word_id += 1
 
@@ -292,8 +303,8 @@ if __name__ == "__main__":
     all_stories = manifest["story"].tolist()
     word_index = build_word_index(cfg, all_stories)
     word_index.to_parquet(frozen_dir / "word_index.parquet", index=False)
-    eligible = word_index[word_index["eligible_h128"] & word_index["score_after_100s"]]
-    print(f"  总词数: {len(word_index):,}, 有效编码目标 (H=128 + >100s): {len(eligible):,}")
+    n_h128 = int(word_index["eligible_h128"].sum())
+    print(f"  总词数: {len(word_index):,}, H=128 可做编码目标的词: {n_h128:,}")
 
     # 3. Fold split
     print("[3/6] 构建 fold_split ...")
