@@ -1,0 +1,106 @@
+project: context_length_architecture_brain_encoding
+version: v4.9-uts03-pilot
+
+seeds:
+  fold_split: 20260629
+  pca: 20260630
+  bootstrap: 20260701
+
+reproducibility:
+  require_git_clean: false
+  write_run_manifest: official_runs_only
+  hash_algorithm: sha256
+
+datasets:
+  primary: LeBel_natural_language_fMRI_extended
+  subjects: [UTS03]
+  held_out_story: wheretheressmoke
+  outer_folds: 3
+  split_unit: story
+  data_dir: data/ds003020/derivatives/preprocessed_data
+  textgrid_dir: data/ds003020/derivatives/TextGrids
+  respdict: data/ds003020/derivatives/respdict.json
+  em_data_dir: em_data
+
+models:
+  transformer: EleutherAI/pythia-160m
+  rwkv: BlinkDL/rwkv-4-pile-169m
+  mamba: state-spaces/mamba-130m
+  lstm: fastai_AWD_LSTM_WT103_FWD
+  contexts_preceding_words: [8, 32, 128]
+  # H 是目标词之前的历史词数，实际输入为 H+1 个词
+  # 0-based 首个 H=128 有效目标索引为 i=128
+  first_eligible_target_index_zero_based: 128
+  primary_layers:
+    pythia: 8     # 12 层中的第 8 层（0-based），约 2/3 深度
+    rwkv: 8       # 12 层
+    mamba: 16     # 24 层
+    awd_lstm: 1   # 3 层（0-based index 1 = 第 2 层）
+  robustness_layers:
+    pythia: 11    # 最终层
+    rwkv: 11
+    mamba: 23
+    awd_lstm: 2
+  state_reset_per_window: true
+  transformer_reuse_external_kv_cache: false
+
+awd_lstm_policy:
+  role: required_historical_reference
+  risk_budget_workdays: 3
+  failure_requires_scope_amendment: true
+
+brain_analysis:
+  rois:
+    - name: left_IFG
+      hemi: L
+      atlas: aparc.a2009s
+      labels: [G_front_inf-Opercular, G_front_inf-Triangul]
+    - name: bilateral_PT
+      hemi: LR
+      atlas: aparc.a2009s
+      labels: [G_temp_sup-Plan_tempo]
+  heldout_score_after_story_seconds: 100
+  interpolation: lanczos
+  fir_delays_seconds: [2, 4, 6, 8]
+
+pca:
+  k: 100
+  fit_scope: outer_training_stories_only
+  apply_before_fir: true
+  svd_solver: full
+  zero_variance_feature_policy: drop_and_log
+
+ridge:
+  encoding_model: vectorized_voxelwise_ridge
+  alpha_scope: per_voxel
+  lambda_grid: logspace(-2, 4, 13)
+  inner_folds: 2
+  selection_metric: validation_pearson_r
+  tie_break_rule: prefer_larger_lambda
+  solver: himalaya
+
+scoring:
+  voxel_metric: pearson_r
+  transform_before_roi_average: fisher_z
+  fold_summary: effective_tr_weighted_mean
+
+negative_control:
+  time_shift_seconds: 40
+  shift_within_each_story: true
+  circular_shift: false
+  edge_policy: invalid_and_drop
+
+statistics:
+  bootstrap: paired_story_within_fold
+  bootstrap_iterations: 1000
+  confirmatory_family:
+    - rwkv_minus_pythia_delta_total_ifg_main
+    - mamba_minus_pythia_delta_total_ifg_main
+  confirmatory_fwer_control: holm_bootstrap_pvalues_alpha_0.05
+  exploratory_ci: unadjusted_95_percent_bootstrap
+
+paths:
+  frozen_dir: frozen
+  cache_dir: cache/features
+  results_dir: thesis_results
+  figures_dir: figures

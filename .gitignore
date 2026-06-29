@@ -1,3 +1,13 @@
 __pycache__/
 data/
 encoding.egg-info
+
+# 语言模型特征缓存（体积过大，可重新提取，不进 git）
+cache/
+
+# Python 编译文件
+*.pyc
+*.pyo
+.DS_Store
+*Zone.Identifier
+.claude/

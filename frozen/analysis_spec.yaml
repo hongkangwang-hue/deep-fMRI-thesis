@@ -1,0 +1,49 @@
+context_lengths_H:
+- 8
+- 32
+- 128
+first_eligible_target_index_0based: 128
+window_definition: H preceding words + target word = H+1 tokens total
+state_reset_per_window: true
+transformer_reuse_external_kv_cache: false
+primary_layers:
+  pythia: 8
+  rwkv: 8
+  mamba: 16
+  awd_lstm: 1
+robustness_layers:
+  pythia: 11
+  rwkv: 11
+  mamba: 23
+  awd_lstm: 2
+pca:
+  n_components: 100
+  fit_scope: outer_training_stories_only
+  apply_before_fir: true
+  svd_solver: full
+ridge:
+  solver: himalaya
+  alpha_scope: per_voxel
+  lambda_grid: logspace(-2, 4, 13)
+  inner_folds: 2
+  selection_metric: validation_pearson_r
+  tie_break_rule: prefer_larger_lambda
+scoring:
+  voxel_metric: pearson_r
+  transform_before_roi_average: fisher_z
+  fold_summary: effective_tr_weighted_mean
+heldout_score_after_story_seconds: 100
+fir_delays_seconds:
+- 2
+- 4
+- 6
+- 8
+negative_control:
+  time_shift_seconds: 40
+  shift_within_each_story: true
+  circular_shift: false
+  edge_policy: invalid_and_drop
+seeds:
+  fold_split: 20260629
+  pca: 20260630
+  bootstrap: 20260701

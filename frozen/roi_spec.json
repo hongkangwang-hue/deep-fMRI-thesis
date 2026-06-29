@@ -1,0 +1,34 @@
+{
+  "atlas": "aparc.a2009s",
+  "freesurfer_subjdir": "data/ds003020/derivatives/freesurfer_subjdir",
+  "rois": [
+    {
+      "name": "left_IFG",
+      "hemi": "L",
+      "atlas": "aparc.a2009s",
+      "labels": [
+        "G_front_inf-Opercular",
+        "G_front_inf-Triangul"
+      ]
+    },
+    {
+      "name": "bilateral_PT",
+      "hemi": "LR",
+      "atlas": "aparc.a2009s",
+      "labels": [
+        "G_temp_sup-Plan_tempo"
+      ]
+    }
+  ],
+  "bold_only_voxel_rule": {
+    "exclude_nan": true,
+    "exclude_zero_variance": true,
+    "min_voxels_per_roi": 10
+  },
+  "repeatability": {
+    "method": "split_half_correlation",
+    "repeated_story": "wheretheressmoke",
+    "note": "wheretheressmoke 在 5 个 session 中重复收听，用于计算 repeatability"
+  },
+  "extraction_note": "Atlas annotation 文件需在 AutoDL 上下载后才能执行实际 ROI 提取（M2 阶段）"
+}

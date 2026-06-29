@@ -1,0 +1,29 @@
+confirmatory_primary:
+  family_name: ifg_main_layer_delta_total_architecture
+  fwer_control: holm_bootstrap_pvalues_alpha_0.05
+  note: 唯一允许下确认性结论的家族
+  contrasts:
+  - rwkv_minus_pythia_delta_total_ifg_main
+  - mamba_minus_pythia_delta_total_ifg_main
+main_estimands_descriptive:
+- delta_total_pythia_ifg_main
+- delta_total_rwkv_ifg_main
+- delta_total_mamba_ifg_main
+exploratory_rq1_same_context_architecture:
+- rwkv_minus_pythia_r8
+- rwkv_minus_pythia_r32
+- rwkv_minus_pythia_r128
+- mamba_minus_pythia_r8
+- mamba_minus_pythia_r32
+- mamba_minus_pythia_r128
+secondary_exploratory:
+- delta_local_by_model
+- delta_long_by_model
+- ifg_vs_pt_descriptive_pattern
+- awd_lstm_within_model_context_curve
+robustness:
+- registered_contrasts_on_final_layer_ifg
+- shifted_r_by_h
+- shifted_delta_local
+- shifted_delta_long
+- shifted_delta_total
