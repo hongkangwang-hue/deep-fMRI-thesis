@@ -181,16 +181,19 @@ def _final_corrs_gpu(
     pred = Pstim_g @ wt   # (ntest, nvox) — small: 291×95556×8 = 0.22GB
     del wt
 
-    # Pearson r（与 native np.corrcoef 路径等价）
-    Pr_c   = Presp_g - Presp_g.mean(0)
-    pred_c = pred    - pred.mean(0)
+    # 与 native use_corr=False, return_wt=True 路径完全一致：
+    #   resvar = (Presp - pred).var(0)        [numpy ddof=0]
+    #   Rsqs   = 1 - resvar / Presp.var(0)
+    #   corrs  = sqrt(|Rsqs|) * sign(Rsqs)
+    # 注意：numpy .var(0) 默认 ddof=0；torch .var() 默认 correction=1，
+    # 须显式指定 correction=0 以匹配 numpy 行为。
+    pred_np   = pred.cpu().numpy()
     del pred
-    num   = (Pr_c * pred_c).sum(0)
-    denom = Pr_c.norm(dim=0) * pred_c.norm(dim=0) + 1e-12
-    del Pr_c, pred_c
-
-    corrs = np.nan_to_num((num / denom).cpu().numpy())
-    del num, denom
+    Presp_np  = Presp_g.cpu().numpy()
+    resvar    = (Presp_np - pred_np).var(0)   # ddof=0，与 numpy 一致
+    Presp_var = Presp_np.var(0)               # ddof=0
+    Rsqs      = 1.0 - resvar / Presp_var
+    corrs     = np.nan_to_num(np.sqrt(np.abs(Rsqs)) * np.sign(Rsqs))
     return corrs
 
 
