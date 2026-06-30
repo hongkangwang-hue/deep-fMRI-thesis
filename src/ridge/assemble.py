@@ -72,7 +72,7 @@ def assemble_all(
     stories: list[str], model: str, H: int, layer: str,
     subject: str, cache_dir, data_dir, respdict_path, word_index_path,
 ) -> dict[str, StoryData]:
-    """组装多故事 → {story: StoryData}。"""
+    """组装多故事 → {story: StoryData}（M3：模型特征缓存路径）。"""
     respdict = load_respdict(respdict_path)
     word_index = pd.read_parquet(word_index_path)
     return {
@@ -80,3 +80,35 @@ def assemble_all(
                           respdict, word_index)
         for s in stories
     }
+
+
+def assemble_all_eng1000(
+    stories: list[str], subject: str, data_dir, respdict_path, repo_root,
+) -> dict[str, StoryData]:
+    """组装 eng1000 特征 → {story: StoryData}（M2-C Phase 2 用）。
+
+    eng1000 对**所有词**都有 985 维查找向量（非目标词子集），下采样与 native 完全相同：
+    复用 encoding/feature_spaces.get_feature_space('eng1000', ...)（一次性加载所有
+    textgrids + eng1000，逐故事 Lanczos 到 TR）。再 trim [10:-5] 对齐已 trim 的响应。
+    **不在此 z-score**——pipeline 的 StandardScaler 负责（fit 仅训练折，防泄漏）。
+
+    encoding 模块惰性导入，避免 M3 路径强依赖 ridge_utils。
+    """
+    import sys as _sys
+    _sys.path.insert(0, str(Path(repo_root) / "encoding"))
+    from feature_spaces import get_feature_space        # noqa: E402
+
+    respdict = load_respdict(respdict_path)
+    feat = get_feature_space("eng1000", stories)         # {story: (resps-pad, 985)}
+    out = {}
+    for s in stories:
+        X_full = np.asarray(feat[s], dtype=np.float64)
+        X = X_full[TRIM_FIRST: len(X_full) - TRIM_LAST]  # trim [10:-5]
+        Y = load_response(data_dir, subject, s).astype(np.float64)
+        trt = trimmed_tr_times(respdict[s])              # 真实 TR 中心时间（>100s 判定）
+        if not (X.shape[0] == Y.shape[0] == len(trt)):
+            raise ValueError(
+                f"[{s}] eng1000 行数不一致 X={X.shape[0]} Y={Y.shape[0]} "
+                f"tr_times={len(trt)}")
+        out[s] = StoryData(X=X, Y=Y, tr_times=trt)
+    return out
