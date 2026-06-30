@@ -99,3 +99,10 @@ class RWKVAdapter(ModelAdapter):
         for layer in {layers.main, layers.final}:
             result[layer] = hs[layer + 1][0].float().cpu().numpy()
         return result
+
+    def forward_hidden_batch(self, token_id_lists, layers: LayerSpec):
+        # RWKV 忽略 attention_mask，但循环天然因果，右侧 padding 不影响目标。
+        from .base import hf_forward_hidden_batch
+        return hf_forward_hidden_batch(
+            self.model, self.device, token_id_lists, layers
+        )

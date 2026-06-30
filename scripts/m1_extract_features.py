@@ -47,13 +47,36 @@ def layer_spec_for(cfg: dict, model: str) -> LayerSpec:
     )
 
 
+def verify_batch_matches_single(adapter, words, targets, H, layers, n):
+    """对前 n 个目标，断言批量提取与逐窗 extract 逐元素一致（容差内）。
+
+    这是批量路径的正确性闸门：right-padding/mask 的 bug 会让目标 hidden 大幅
+    偏离（远超浮点误差），而非 ~1e-4。返回观测到的最大绝对差。
+    """
+    sample = list(targets[:n])
+    if not sample:
+        return 0.0
+    singles = [adapter.extract(words, i, H, layers) for i in sample]
+    batched = adapter.extract_batch(words, sample, H, layers, batch_size=len(sample))
+    max_diff = 0.0
+    for s, b in zip(singles, batched):
+        assert s.target_token_index == b.target_token_index, "目标 token 位置不一致"
+        assert s.n_tokens == b.n_tokens, "token 数不一致"
+        max_diff = max(
+            max_diff,
+            float(np.abs(s.main - b.main).max()),
+            float(np.abs(s.final - b.final).max()),
+        )
+    return max_diff
+
+
 def extract_story_model(
     adapter, model: str, story: str, words: list[str],
     eligible_ids: list[int], word_id_base: pd.DataFrame,
     H_list: list[int], layers: LayerSpec, cfg: dict,
-    max_targets: int | None,
+    max_targets: int | None, batch_size: int,
 ):
-    """对一个 (story, model)，按各 H 提取所有有效目标的双层表示并写缓存。
+    """对一个 (story, model)，按各 H 批量提取所有有效目标的双层表示并写缓存。
 
     Returns: (dict(H -> 计时与形状信息), token_map 行列表)。
     """
@@ -69,8 +92,8 @@ def extract_story_model(
     for H in H_list:
         main_rows, final_rows, wid_rows, unk_rows = [], [], [], []
         t0 = time.perf_counter()
-        for local_id in targets:
-            rep = adapter.extract(words, local_id, H, layers)
+        reps = adapter.extract_batch(words, targets, H, layers, batch_size)
+        for local_id, rep in zip(targets, reps):
             gid = int(local_to_global[local_id])
             main_rows.append(rep.main)
             final_rows.append(rep.final)
@@ -122,6 +145,10 @@ def main():
     ap.add_argument("--max-targets", type=int, default=200,
                     help="每个 H 最多提取多少目标（smoke 用）")
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--batch-size", type=int, default=32,
+                    help="批量前向的窗口数（右侧 padding，因果模型结果不变）")
+    ap.add_argument("--verify-n", type=int, default=4,
+                    help="加载后用前 N 个目标核验「批量==逐窗」，0 跳过")
     ap.add_argument("--capacity-report", action="store_true")
     ap.add_argument("--all-targets", action="store_true",
                     help="忽略 max-targets，提取该故事全部有效目标")
@@ -151,9 +178,22 @@ def main():
         print(f"  {adapter.audit_row()}")
         layers = layer_spec_for(cfg, model)
 
+        if args.verify_n > 0:
+            H_check = max(H_list)  # 最长上下文最易暴露 padding/mask bug
+            md = verify_batch_matches_single(
+                adapter, words, eligible, H_check, layers, args.verify_n)
+            tol = 2e-3
+            status = "OK" if md < tol else "失败"
+            print(f"  [verify] 批量vs逐窗 (H={H_check}, n={args.verify_n}): "
+                  f"max|Δ|={md:.2e} ({status})")
+            if md >= tol:
+                raise SystemExit(
+                    f"批量提取与逐窗结果不一致 (max|Δ|={md:.2e} >= {tol})，"
+                    f"疑似 padding/mask bug，已中止。")
+
         stats, token_rows = extract_story_model(
             adapter, model, args.story, words, eligible, base,
-            H_list, layers, cfg, max_t,
+            H_list, layers, cfg, max_t, args.batch_size,
         )
 
         tm = make_token_map(token_rows)

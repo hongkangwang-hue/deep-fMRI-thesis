@@ -192,6 +192,67 @@ def test_state_reset_positive_and_negative():
     assert not np.allclose(r1.main, inherited.main)
 
 
+def test_extract_batch_matches_single():
+    """批量提取必须与逐窗 extract 逐元素一致，且返回顺序与 indices 一致；
+    覆盖跨 chunk（batch_size < 目标数）的边界。"""
+    words = [f"w{k}" for k in range(300)]
+    a = FakeAdapter()
+    layers = LayerSpec(main=1, final=2)
+    indices = [128, 150, 175, 199, 200, 240]
+    for H in (8, 32, 128):
+        singles = [a.extract(words, i, H, layers) for i in indices]
+        batched = a.extract_batch(words, indices, H, layers, batch_size=4)
+        assert len(batched) == len(indices)
+        for s, b in zip(singles, batched):
+            assert s.target_token_index == b.target_token_index
+            assert s.n_tokens == b.n_tokens
+            assert s.n_target_subtokens == b.n_target_subtokens
+            assert np.array_equal(s.main, b.main)
+            assert np.array_equal(s.final, b.final)
+
+
+def test_extract_batch_multi_subtoken_target():
+    """批量路径下，目标词多 subtoken 时仍取最后一个 subtoken，且右侧 padding
+    不污染较短序列的目标表示。"""
+    from src.models.base import ModelAdapter
+
+    class VarLenAdapter(ModelAdapter):
+        is_recurrent = False
+        model_id = "vl"; revision = "0"; hidden_width = 2; n_layers = 1
+        def load(self): pass
+        def reset_state(self): pass
+        def tokenize_with_spans(self, words):
+            # 目标词（末词）按其编号切成 (idx%3)+1 个 subtoken → 变长序列
+            token_ids, spans, is_unk = [], [], []
+            for k, w in enumerate(words):
+                n_sub = (int(w[1:]) % 3) + 1 if k == len(words) - 1 else 1
+                start = len(token_ids)
+                token_ids.extend([k] * n_sub)
+                spans.append((start, start + n_sub))
+                is_unk.append(False)
+            return token_ids, spans, is_unk
+        def forward_hidden(self, token_ids, layers):
+            n = len(token_ids)
+            arr = np.zeros((n, 2), np.float32)
+            for t in range(n):
+                arr[t, 0] = t  # 位置编码，便于校验取到正确 token
+            return {layers.main: arr, layers.final: arr}
+
+    words = [f"w{k}" for k in range(300)]
+    a = VarLenAdapter()
+    layers = LayerSpec(main=0, final=0)
+    indices = [128, 129, 130, 200, 201]
+    singles = [a.extract(words, i, 128, layers) for i in indices]
+    batched = a.extract_batch(words, indices, 128, layers, batch_size=2)
+    for s, b in zip(singles, batched):
+        assert s.n_tokens == b.n_tokens
+        assert s.target_token_index == b.target_token_index
+        # 位置编码须等于目标 token 索引（证明取到的是该序列自己的目标，
+        # 未被 padding 或邻近样本串扰）
+        assert b.main[0] == b.target_token_index
+        assert np.array_equal(s.main, b.main)
+
+
 def test_real_adapter_inherit_state_not_implemented():
     """真实适配器在 AutoDL 重写前，状态继承路径应明确报 NotImplementedError，
     而不是静默给出可能错误的结果。"""

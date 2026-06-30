@@ -99,3 +99,10 @@ class MambaAdapter(ModelAdapter):
         for layer in {layers.main, layers.final}:
             result[layer] = hs[layer + 1][0].float().cpu().numpy()
         return result
+
+    def forward_hidden_batch(self, token_id_lists, layers: LayerSpec):
+        # Mamba 因果扫描 + 因果 conv1d，右侧 padding 不影响目标位置。
+        from .base import hf_forward_hidden_batch
+        return hf_forward_hidden_batch(
+            self.model, self.device, token_id_lists, layers
+        )

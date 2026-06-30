@@ -114,6 +114,31 @@ class AWDLSTMAdapter(ModelAdapter):
             result[layer] = t[0].float().cpu().numpy()
         return result
 
+    def forward_hidden_batch(self, token_id_lists, layers: LayerSpec):
+        """右侧 padding 批量前向。LSTM 严格左→右，pad 在目标之后不影响其
+        hidden。pad_id=0；reset_state() 已由 extract_batch 在前向前调用，故每个
+        batch 元素从零状态独立开始（batch 维彼此独立）。
+
+        ⚠️ AutoDL 上需核验：fastai AWD_LSTM 跨调用缓存 hidden，要求 reset() 后
+        按当前 batch 大小重新初始化；末批 batch 较小时务必确认 reset 生效。
+        """
+        import torch
+        n = len(token_id_lists)
+        lengths = [len(t) for t in token_id_lists]
+        max_len = max(lengths)
+        idx = torch.zeros((n, max_len), dtype=torch.long)
+        for b, t in enumerate(token_id_lists):
+            idx[b, : lengths[b]] = torch.tensor(t, dtype=torch.long)
+        idx = idx.to(self.device)
+        self._captured = {}
+        with torch.no_grad():
+            _ = self.encoder(idx)
+        result = {}
+        for layer in {layers.main, layers.final}:
+            t = self._captured[layer]          # (batch, max_len, width)
+            result[layer] = t.float().cpu().numpy()
+        return result
+
     def xxunk_rate(self, words) -> float:
         """该词表下的 xxunk 比例（用于 AWD-LSTM 专项报告）。"""
         _, _, is_unk = self.tokenize_with_spans(words)

@@ -113,6 +113,69 @@ class ModelAdapter(ABC):
             is_unk=bool(is_unk[-1]),
         )
 
+    def forward_hidden_batch(
+        self, token_id_lists: list[list[int]], layers: LayerSpec
+    ) -> dict[int, np.ndarray]:
+        """批量前向：一批变长 token 序列右侧 padding 后做一次前向。
+
+        Returns:
+            {layer: ndarray(batch, max_len, width)}。第 b 条序列真实长度内
+            （位置 < len(token_id_lists[b])）的 hidden 必须与单条 forward_hidden
+            逐元素一致。
+
+        基类默认逐条调用 forward_hidden（正确但不加速）；各适配器覆盖为真正的
+        批量前向以提速。覆盖实现必须用「右侧 padding」——四模型均为因果（左→
+        右），目标位于各自最后一个真实 token，padding 在其后，不参与该位置计算，
+        故批量与逐窗结果等价。
+        """
+        max_len = max(len(t) for t in token_id_lists)
+        per_item = [self.forward_hidden(t, layers) for t in token_id_lists]
+        out: dict[int, np.ndarray] = {}
+        for layer in {layers.main, layers.final}:
+            width = per_item[0][layer].shape[1]
+            arr = np.zeros((len(token_id_lists), max_len, width), dtype=np.float32)
+            for b, h in enumerate(per_item):
+                arr[b, : h[layer].shape[0]] = h[layer]
+            out[layer] = arr
+        return out
+
+    def extract_batch(
+        self, words: list[str], indices: list[int], H: int,
+        layers: LayerSpec, batch_size: int = 32,
+    ) -> list[WindowRepr]:
+        """批量提取一组目标位置 indices 在上下文 H 下的双层表示。
+
+        所有窗口均为 H+1 词，但 tokenize 后 token 数可不同 → 右侧 padding。
+        因果性保证批量结果与逐窗 extract 逐元素等价（仅 GPU kernel 差异引入
+        ~1e-4 浮点误差，由脚本的 verify 步把关）。返回顺序与 indices 一致。
+        """
+        results: list[WindowRepr] = []
+        for start in range(0, len(indices), batch_size):
+            chunk = indices[start : start + batch_size]
+            windows = [build_window(words, i, H) for i in chunk]
+            self.reset_state()
+            per = [self.tokenize_with_spans(w) for w in windows]
+            token_id_lists = [p[0] for p in per]
+            batched = self.forward_hidden_batch(token_id_lists, layers)
+            for b in range(len(chunk)):
+                spans, is_unk = per[b][1], per[b][2]
+                target_start, target_end = spans[-1]
+                if target_end <= target_start:
+                    raise ValueError(
+                        f"目标词未产生任何 token（i={chunk[b]}, H={H}）")
+                target_tok = target_end - 1
+                results.append(WindowRepr(
+                    main=np.asarray(
+                        batched[layers.main][b][target_tok], dtype=np.float32),
+                    final=np.asarray(
+                        batched[layers.final][b][target_tok], dtype=np.float32),
+                    n_tokens=len(token_id_lists[b]),
+                    target_token_index=target_tok,
+                    n_target_subtokens=target_end - target_start,
+                    is_unk=bool(is_unk[-1]),
+                ))
+        return results
+
     def extract_inheriting_state(
         self, words: list[str], i: int, H: int, layers: LayerSpec
     ) -> WindowRepr:
@@ -138,3 +201,34 @@ class ModelAdapter(ABC):
             "n_layers": self.n_layers,
             "is_recurrent": self.is_recurrent,
         }
+
+
+def hf_forward_hidden_batch(model, device, token_id_lists, layers, pad_id=0):
+    """HF transformers 系（Pythia/RWKV/Mamba）共用的右侧 padding 批量前向。
+
+    返回 {layer: ndarray(batch, max_len, width)}，layer 为 0-based block 号，
+    取 hidden_states[layer+1]。
+
+    右侧 padding + attention_mask：因果模型中目标位于最后一个真实 token，pad
+    在其后不被注意/扫描到，故真实位置的 hidden 与单条前向一致。RWKV 会忽略
+    attention_mask，但其循环天然因果，右侧 pad 同样不影响目标，故仍正确。
+    """
+    import torch
+
+    n = len(token_id_lists)
+    lengths = [len(t) for t in token_id_lists]
+    max_len = max(lengths)
+    input_ids = torch.full((n, max_len), pad_id, dtype=torch.long)
+    attn = torch.zeros((n, max_len), dtype=torch.long)
+    for b, t in enumerate(token_id_lists):
+        input_ids[b, : lengths[b]] = torch.tensor(t, dtype=torch.long)
+        attn[b, : lengths[b]] = 1
+    input_ids = input_ids.to(device)
+    attn = attn.to(device)
+    with torch.no_grad():
+        out = model(input_ids=input_ids, attention_mask=attn, use_cache=False)
+    hs = out.hidden_states
+    result = {}
+    for layer in {layers.main, layers.final}:
+        result[layer] = hs[layer + 1].float().cpu().numpy()
+    return result
