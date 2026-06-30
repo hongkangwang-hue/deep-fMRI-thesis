@@ -322,6 +322,34 @@ def test_token_map_validate_ok():
     validate_token_map(tm, wi)  # 不应抛错
 
 
+def test_bpe_adapters_lowercase_words():
+    """回归：BPE 适配器（Pythia/RWKV/Mamba）必须把大写词转小写再编码，
+    以匹配 eng1000 词流并避免全大写被切碎。用假 tokenizer 验证，无需 torch。"""
+    from src.models.pythia_adapter import PythiaAdapter
+    from src.models.rwkv_adapter import RWKVAdapter
+    from src.models.mamba_adapter import MambaAdapter
+
+    class RecordingTokenizer:
+        unk_token_id = 0
+        eos_token_id = 0
+        def __init__(self):
+            self.seen = []
+        def encode(self, text, add_special_tokens=False):
+            self.seen.append(text)
+            return [1]  # 每个词 1 token
+
+    for AdapterCls in (PythiaAdapter, RWKVAdapter, MambaAdapter):
+        a = AdapterCls.__new__(AdapterCls)  # 不走 __init__/load
+        a.tokenizer = RecordingTokenizer()
+        words = ["ALRIGHT", "THANK", "YOU"]
+        token_ids, spans, is_unk = a.tokenize_with_spans(words)
+        seen = a.tokenizer.seen
+        assert seen[0] == "alright", f"{AdapterCls.__name__}: 首词未小写: {seen[0]!r}"
+        assert seen[1] == " thank", f"{AdapterCls.__name__}: 后续词应小写+前导空格: {seen[1]!r}"
+        assert seen[2] == " you"
+        assert len(spans) == 3 and spans[-1] == (2, 3)
+
+
 def test_token_map_detects_misalignment():
     wi = _fake_word_index()
     rows = [{

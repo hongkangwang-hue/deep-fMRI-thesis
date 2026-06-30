@@ -82,12 +82,18 @@ class PythiaAdapter(ModelAdapter):
 
         采用「逐词分别编码再拼接」以获得明确的词→subtoken 边界。第一个词正常
         编码，后续词加前导空格以匹配 GPT-NeoX BPE 的空格语义。
+
+        词一律小写：原始 TextGrid 标注为全大写，而原始 eng1000 流程的词流
+        （make_word_ds → DataSequence）为小写。已验证 word.lower() 与该词流
+        逐词精确相等。喂大写会让 BPE 把每个词切成大量碎 subtoken，产生退化
+        表示，且与 eng1000 基线、AWD-LSTM 词流不一致。
         """
         token_ids: list[int] = []
         spans: list[tuple[int, int]] = []
         is_unk: list[bool] = []
         for k, w in enumerate(words):
-            text = w if k == 0 else " " + w
+            wl = w.lower()
+            text = wl if k == 0 else " " + wl
             ids = self.tokenizer.encode(text, add_special_tokens=False)
             if len(ids) == 0:  # 极端情况：空编码，退回 unk 占位
                 ids = [self.tokenizer.unk_token_id or self.tokenizer.eos_token_id]

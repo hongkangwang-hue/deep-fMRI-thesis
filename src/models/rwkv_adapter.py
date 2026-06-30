@@ -73,9 +73,12 @@ class RWKVAdapter(ModelAdapter):
         pass
 
     def tokenize_with_spans(self, words):
+        # 词一律小写以匹配 eng1000 词流（make_word_ds→DataSequence 为小写）并
+        # 避免全大写词被 BPE 切碎；见 pythia_adapter 说明。
         token_ids, spans, is_unk = [], [], []
         for k, w in enumerate(words):
-            text = w if k == 0 else " " + w
+            wl = w.lower()
+            text = wl if k == 0 else " " + wl
             ids = self.tokenizer.encode(text, add_special_tokens=False)
             if len(ids) == 0:
                 ids = [self.tokenizer.unk_token_id or 0]
