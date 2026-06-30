@@ -6,7 +6,11 @@ encoding.egg-info
 cache/
 
 # 编码模型输出结果（大文件，可重新生成，不进 git）
-results/
+# 忽略 results/ 下所有内容，但保留目录约定说明 README，使其随仓库走
+results/*
+!results/README.md
+# 旧的 results_dir 名（已统一为 results/），保险忽略防误提交
+thesis_results/
 build/
 
 # 预训练语义模型数据（大文件，随原始数据包下载，不进 git）

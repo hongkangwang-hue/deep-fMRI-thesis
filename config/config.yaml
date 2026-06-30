@@ -102,5 +102,5 @@ statistics:
 paths:
   frozen_dir: frozen
   cache_dir: cache/features
-  results_dir: thesis_results
+  results_dir: results          # 全项目唯一结果目录（已 gitignore；参考产物/Phase1/M3 同处）
   figures_dir: figures
