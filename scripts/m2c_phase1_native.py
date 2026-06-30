@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import os
 import sys
 from os.path import join
@@ -47,6 +48,12 @@ def main():
     args = ap.parse_args()
 
     np.random.seed(args.seed)  # 冻结种子，保证可复现
+
+    # 打开 LeBel ridge 原生代码的进度日志：不改原生 ridge.py（保持可复现论证），
+    # 仅在外层驱动里把 INFO 输出到 stdout，使 counter 的 "i/50 ... remaining" 与
+    # 每个 bootstrap/alpha 的进度可实时观测（无缓冲见 python3 -u）。
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
+                        stream=sys.stdout)
 
     with open(join(EM_DATA_DIR, "sess_to_story.json")) as f:
         sess_to_story = json.load(f)
