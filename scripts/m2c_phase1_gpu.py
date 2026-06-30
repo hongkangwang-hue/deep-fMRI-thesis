@@ -141,7 +141,7 @@ def _final_corrs_gpu(
     Pr_c   = Presp_g - Presp_g.mean(0)
     pred_c = pred    - pred.mean(0)
     num    = (Pr_c * pred_c).sum(0)
-    denom  = Pr_c.norm(0) * pred_c.norm(0) + 1e-12
+    denom  = Pr_c.norm(dim=0) * pred_c.norm(dim=0) + 1e-12
     corrs  = (num / denom).cpu().numpy()
     return np.nan_to_num(corrs)
 
