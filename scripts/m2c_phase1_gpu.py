@@ -87,7 +87,7 @@ def _ridge_corr_gpu(
 
     nalphas = len(alphas)
     nvox = RRresp.shape[1]
-    Rcorrs = torch.zeros(nalphas, nvox, dtype=torch.float32, device=RRstim.device)
+    Rcorrs = torch.zeros(nalphas, nvox, dtype=torch.float64, device=RRstim.device)
 
     for ai, alpha in enumerate(alphas):
         D    = S / (S ** 2 + float(alpha) ** 2)   # (k,)
@@ -126,9 +126,9 @@ def _final_corrs_gpu(
     UR   = U.T @ Rresp_g       # (k, nvox)
     nfeat = Rstim_g.shape[1]
     nvox  = Rresp_g.shape[1]
-    wt    = torch.zeros(nfeat, nvox, dtype=torch.float32, device=device)
+    wt    = torch.zeros(nfeat, nvox, dtype=torch.float64, device=device)
 
-    va_g = torch.tensor(valphas_np, dtype=torch.float32, device=device)
+    va_g = torch.tensor(valphas_np, dtype=torch.float64, device=device)
     for ua in torch.unique(va_g):
         selvox = (va_g == ua).nonzero(as_tuple=True)[0]
         D   = S / (S ** 2 + ua ** 2)
@@ -168,10 +168,10 @@ def bootstrap_ridge_gpu(
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print(f"[gpu_phase1] 预加载训练数据到 {device} ...", flush=True)
-    Rstim_g = torch.tensor(Rstim_np, dtype=torch.float32, device=device)
-    Rresp_g = torch.tensor(Rresp_np, dtype=torch.float32, device=device)
-    Pstim_g = torch.tensor(Pstim_np, dtype=torch.float32, device=device)
-    Presp_g = torch.tensor(Presp_np, dtype=torch.float32, device=device)
+    Rstim_g = torch.tensor(Rstim_np, dtype=torch.float64, device=device)
+    Rresp_g = torch.tensor(Rresp_np, dtype=torch.float64, device=device)
+    Pstim_g = torch.tensor(Pstim_np, dtype=torch.float64, device=device)
+    Presp_g = torch.tensor(Presp_np, dtype=torch.float64, device=device)
     if device.type == "cuda":
         used = torch.cuda.memory_allocated(device) / 1e9
         print(f"[gpu_phase1] GPU 显存已用: {used:.2f}GB", flush=True)
@@ -288,9 +288,9 @@ def main():
     t0 = time.time()
 
     corrs, valphas, bscorrs, valinds = bootstrap_ridge_gpu(
-        delRstim.astype(np.float32), zRresp.astype(np.float32),
-        delPstim.astype(np.float32), zPresp.astype(np.float32),
-        ALPHAS, NBOOTS, CHUNKLEN, NCHUNKS,
+        delRstim.astype(np.float64), zRresp.astype(np.float64),
+        delPstim.astype(np.float64), zPresp.astype(np.float64),
+        ALPHAS.astype(np.float64), NBOOTS, CHUNKLEN, NCHUNKS,
         singcutoff=SINGCUTOFF, use_corr=USE_CORR, device=device,
     )
 
@@ -309,7 +309,7 @@ def main():
         "sessions":     args.sessions,
         "test_stories": test_stories,
         "device":       str(device),
-        "dtype":        "float32",
+        "dtype":        "float64",
         "alphas":       "logspace(1,3,10)",
         "nboots":       NBOOTS,
         "chunklen":     CHUNKLEN,
