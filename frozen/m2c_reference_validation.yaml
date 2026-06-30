@@ -1,0 +1,71 @@
+# M2-C English1000 参照验证 —— 预注册的指标/种子/容差（执行重计算前冻结）
+#
+# 纪律：以下阈值在查看 Phase 1/2 实际结果前冻结。若 Phase 1 不通过，先定位差异
+# 来源（对齐/trim/FIR/故事划分/层数），不得直接放宽容差。任何阈值修改须记录原因
+# 与 git diff，并说明不是为了"凑过"。
+#
+# 参考产物（被试 UTS03，eng1000）：results/eng1000/UTS03/
+#   corrs.npz[arr_0]   (95556,) 体素相关（测试故事 wheretheressmoke），范围~[-0.56,0.70]
+#   valphas.npz[arr_0] (95556,) 每体素选定 alpha ∈ logspace(1,3,10)=[10,1000]
+
+subject: UTS03
+feature: eng1000
+reference_dir: results/eng1000/UTS03
+
+# ---------- Phase 1：严格复现 LeBel native 路径，对齐 corrs.npz（硬闸门）----------
+phase1_native:
+  description: 用 LeBel 原生设置重跑 eng1000，与历史 corrs.npz 对齐，验证数据+对齐+评分忠实。
+  # 原生设置（必须与产出 corrs.npz 的 encoding.py 一致；不是我们的冻结 spec）
+  native_settings:
+    code_path: encoding/encoding.py
+    sessions: [1, 2, 3, 4, 5]
+    train_test_split: sess_to_story.json   # 测试故事 = wheretheressmoke
+    alphas: logspace(1, 3, 10)             # [10 .. 1000]
+    nboots: 50
+    chunklen: 40
+    nchunks: 125
+    trim: 5
+    ndelays: 4                              # FIR 延迟 1..4 TR = 2/4/6/8 s
+    single_alpha: false
+    use_corr: false
+    pca: none                               # 原生路径无 PCA
+  # 我们这次重跑固定种子，保证我方可复现（历史 corrs.npz 的原始种子未知）
+  seed: 20260629
+  # 比较指标（对 bootstrap RNG 稳健）—— 硬闸门
+  metrics:
+    voxel_r_vector_pearson:                 # 我方 corrs 与参考 corrs 跨 95556 体素相关
+      threshold_min: 0.995
+    median_abs_delta_r:
+      threshold_max: 0.010
+    p95_abs_delta_r:
+      threshold_max: 0.050
+    valpha_within_1_grid_step_frac:         # 每体素 alpha 与参考相差 ≤1 网格档的比例
+      threshold_min: 0.85
+  on_fail: 定位差异来源（对齐/trim/FIR/划分），不放宽容差。
+
+# ---------- Phase 2：运行当前冻结 M2 spec，与 native 比较差异（描述性）----------
+phase2_frozen_spec:
+  description: 用冻结 spec（PCA-100 + himalaya + 3 折故事级 CV）跑 eng1000，记录与 native 的差异来源。
+  frozen_settings:                          # 取自 config.yaml / analysis_spec.yaml
+    pca_k: 100
+    pca_fit_scope: outer_training_stories_only
+    ridge_solver: himalaya
+    alpha_scope: per_voxel
+    lambda_grid: logspace(-2, 4, 13)
+    outer_folds: 3
+    split_unit: story
+    inner_folds: 2
+    fir_delays_seconds: [2, 4, 6, 8]
+    scoring_mask: ">100s ∩ FIR_valid"
+    roi_average: fisher_z
+  seed: 20260630                            # pca 种子（config.seeds.pca）
+  # 描述性比较（非 bit 对齐：CV 划分/PCA/solver 不同，体素测试集也不同）
+  comparisons:
+    spatial_pattern_pearson_vs_native:      # 冻结 spec 体素 r 与 native 体素 r 的空间相关
+      expected_min: 0.80                    # 期望高相关；低于则排查，不是硬闸门
+    roi_mean_r_sign: positive               # IFG/PT 的 fisher-z 平均 r 应为正且量级合理
+    leakage_checks:                          # 必须通过（硬性）
+      - pca_scaler_fit_on_training_folds_only
+      - no_test_story_in_training
+      - fir_shift_within_story_only
+  notes: 差异应可归因于 PCA/折数/solver/测试集定义；不可归因的偏差需排查。
