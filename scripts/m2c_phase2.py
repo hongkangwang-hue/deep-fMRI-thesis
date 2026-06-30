@@ -32,11 +32,14 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config_loader import load_config                 # noqa: E402
-from src.ridge.assemble import assemble_all_eng1000       # noqa: E402
 from src.ridge.pipeline import (                          # noqa: E402
-    run_fold, numpy_ridgecv_solver, himalaya_ridgecv_solver,
+    StoryData, run_fold, numpy_ridgecv_solver, himalaya_ridgecv_solver,
 )
 from src.ridge.score import roi_mean_r                    # noqa: E402
+from src.fmri.derivatives import load_response            # noqa: E402
+from src.fmri.trfile import (                              # noqa: E402
+    load_respdict, trimmed_tr_times, TRIM_FIRST, TRIM_LAST,
+)
 
 
 def spatial_pattern_pearson(a: np.ndarray, b: np.ndarray) -> float:
@@ -44,6 +47,33 @@ def spatial_pattern_pearson(a: np.ndarray, b: np.ndarray) -> float:
     a, b = np.asarray(a).ravel(), np.asarray(b).ravel()
     m = np.isfinite(a) & np.isfinite(b)
     return float(np.corrcoef(a[m], b[m])[0, 1])
+
+
+def assemble_eng1000(stories, subject, data_dir, respdict_path):
+    """组装 eng1000 特征 → {story: StoryData}（Phase 2 自包含，不改 assemble.py）。
+
+    eng1000 对**所有词**都有 985 维查找向量（非目标词子集），下采样与 native 完全相同：
+    import 调用原作者 encoding/feature_spaces.get_feature_space('eng1000', ...)（仅调用，
+    不修改），逐故事 Lanczos 到 TR；再 trim [10:-5] 对齐已 trim 的响应。
+    **不在此 z-score**——pipeline 的 StandardScaler 负责（fit 仅训练折，防泄漏）。
+    """
+    sys.path.insert(0, str(PROJECT_ROOT / "encoding"))
+    from feature_spaces import get_feature_space           # noqa: E402
+
+    respdict = load_respdict(respdict_path)
+    feat = get_feature_space("eng1000", stories)           # {story: (resps-pad, 985)}
+    out = {}
+    for s in stories:
+        X_full = np.asarray(feat[s], dtype=np.float64)
+        X = X_full[TRIM_FIRST: len(X_full) - TRIM_LAST]    # trim [10:-5]
+        Y = load_response(data_dir, subject, s).astype(np.float64)
+        trt = trimmed_tr_times(respdict[s])                # 真实 TR 中心时间（>100s 判定）
+        if not (X.shape[0] == Y.shape[0] == len(trt)):
+            raise ValueError(
+                f"[{s}] eng1000 行数不一致 X={X.shape[0]} Y={Y.shape[0]} "
+                f"tr_times={len(trt)}")
+        out[s] = StoryData(X=X, Y=Y, tr_times=trt)
+    return out
 
 
 def main():
@@ -75,9 +105,8 @@ def main():
     # 组装 eng1000（训练 83 + 测试 1）
     print("[phase2] 组装 eng1000 特征+响应 ...", flush=True)
     t0 = time.time()
-    story_data = assemble_all_eng1000(
+    story_data = assemble_eng1000(
         cv_stories + [held], args.subject, ds["data_dir"], ds["respdict"],
-        PROJECT_ROOT,
     )
     print(f"[phase2] 组装完成 {time.time()-t0:.1f}s", flush=True)
 
