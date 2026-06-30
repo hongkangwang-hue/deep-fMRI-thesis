@@ -35,7 +35,7 @@ def apply_zscore_and_hrf(stories, downsampled_feat, trim, ndelays):
 def get_response(stories, subject):
 	"""Get the subject"s fMRI response for stories."""
 	main_path = pathlib.Path(__file__).parent.parent.resolve()
-	subject_dir = join(DATA_DIR, "ds003020/derivative/preprocessed_data/%s" % subject)
+	subject_dir = join(DATA_DIR, "ds003020/derivatives/preprocessed_data/%s" % subject)
 	base = os.path.join(main_path, subject_dir)
 	resp = []
 	for story in stories:

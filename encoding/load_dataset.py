@@ -32,4 +32,4 @@ if __name__ == "__main__":
 	os.system("datalad clone https://github.com/OpenNeuroDatasets/ds003020")
 	if args.download_preprocess == True:
 		os.chdir("ds003020")
-		os.system("datalad get derivative")
+		os.system("datalad get derivatives/preprocessed_data")

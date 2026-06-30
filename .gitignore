@@ -5,6 +5,13 @@ encoding.egg-info
 # 语言模型特征缓存（体积过大，可重新提取，不进 git）
 cache/
 
+# 编码模型输出结果（大文件，可重新生成，不进 git）
+results/
+build/
+
+# 预训练语义模型数据（大文件，随原始数据包下载，不进 git）
+em_data/
+
 # Python 编译文件
 *.pyc
 *.pyo
