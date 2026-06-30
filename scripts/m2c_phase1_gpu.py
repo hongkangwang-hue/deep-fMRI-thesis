@@ -5,8 +5,9 @@ M2-C Phase 1 —— GPU 加速版（完全独立脚本，不调用原生 ridge.p
 encoding/ridge_utils/ridge.py，忠实复现以下细节：
   - bootstrap 抽样：chunk-based，与 LeBel bootstrap_ridge 协议相同
   - bootstrap 内评分：use_corr=False → R² with 平滑方差 (1+var)/2（LeBel 特有）
-  - 最终 corrs：Pearson r（对应 native return_wt=True → corrcoef 路径）
+  - 最终 corrs：sqrt(|R²|)·sign(R²)（对应 native return_wt=True, use_corr=False 路径）
   - 奇异值截断：singcutoff=1e-10
+  - 方差一律用 ddof=0（与 numpy .var(0) 一致；torch 默认 ddof=1，故手算）
 
 内存管理：float64 的响应矩阵达 7.2GB，超过 24GB 显存上限（含中间变量）。
 策略：只预加载小矩阵（Rstim/Pstim/Presp，合计 ~530MB）；
@@ -54,9 +55,18 @@ VOX_CHUNK  = 8000    # alpha 循环体素分块大小，控制峰值显存
 # GPU 核心函数
 # ---------------------------------------------------------------------------
 
+def _var0(x: torch.Tensor) -> torch.Tensor:
+    """ddof=0 方差，与 numpy `.var(0)` 一致。
+
+    torch `.var(0)` 默认 correction=1（ddof=1），而 LeBel 全程用 numpy 默认 ddof=0。
+    手算 ((x-mean)**2).mean(0) 既匹配 numpy 又不依赖 torch 版本（correction= kwarg 旧版不支持）。
+    """
+    return ((x - x.mean(0)) ** 2).mean(0)
+
+
 def _zs(x: torch.Tensor) -> torch.Tensor:
     """列 z-score（对应 LeBel `zs = lambda v: (v-v.mean(0))/v.std(0)`，ddof=0）。"""
-    return (x - x.mean(0)) / (x.std(0) + 1e-12)
+    return (x - x.mean(0)) / (torch.sqrt(_var0(x)) + 1e-12)
 
 
 def _ridge_corr_gpu(
@@ -102,7 +112,7 @@ def _ridge_corr_gpu(
 
     # 预计算（use_corr=False）
     if not use_corr:
-        PRresp_var = PRresp.var(0)
+        PRresp_var = _var0(PRresp)               # ddof=0，匹配 numpy
         smooth_var = (1.0 + PRresp_var) / 2.0
         del PRresp_var
     else:
@@ -122,7 +132,7 @@ def _ridge_corr_gpu(
                 del zpred
             else:
                 diff   = PRresp[:, vs:ve] - pred_chunk
-                resvar = diff.var(0)
+                resvar = _var0(diff)             # ddof=0，匹配 numpy
                 del diff
                 Rsq = 1.0 - resvar / smooth_var[vs:ve]
                 del resvar
@@ -149,10 +159,11 @@ def _final_corrs_gpu(
     device: torch.device,
 ) -> np.ndarray:
     """
-    全量训练数据计算最终 weights，返回 Pearson r。
+    全量训练数据计算最终 weights，返回 sqrt(|R²|)·sign(R²)。
 
-    对应 native return_wt=True 路径：
-      ridge(Rstim, Rresp, valphas) → wt；pred = Pstim @ wt；corrs = corrcoef
+    对应 native return_wt=True, use_corr=False 路径：
+      ridge(Rstim, Rresp, valphas) → wt；pred = Pstim @ wt
+      resvar=(Presp-pred).var(0); Rsq=1-resvar/Presp.var(0); corrs=sqrt(|Rsq|)·sign(Rsq)
     Rresp 在此处按需加载，用完即释放。
     """
     # 临时加载 Rresp（函数返回后由调用方 del）
@@ -387,7 +398,7 @@ def main():
         "use_corr":     USE_CORR,
         "vox_chunk":    args.vox_chunk,
         "corrs_shape":  list(corrs.shape),
-        "note":         "GPU float64；Rresp 按需传输；alpha 循环分块；最终 corrs 为 Pearson r",
+        "note":         "GPU float64；Rresp 按需传输；alpha 循环分块；最终 corrs=sqrt(|R²|)·sign(R²)；方差 ddof=0",
     }
     with open(join(save_location, "run_manifest.json"), "w") as f:
         json.dump(manifest, f, indent=2)
