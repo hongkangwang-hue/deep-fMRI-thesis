@@ -1,0 +1,51 @@
+{
+  "subject": "UTS03",
+  "xfm": "UTS03_auto",
+  "atlas": "aparc.a2009s",
+  "assignment_rule": "dominant_vertex_line_nearest",
+  "column_space": "thick_mask_95556_C_order",
+  "intersected_with": "voxel_mask_UTS03.npy",
+  "min_voxels_per_roi": 10,
+  "rois": {
+    "left_IFG": {
+      "labels": [
+        "G_front_inf-Opercular",
+        "G_front_inf-Triangul"
+      ],
+      "hemi": "L",
+      "n_columns": 768,
+      "n_components": 1,
+      "largest_component_frac": 1.0,
+      "centroid_zyx": [
+        25.6,
+        35.3,
+        62.2
+      ],
+      "passes_min_voxels": true
+    },
+    "bilateral_PT": {
+      "labels": [
+        "G_temp_sup-Plan_tempo"
+      ],
+      "hemi": "LR",
+      "n_columns": 341,
+      "n_components": 2,
+      "largest_component_frac": 0.584,
+      "centroid_zyx": [
+        26.9,
+        55.6,
+        45.2
+      ],
+      "passes_min_voxels": true
+    }
+  },
+  "provenance": {
+    "code_git_commit": "3b3d38fa66c69bdf6d9722e4bc358969410aaded",
+    "config_version": "v4.9-uts03-pilot",
+    "dataset_version": {
+      "dataset": "ds003020",
+      "git_commit": "cb7c536d471d48ff95a90f0531d5e2bdb910a77a",
+      "describe": "3.1.1"
+    }
+  }
+}
