@@ -66,18 +66,16 @@ def save_features(
             f"行数不一致: word_ids={n}, main={main.shape[0]}, "
             f"final={final.shape[0]}, is_unk={is_unk.shape[0]}"
         )
-    if main.shape[1] != final.shape[1]:
-        raise ValueError(
-            f"主层/最终层 hidden 宽度不一致: {main.shape[1]} vs {final.shape[1]}"
-        )
-
+    # 注意：主层与最终层宽度可以不同（AWD-LSTM 主层=1152、最终层=400），
+    # 因此这里分别记录，不做等宽断言。
     meta_core = {
         "schema_version": CACHE_SCHEMA_VERSION,
         "model": model,
         "story": story,
         "H": H,
         "n_targets": n,
-        "hidden_width": int(main.shape[1]),
+        "hidden_width_main": int(main.shape[1]),
+        "hidden_width_final": int(final.shape[1]),
         **{k: meta[k] for k in sorted(meta)},
     }
     meta_core["content_hash"] = _content_hash(word_ids, main, final, meta_core)

@@ -81,7 +81,7 @@ def extract_story_model(
                 "word_local_id": int(local_id), "H": H,
                 "target_token_index": rep.target_token_index,
                 "n_tokens": rep.n_tokens,
-                "n_target_subtokens": 1,
+                "n_target_subtokens": rep.n_target_subtokens,
                 "is_unk": rep.is_unk,
             })
         elapsed = time.perf_counter() - t0

@@ -34,10 +34,11 @@ class LayerSpec:
 @dataclass
 class WindowRepr:
     """单个目标词在某 H 下的双层表示与诊断信息。"""
-    main: np.ndarray            # shape (hidden,)
-    final: np.ndarray           # shape (hidden,)
+    main: np.ndarray            # shape (hidden_main,)
+    final: np.ndarray           # shape (hidden_final,)；宽度可与 main 不同
     n_tokens: int               # 该窗口 tokenize 后的 token 数
     target_token_index: int     # 目标词最后一个 subtoken 在序列中的位置
+    n_target_subtokens: int = 1 # 目标词被切成几个 subtoken（BPE 可 >1）
     is_unk: bool = False        # 目标词是否被映射为 unk（AWD-LSTM xxunk）
 
 
@@ -108,7 +109,24 @@ class ModelAdapter(ABC):
             final=np.asarray(hidden[layers.final][target_tok], dtype=np.float32),
             n_tokens=len(token_ids),
             target_token_index=target_tok,
+            n_target_subtokens=target_end - target_start,
             is_unk=bool(is_unk[-1]),
+        )
+
+    def extract_inheriting_state(
+        self, words: list[str], i: int, H: int, layers: LayerSpec
+    ) -> WindowRepr:
+        """【状态重置反向测试用】故意把前一窗口的循环状态带入目标窗口。
+
+        正式提取路径绝不调用本方法；它只为单元测试证明「若不重置状态，输出会
+        不同」——即状态重置确实有意义。循环模型（RWKV/Mamba/AWD-LSTM）必须在
+        AutoDL 上用各自的 state/cache_params API 重写本方法；Transformer 无跨窗
+        状态，反向测试不适用。
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} 尚未实现状态继承路径；"
+            f"需在 AutoDL 上用该模型的 state/cache API 重写（里程碑要求的"
+            f"状态重置反向测试）。"
         )
 
     def audit_row(self) -> dict:

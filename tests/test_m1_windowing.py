@@ -149,15 +149,21 @@ class FakeAdapter(ModelAdapter):
             out[layer] = arr
         return out
 
-    def inherit_then_extract(self, words, i, H, layers):
-        """不重置、注入非零状态 → 用于反向测试。"""
+    def extract_inheriting_state(self, words, i, H, layers):
+        """不重置、注入非零状态 → 实现基类的反向测试契约。"""
         from src.models.windowing import build_window
+        from src.models.base import WindowRepr
         window = build_window(words, i, H)
-        self._carry = 99.0  # 故意继承
+        self._carry = 99.0  # 故意继承，不调用 reset_state()
         token_ids, spans, is_unk = self.tokenize_with_spans(window)
         hidden = self.forward_hidden(token_ids, layers)
         ts, te = spans[-1]
-        return hidden[layers.main][te - 1]
+        return WindowRepr(
+            main=hidden[layers.main][te - 1],
+            final=hidden[layers.final][te - 1],
+            n_tokens=len(token_ids), target_token_index=te - 1,
+            n_target_subtokens=te - ts, is_unk=is_unk[-1],
+        )
 
 
 def test_extract_last_subtoken_pooling():
@@ -182,8 +188,30 @@ def test_state_reset_positive_and_negative():
     r2 = a.extract(words, 150, 128, layers)
     assert np.allclose(r1.main, r2.main)
     # 反向：故意继承上一窗状态 → 不同
-    inherited = a.inherit_then_extract(words, 150, 128, layers)
-    assert not np.allclose(r1.main, inherited)
+    inherited = a.extract_inheriting_state(words, 150, 128, layers)
+    assert not np.allclose(r1.main, inherited.main)
+
+
+def test_real_adapter_inherit_state_not_implemented():
+    """真实适配器在 AutoDL 重写前，状态继承路径应明确报 NotImplementedError，
+    而不是静默给出可能错误的结果。"""
+    from src.models.base import ModelAdapter
+
+    class Bare(ModelAdapter):
+        is_recurrent = True
+        model_id = "bare"; revision = "0"; hidden_width = 4; n_layers = 1
+        def load(self): pass
+        def reset_state(self): pass
+        def tokenize_with_spans(self, words):
+            return list(range(len(words))), [(k, k+1) for k in range(len(words))], [False]*len(words)
+        def forward_hidden(self, token_ids, layers):
+            import numpy as np
+            return {layers.main: np.zeros((len(token_ids), 4), np.float32),
+                    layers.final: np.zeros((len(token_ids), 4), np.float32)}
+
+    words = [f"w{k}" for k in range(200)]
+    with pytest.raises(NotImplementedError):
+        Bare().extract_inheriting_state(words, 150, 128, LayerSpec(1, 0))
 
 
 # ── 缓存 round-trip 与 hash 校验 ─────────────────────────────────────────────
@@ -201,6 +229,62 @@ def test_feature_cache_roundtrip(tmp_path):
     assert np.array_equal(loaded["word_ids"], wid)
     assert np.allclose(loaded["main"], main)
     assert loaded["meta"]["model_id"] == "fake"
+
+
+def test_feature_cache_allows_different_layer_widths(tmp_path):
+    """L1 回归：AWD-LSTM 主层(1152)与最终层(400)宽度不同，必须能正常缓存。"""
+    n = 20
+    main = np.random.randn(n, 1152).astype(np.float32)
+    final = np.random.randn(n, 400).astype(np.float32)
+    meta = {"model_id": "awd_lstm", "revision": "0", "layer_main": 1,
+            "layer_final": 2, "code_version": "test"}
+    save_features(tmp_path, "awd_lstm", "s1", 8, np.arange(n), main, final,
+                  np.zeros(n, bool), meta)
+    loaded = load_features(tmp_path, "awd_lstm", "s1", 8)
+    assert loaded["main"].shape == (n, 1152)
+    assert loaded["final"].shape == (n, 400)
+    assert loaded["meta"]["hidden_width_main"] == 1152
+    assert loaded["meta"]["hidden_width_final"] == 400
+
+
+def test_multi_subtoken_target_recorded():
+    """L2 回归：目标词被切成多个 subtoken 时，n_target_subtokens 须真实记录，
+    且取最后一个 subtoken 作为目标表示。"""
+    from src.models.base import ModelAdapter
+
+    class MultiSubtokAdapter(ModelAdapter):
+        is_recurrent = False
+        model_id = "ms"; revision = "0"; hidden_width = 3; n_layers = 2
+        def load(self): pass
+        def reset_state(self): pass
+        def tokenize_with_spans(self, words):
+            # 让最后一个词切成 3 个 subtoken，其余各 1 个
+            token_ids, spans, is_unk = [], [], []
+            for k, w in enumerate(words):
+                n_sub = 3 if k == len(words) - 1 else 1
+                start = len(token_ids)
+                token_ids.extend([k] * n_sub)
+                spans.append((start, start + n_sub))
+                is_unk.append(False)
+            return token_ids, spans, is_unk
+        def forward_hidden(self, token_ids, layers):
+            n = len(token_ids)
+            out = {}
+            for layer in {layers.main, layers.final}:
+                arr = np.zeros((n, 3), np.float32)
+                for t in range(n):
+                    arr[t, 0] = t
+                out[layer] = arr
+            return out
+
+    words = [f"w{k}" for k in range(200)]
+    rep = MultiSubtokAdapter().extract(words, 150, 8, LayerSpec(1, 0))
+    assert rep.n_target_subtokens == 3
+    # 窗口 9 个词 → 前 8 词各 1 token + 末词 3 token = 11 个 token
+    assert rep.n_tokens == 11
+    # 目标取末词最后一个 subtoken → index 10
+    assert rep.target_token_index == 10
+    assert rep.main[0] == 10
 
 
 def test_feature_cache_detects_tampering(tmp_path):
