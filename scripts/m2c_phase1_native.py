@@ -61,8 +61,8 @@ def main():
 
     save_location = join(PROJECT_ROOT, "results", args.out_name, args.subject)
     os.makedirs(save_location, exist_ok=True)
-    print(f"[phase1] 输出: {save_location}  (种子={args.seed})")
-    print(f"[phase1] train={len(train_stories)} 故事, test={test_stories}")
+    print(f"[phase1] 输出: {save_location}  (种子={args.seed})", flush=True)
+    print(f"[phase1] train={len(train_stories)} 故事, test={test_stories}", flush=True)
 
     feat = get_feature_space(args.feature, allstories)
     delRstim = apply_zscore_and_hrf(train_stories, feat, TRIM, NDELAYS)
@@ -70,7 +70,8 @@ def main():
     zRresp = get_response(train_stories, args.subject)
     zPresp = get_response(test_stories, args.subject)
     print(f"[phase1] delRstim{delRstim.shape} delPstim{delPstim.shape} "
-          f"zRresp{zRresp.shape} zPresp{zPresp.shape}")
+          f"zRresp{zRresp.shape} zPresp{zPresp.shape}", flush=True)
+    print("[phase1] 开始 bootstrap_ridge ...", flush=True)
 
     wt, corrs, valphas, bscorrs, valinds = bootstrap_ridge(
         delRstim, zRresp, delPstim, zPresp, ALPHAS, NBOOTS, CHUNKLEN, NCHUNKS,
@@ -92,10 +93,10 @@ def main():
     with open(join(save_location, "run_manifest.json"), "w") as f:
         json.dump(manifest, f, indent=2)
     print(f"[phase1] corrs{corrs.shape} mean={np.nanmean(corrs):.4f} "
-          f"max={np.nanmax(corrs):.4f} → 已保存")
+          f"max={np.nanmax(corrs):.4f} → 已保存", flush=True)
     print(f"[phase1] 下一步: python scripts/m2c_compare.py "
           f"--ours {save_location}/corrs.npz "
-          f"--ours-valphas {save_location}/valphas.npz")
+          f"--ours-valphas {save_location}/valphas.npz", flush=True)
 
 
 if __name__ == "__main__":
