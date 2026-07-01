@@ -132,13 +132,17 @@ def himalaya_ridgecv_solver(
     """
     from himalaya.ridge import RidgeCV
     from himalaya.backend import set_backend
+    from himalaya.scoring import correlation_score
     from sklearn.model_selection import KFold
 
-    set_backend("torch_cuda", on_error="warn")
+    # set_backend 返回 backend 对象；用其 to_numpy 把 CUDA tensor 转回 numpy，
+    # 否则 np.asarray(cuda_tensor) 会抛 "can't convert cuda tensor to numpy"。
+    backend = set_backend("torch_cuda", on_error="warn")
     cv = KFold(n_splits=inner_folds)     # 时间序列连续块，不打乱
     model = RidgeCV(
         alphas=lambda_grid, cv=cv, fit_intercept=False,
         solver_params=dict(
+            score_func=correlation_score,  # spec: selection_metric=validation_pearson_r
             local_alpha=True,           # per-voxel alpha（spec: alpha_scope=per_voxel）
             n_targets_batch=5000,       # 95556 体素分块，避免全量摊平 OOM
             n_targets_batch_refit=2000, # 全训练集 refit 阶段同样分块
@@ -147,9 +151,9 @@ def himalaya_ridgecv_solver(
         ),
     )
     model.fit(Xtr, Ytr)
-    pred_te = np.asarray(model.predict(Xte))
-    best_lambdas = np.asarray(model.best_alphas_)
-    return pred_te, best_lambdas
+    pred_te = backend.to_numpy(model.predict(Xte))
+    best_lambdas = backend.to_numpy(model.best_alphas_)
+    return np.asarray(pred_te), np.asarray(best_lambdas)
 
 
 # ---------------------------------------------------------------------------
