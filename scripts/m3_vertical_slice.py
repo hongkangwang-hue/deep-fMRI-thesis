@@ -60,6 +60,10 @@ def main():
                     help="默认取 config.seeds.pca")
     ap.add_argument("--out-name", default=None,
                     help="默认 m3_<model>_H<H>_<layer>")
+    ap.add_argument("--dtype", default="float32", choices=["float32", "float64"],
+                    help="特征/响应精度。M3/M4 描述性实验默认 float32（GPU 快 2-8×、"
+                         "内存减半）；Phase1 已用 float64 验证过忠实度，主实验只比模型间 Δr，"
+                         "float32 精度差对所有模型一致、不影响相对比较。")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -87,7 +91,12 @@ def main():
         paths["cache_dir"], ds["data_dir"], ds["respdict"],
         Path(paths["frozen_dir"]) / "word_index.parquet",
     )
-    print(f"[m3] 组装完成 {time.time()-t0:.1f}s", flush=True)
+    # 特征/响应转指定精度（float32 加速 GPU ridge + 内存减半）；tr_times 保持 float64
+    dt = np.dtype(args.dtype)
+    for s in story_data:
+        story_data[s].X = story_data[s].X.astype(dt)
+        story_data[s].Y = story_data[s].Y.astype(dt)
+    print(f"[m3] 组装完成 {time.time()-t0:.1f}s，精度={args.dtype}", flush=True)
 
     print("[m3] 开始 3 折编码 CV ...", flush=True)
     t0 = time.time()
@@ -110,6 +119,7 @@ def main():
         "voxel_r_mean": float(np.nanmean(result.voxel_r)),
         "voxel_r_max": float(np.nanmax(result.voxel_r)),
         "roi_mean_r": roi_summary,
+        "dtype": args.dtype,
         "spec": "frozen/analysis_spec.yaml",
         "alignment": "plan_A_target_words_only",
     }
