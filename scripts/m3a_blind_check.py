@@ -56,11 +56,13 @@ def fit_inner_lambdas(Xtr_f, Ytr, lambda_grid, inner_folds):
         ),
     )
     model.fit(Xtr_f, Ytr)      # inner CV 全程只在训练折内，不触及 held-out
-    return np.asarray(backend.to_numpy(model.best_alphas_))
+    lambdas = np.asarray(backend.to_numpy(model.best_alphas_))
+    cv_scores = np.asarray(backend.to_numpy(model.cv_scores_))  # 每体素最佳λ的inner-CV分
+    return lambdas, cv_scores
 
 
 def diagnose_fold(fold_name, train_stories, story_data, lambda_grid,
-                  pca_k, inner_folds, seed, dtype):
+                  pca_k, inner_folds, seed, dtype, signal_threshold):
     """对单个 fold 的训练故事做盲态数值诊断，返回诊断 dict（无 held-out r）。"""
     t0 = time.time()
     # scaler + PCA 仅在训练故事上 fit
@@ -84,15 +86,31 @@ def diagnose_fold(fold_name, train_stories, story_data, lambda_grid,
 
     print(f"[m3a] {fold_name} 训练={len(train_stories)}故事 "
           f"Xtr={Xtr_f.shape} PCA方差={evr:.4f}，inner-CV 拟合中...", flush=True)
-    lambdas = fit_inner_lambdas(Xtr_f, Ytr, lambda_grid, inner_folds)
+    lambdas, cv_scores = fit_inner_lambdas(Xtr_f, Ytr, lambda_grid, inner_folds)
 
-    # λ 边界命中率
     lam_min, lam_max = float(lambda_grid.min()), float(lambda_grid.max())
-    hit_min = float((lambdas <= lam_min * (1 + 1e-6)).mean())
-    hit_max = float((lambdas >= lam_max * (1 - 1e-6)).mean())
+    at_min = lambdas <= lam_min * (1 + 1e-6)
+    at_max = lambdas >= lam_max * (1 - 1e-6)
+    hit_min = float(at_min.mean())
+    hit_max = float(at_max.mean())
     # 每档直方图
     hist = {f"{g:.4g}": int((np.abs(lambdas - g) < g * 1e-6).sum())
             for g in lambda_grid}
+
+    # 关键：按 inner-CV score 分层看边界命中率。全脑边界命中率会被大量无信号噪声
+    # 体素（正确行为=选最大λ把预测压到0）拉高，不能作为网格够不够的判据；真正
+    # 重要的是**有信号体素**（inner-CV score 高）的 λ 是否落在网格内部。
+    layers = {}
+    for thr in sorted({0.0, 0.05, 0.10, 0.20, round(signal_threshold, 2)}):
+        sig = cv_scores > thr
+        n = int(sig.sum())
+        layers[f"cv>{thr:.2f}"] = {
+            "n_voxels": n,
+            "frac_of_all": float(n / len(cv_scores)),
+            "hit_min_frac": float(at_min[sig].mean()) if n else 0.0,
+            "hit_max_frac": float(at_max[sig].mean()) if n else 0.0,
+            "boundary_hit_frac": float((at_min[sig] | at_max[sig]).mean()) if n else 0.0,
+        }
 
     diag = {
         "fold": fold_name,
@@ -107,13 +125,21 @@ def diagnose_fold(fold_name, train_stories, story_data, lambda_grid,
         "lambda_grid_max": lam_max,
         "lambda_hit_min_frac": hit_min,
         "lambda_hit_max_frac": hit_max,
-        "lambda_boundary_hit_frac": hit_min + hit_max,
+        "lambda_boundary_hit_frac": hit_min + hit_max,  # 全脑（含噪声体素）
         "lambda_hist": hist,
+        "cv_score_max": float(cv_scores.max()),
+        "cv_score_p99": float(np.percentile(cv_scores, 99)),
+        "boundary_hit_by_signal_layer": layers,  # 按信号强度分层（真正的判据）
         "seconds": round(time.time() - t0, 1),
     }
-    print(f"[m3a] {fold_name} λ边界命中: min={hit_min:.3f} max={hit_max:.3f} "
-          f"(合计{hit_min+hit_max:.3f})  NaN(X/Y)={n_nan_Xf}/{n_nan_Y} "
-          f"零方差Y={n_zerovar_Y}  {diag['seconds']}s", flush=True)
+    sig_layer = layers[f"cv>{signal_threshold:.2f}"]
+    print(f"[m3a] {fold_name} 全脑λ边界命中={hit_min+hit_max:.3f} "
+          f"| 信号体素(cv>{signal_threshold:.2f}, n={sig_layer['n_voxels']}) 边界命中="
+          f"{sig_layer['boundary_hit_frac']:.3f} "
+          f"(上界{sig_layer['hit_max_frac']:.3f}/下界{sig_layer['hit_min_frac']:.3f})",
+          flush=True)
+    print(f"[m3a] {fold_name} NaN(X/Y)={n_nan_Xf}/{n_nan_Y} 零方差Y={n_zerovar_Y} "
+          f"cv_max={cv_scores.max():.3f}  {diag['seconds']}s", flush=True)
     return diag
 
 
@@ -127,7 +153,10 @@ def main():
     ap.add_argument("--folds", nargs="+", default=None,
                     help="只诊断指定 fold（如 fold_0）；默认全部")
     ap.add_argument("--boundary-warn", type=float, default=0.05,
-                    help="λ 边界命中率超过此比例则提示需考虑扩网格")
+                    help="信号体素 λ 边界命中率超过此比例则提示需扩网格")
+    ap.add_argument("--signal-cv-threshold", type=float, default=0.10,
+                    help="判定'有信号体素'的 inner-CV score 阈值（默认 0.10）；"
+                         "只有这些体素的边界命中率才作为网格是否够宽的判据")
     ap.add_argument("--lambda-log-min", type=float, default=-2,
                     help="探索用 λ 网格下界指数（默认 -2，与冻结 spec 一致）")
     ap.add_argument("--lambda-log-max", type=float, default=4,
@@ -171,14 +200,24 @@ def main():
     )
 
     diags = [diagnose_fold(fn, train_by_fold[fn], story_data, lambda_grid,
-                           PCA_K, INNER_FOLDS, seed, dt)
+                           PCA_K, INNER_FOLDS, seed, dt, args.signal_cv_threshold)
              for fn in fold_names]
 
-    max_boundary = max(d["lambda_boundary_hit_frac"] for d in diags)
+    # 全脑边界命中率（会被无信号噪声体素拉高，仅供参考）
+    max_boundary_all = max(d["lambda_boundary_hit_frac"] for d in diags)
+    # 真正的判据：有信号体素（cv>0.1）的边界命中率
+    sig_key = f"cv>{args.signal_cv_threshold:.2f}"
+    max_boundary_sig = max(
+        d["boundary_hit_by_signal_layer"][sig_key]["boundary_hit_frac"] for d in diags)
+    min_sig_voxels = min(
+        d["boundary_hit_by_signal_layer"][sig_key]["n_voxels"] for d in diags)
     verdict = {
-        "max_lambda_boundary_hit_frac": max_boundary,
+        "criterion": f"signal-voxel ({sig_key}) boundary hit rate <= {args.boundary_warn}",
+        "max_boundary_hit_signal_voxels": max_boundary_sig,
+        "max_boundary_hit_all_voxels": max_boundary_all,
         "boundary_warn_threshold": args.boundary_warn,
-        "grid_ok": bool(max_boundary <= args.boundary_warn),
+        "min_signal_voxels_per_fold": min_sig_voxels,
+        "grid_ok_for_signal_voxels": bool(max_boundary_sig <= args.boundary_warn),
         "any_nan": any(d["n_nan_X_postFIR"] or d["n_nan_Y"] for d in diags),
         "any_zerovar_Y": any(d["n_zerovar_Y_cols"] for d in diags),
     }
@@ -201,10 +240,14 @@ def main():
     with open(out_path, "w") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
+    ok = verdict["grid_ok_for_signal_voxels"]
     print("\n[m3a] === 盲态核查判定 ===", flush=True)
-    print(f"[m3a] λ 边界最高命中率 = {max_boundary:.4f} "
-          f"({'OK ≤' if verdict['grid_ok'] else '⚠️ 超'}{args.boundary_warn}"
-          f"，{'网格够宽' if verdict['grid_ok'] else '需依 inner-validation 考虑扩网格并重新冻结'})",
+    print(f"[m3a] 全脑 λ 边界命中率 = {max_boundary_all:.4f}（含大量无信号噪声体素，仅参考）",
+          flush=True)
+    print(f"[m3a] 信号体素({sig_key}, 每折≥{min_sig_voxels}个) 边界命中率 = "
+          f"{max_boundary_sig:.4f} "
+          f"({'OK ≤' if ok else '⚠️ 超'}{args.boundary_warn}"
+          f"，{'网格对信号体素够宽，可冻结进 M3b' if ok else '信号体素也大量撞界，需扩网格并重新冻结'})",
           flush=True)
     print(f"[m3a] NaN: {'有⚠️' if verdict['any_nan'] else '无'}  "
           f"零方差Y: {'有⚠️' if verdict['any_zerovar_Y'] else '无'}", flush=True)
