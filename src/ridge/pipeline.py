@@ -16,6 +16,7 @@ M3 / M2-C Phase 2 编码管线核心 —— 防泄漏的故事级 3 折 CV。
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -181,8 +182,19 @@ def run_fold(story_data: dict[str, StoryData],
              train_stories: list[str], test_stories: list[str],
              solver, *, pca_k=PCA_K, lambda_grid=LAMBDA_GRID,
              inner_folds=INNER_FOLDS, delays_s=DELAYS_S, tr=TR_SECONDS,
-             after_s=AFTER_S, seed=0) -> FoldResult:
-    """单外折：训练折 fit scaler/PCA/ridge，测试折打分。全程无泄漏。"""
+             after_s=AFTER_S, seed=0, verbose=True, tag="") -> FoldResult:
+    """单外折：训练折 fit scaler/PCA/ridge，测试折打分。全程无泄漏。
+
+    verbose=True 时打印各阶段起止（scaler/PCA、FIR、solver 调用），避免
+    himalaya fit() 期间日志长时间静默让人误以为卡死。solver 内部本身仍是
+    黑箱，但至少能看到是哪个阶段、哪一折在跑、耗时多久。
+    """
+    t0 = time.time()
+    pfx = f"[fold{tag}]" if tag else "[fold]"
+    if verbose:
+        print(f"{pfx} 训练={len(train_stories)}故事 测试={test_stories} "
+              f"PCA/scaler 拟合中...", flush=True)
+
     # 1) scaler + PCA 仅在训练故事的 pre-FIR 特征上 fit
     Xtr_raw = np.vstack([story_data[s].X for s in train_stories])
     scaler = StandardScaler().fit(Xtr_raw)
@@ -207,9 +219,19 @@ def run_fold(story_data: dict[str, StoryData],
         off += L
     score_mask = np.concatenate(score_mask_parts)
 
+    if verbose:
+        print(f"{pfx} 特征就绪 Xtr={Xtr_f.shape} Xte={Xte_f.shape} "
+              f"({time.time()-t0:.1f}s)，调用 solver.fit()（无逐次打印，"
+              f"可 nvidia-smi 观察 GPU 是否在动）...", flush=True)
+
     # 4) ridge：训练折拟合，测试折全量预测，再按评分 mask 取子集算 r
+    t_solver = time.time()
     pred_te, valphas = solver(Xtr_f, Ytr, Xte_f, lambda_grid, inner_folds, seed)
     r = voxelwise_pearson(pred_te[score_mask], Yte[score_mask])
+
+    if verbose:
+        print(f"{pfx} 完成 solver={time.time()-t_solver:.1f}s "
+              f"总计={time.time()-t0:.1f}s mean_r={r.mean():.4f}", flush=True)
 
     return FoldResult(test_stories=list(test_stories), voxel_r=r,
                       valphas=valphas, n_eff_tr=int(score_mask.sum()))
@@ -217,10 +239,14 @@ def run_fold(story_data: dict[str, StoryData],
 
 def run_encoding_cv(story_data: dict[str, StoryData],
                     folds: list[tuple[list[str], list[str]]],
-                    solver, **kw) -> CVResult:
+                    solver, *, verbose=True, **kw) -> CVResult:
     """全 3 折 CV：逐折 run_fold，按有效 TR 数加权平均每体素 r。"""
-    fold_results = [run_fold(story_data, tr_s, te_s, solver, **kw)
-                    for tr_s, te_s in folds]
+    fold_results = []
+    for i, (tr_s, te_s) in enumerate(folds, 1):
+        if verbose:
+            print(f"[cv] === 折 {i}/{len(folds)} ===", flush=True)
+        fold_results.append(run_fold(story_data, tr_s, te_s, solver,
+                                     verbose=verbose, tag=f" {i}/{len(folds)}", **kw))
     voxel_r = effective_tr_weighted_mean(
         [fr.voxel_r for fr in fold_results],
         [fr.n_eff_tr for fr in fold_results],
