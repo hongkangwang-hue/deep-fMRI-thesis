@@ -143,7 +143,9 @@ def main():
     seed = cfg["seeds"]["pca"]
     dt = np.dtype(args.dtype)
     lambda_grid = np.logspace(args.lambda_log_min, args.lambda_log_max, args.lambda_n)
-    if not np.allclose(lambda_grid, LAMBDA_GRID):
+    is_frozen_grid = (lambda_grid.shape == LAMBDA_GRID.shape
+                      and np.allclose(lambda_grid, LAMBDA_GRID))
+    if not is_frozen_grid:
         print(f"[m3a] ⚠️ 使用探索性网格 logspace({args.lambda_log_min},"
               f"{args.lambda_log_max},{args.lambda_n}) = "
               f"[{lambda_grid.min():.4g},{lambda_grid.max():.4g}]，"
@@ -187,7 +189,7 @@ def main():
         "model": args.model, "H": args.H, "layer": args.layer,
         "subject": args.subject, "dtype": args.dtype, "seed": seed,
         "lambda_grid": f"logspace({args.lambda_log_min},{args.lambda_log_max},{args.lambda_n})",
-        "lambda_grid_is_frozen_spec": bool(np.allclose(lambda_grid, LAMBDA_GRID)),
+        "lambda_grid_is_frozen_spec": bool(is_frozen_grid),
         "pca_k": PCA_K,
         "inner_folds": INNER_FOLDS,
         "folds": diags, "verdict": verdict,
