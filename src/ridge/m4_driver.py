@@ -124,15 +124,18 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
     already_done = len(fold_names) - len(pending)
     progress["done"] += already_done
 
-    for fn in pending:
+    for i, fn in enumerate(pending, 1):
+        cell_t0 = time.time()
         fold = fold_split["folds"][fn]
         train_s, test_s = list(fold["train_stories"]), list(fold["test_stories"])
         assert not (set(test_s) & set(train_s)), f"[{model}/H{H}/{fn}] 泄漏"
-        tag = f" {prefix}/{model}/H{H}/{fn}"
+        tag = f" {prefix}/{model}/H{H}/{fn}({i}/{len(pending)})"
         shift_valid = {s: valid_by_story[s] for s in test_s} if do_shift else None
 
+        t_normal = time.time()
         fr_normal = run_fold(story_data, train_s, test_s, solver, roi_columns=roi_cols,
                              seed=seed, tag=tag + "/normal", shift_valid_by_story=shift_valid)
+        elapsed_normal = time.time() - t_normal
         cell = {
             "layer": layer, "model": model, "H": H, "fold": fn, "subject": subject,
             "model_id": feat_meta.get("model_id"), "revision": feat_meta.get("revision"),
@@ -143,10 +146,13 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
             "leakage_audit_pass": True,
         }
         valphas = {"normal": fr_normal.valphas}
+        elapsed_seconds = {"normal": round(elapsed_normal, 1)}
 
         if do_shift:
+            t_shift = time.time()
             fr_shift = run_fold(shifted_data, train_s, test_s, solver, roi_columns=roi_cols,
                                 seed=seed, tag=tag + "/shift", shift_valid_by_story=shift_valid)
+            elapsed_seconds["shift"] = round(time.time() - t_shift, 1)
             common_mask_verified = fr_normal.n_eff_tr == fr_shift.n_eff_tr and all(
                 a.n_eff_tr == b.n_eff_tr and a.story == b.story
                 for a, b in zip(fr_normal.story_scores, fr_shift.story_scores))
@@ -158,13 +164,23 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
             cell["shift_differs_from_normal"] = bool(shift_differs)
             valphas["shift"] = fr_shift.valphas
 
+        cell_elapsed = time.time() - cell_t0
+        elapsed_seconds["cell_total"] = round(cell_elapsed, 1)
+        cell["elapsed_seconds"] = elapsed_seconds
+
         with open(cells_dir / f"{prefix}_{model}_H{H}_{fn}.json", "w") as f:
             json.dump(cell, f, indent=2, ensure_ascii=False)
         np.savez(cells_dir / f"valphas_{prefix}_{model}_H{H}_{fn}.npz", **valphas)
 
         progress["done"] += 1
-        print(f"[m4:{model}] 已保存 {prefix}_{model}_H{H}_{fn}.json "
-              f"（进度 {progress['done']}/{progress['total']}）", flush=True)
+        progress["computed"] += 1
+        progress["elapsed_sum"] += cell_elapsed
+        avg = progress["elapsed_sum"] / progress["computed"]
+        remaining = progress["total"] - progress["done"]
+        eta_min = avg * remaining / 60
+        print(f"[m4:{model}] 已保存 {prefix}_{model}_H{H}_{fn}.json 用时{cell_elapsed:.1f}s "
+              f"（进度 {progress['done']}/{progress['total']}，本次已算{progress['computed']}个"
+              f"均{avg:.1f}s/个，按此速率预计剩余约{eta_min:.1f}分钟）", flush=True)
 
     del story_data
     if shifted_data is not None:
@@ -177,7 +193,7 @@ def run_model_matrix(model: str, H_list: list[int], layers: list[str], fold_spli
                      out_dir: Path, skip_existing: bool, subject: str) -> None:
     """单模型的完整 H×layer×fold 循环——各模型入口脚本的唯一调用入口。"""
     total = len(H_list) * len(layers) * len(fold_split["folds"])
-    progress = {"done": 0, "total": total}
+    progress = {"done": 0, "total": total, "computed": 0, "elapsed_sum": 0.0}
     for H in H_list:
         for layer in layers:
             roi_cols = roi_cols_main if layer == "main" else roi_cols_final
@@ -221,6 +237,19 @@ def build_manifest(out_dir: Path, models: list[str], H_list: list[int],
         "6_manifest_traceable": all(c.get("revision") for c in main_cells.values())
                                and all(c.get("revision") for c in final_cells.values()),
     }
+    # 计时统计：已花总时间 + 按已完成单元均值粗估剩余时间（跨模型合并，供人工判断进度）
+    all_elapsed = [c["elapsed_seconds"]["cell_total"] for c in main_cells.values()
+                   if "elapsed_seconds" in c] + \
+                  [c["elapsed_seconds"]["cell_total"] for c in final_cells.values()
+                   if "elapsed_seconds" in c]
+    n_missing_total = len(main_missing) + len(final_missing)
+    timing = {"total_elapsed_seconds": round(sum(all_elapsed), 1),
+             "n_cells_timed": len(all_elapsed)}
+    if all_elapsed:
+        avg = sum(all_elapsed) / len(all_elapsed)
+        timing["avg_seconds_per_cell"] = round(avg, 1)
+        timing["est_remaining_minutes"] = round(avg * n_missing_total / 60, 1)
+
     manifest = {
         "phase": "M4 full matrix (single-subject deviation)",
         "frozen_condition": "3 subjects x 2 ROI(main layer) / 1 ROI(final layer, IFG) "
@@ -235,6 +264,7 @@ def build_manifest(out_dir: Path, models: list[str], H_list: list[int],
         "expected_cells_per_matrix": expected,
         "main_layer_cells_done": len(main_cells), "main_layer_missing": main_missing,
         "final_layer_cells_done": len(final_cells), "final_layer_missing": final_missing,
+        "timing": timing,
         "verdict": verdict,
         "verdict_all_pass": all(verdict.values()),
         "lambda_grid": "logspace(-2,7,19)", "lambda_grid_freeze_tag": "m3a-lambda-refreeze",
@@ -251,6 +281,11 @@ def build_manifest(out_dir: Path, models: list[str], H_list: list[int],
     print(f"[m4:aggregate] final层(IFG): {len(final_cells)}/{expected} 完成" +
           (f"  缺: {final_missing[:5]}{'...' if len(final_missing) > 5 else ''}"
            if final_missing else ""), flush=True)
+    if all_elapsed:
+        print(f"[m4:aggregate] 已花时间: {timing['total_elapsed_seconds']/60:.1f}分钟"
+              f"（{timing['n_cells_timed']}个单元，均{timing['avg_seconds_per_cell']:.1f}s/个），"
+              f"按此速率剩余{n_missing_total}个单元预计约{timing['est_remaining_minutes']:.1f}分钟",
+              flush=True)
     print(f"[m4:aggregate] 验收标准: {json.dumps(verdict, ensure_ascii=False)}", flush=True)
     print(f"[m4:aggregate] 全部通过: {'✅' if manifest['verdict_all_pass'] else '⚠️ 未完成/有未通过项'}",
           flush=True)
