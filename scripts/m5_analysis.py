@@ -46,19 +46,23 @@ def git_commit_hash() -> str:
 def load_bootstrap_data(cells_dir: Path, fold_stories: dict[str, list[str]]) -> BootstrapData:
     """扫描 M4 cells → 构造 BootstrapData，并程序化校验配对前提。
 
-    校验（验收任务1 / 标准3-4）：
+    校验（验收任务1 / 标准3-4-5）：
       - 每个 cell 的 per_story 覆盖该 fold 的全部 canonical story；
-      - 同一 (fold, story) 的 n_eff_tr 在所有 model/H/layer/condition 下一致
-        （共同 mask 只依赖时序，与特征无关；不一致即有 bug）。
+      - 每个 key 的 z/权重无缺失故事；
+      - **共同 mask 复核**：主层同一 (model,H,roi) 的 normal 与 shift 权重逐故事相等
+        （验收5：normal/shifted 用共同 mask）。注意权重**按 key 存**——主层（shift-
+        限制 mask）与最终层 normal（非限制 mask）每故事 n_eff 本就不同，不做跨层相等
+        断言（那是错误假设，会误报）。
     """
     folds = list(fold_stories.keys())
     story_pos = {f: {s: i for i, s in enumerate(ss)} for f, ss in fold_stories.items()}
-    weights = {f: np.full(len(ss), np.nan) for f, ss in fold_stories.items()}
     z: dict[tuple, dict[str, np.ndarray]] = {}
+    w: dict[tuple, dict[str, np.ndarray]] = {}
 
     def ensure_key(key):
         if key not in z:
             z[key] = {f: np.full(len(fold_stories[f]), np.nan) for f in folds}
+            w[key] = {f: np.full(len(fold_stories[f]), np.nan) for f in folds}
 
     def ingest(cell, cond):
         layer, model, H, fold = cell["layer"], cell["model"], cell["H"], cell["fold"]
@@ -69,25 +73,19 @@ def load_bootstrap_data(cells_dir: Path, fold_stories: dict[str, list[str]]) -> 
         for ps in cell[cond]["per_story"]:
             s = ps["story"]
             if s not in pos:
-                raise ValueError(f"[{cell['layer']}/{model}/H{H}/{fold}/{cond}] "
+                raise ValueError(f"[{layer}/{model}/H{H}/{fold}/{cond}] "
                                  f"故事 {s} 不在 fold_split 的 canonical 列表中")
             i = pos[s]
             seen.add(s)
-            w = float(ps["n_eff_tr"])
-            prev = weights[fold][i]
-            if np.isnan(prev):
-                weights[fold][i] = w
-            elif prev != w:
-                raise ValueError(
-                    f"[{fold}/{s}] n_eff_tr 不一致：{prev} vs {w}（来自 "
-                    f"{cell['layer']}/{model}/H{H}/{cond}）——共同 mask 应与模型/条件无关")
+            nw = float(ps["n_eff_tr"])
             for roi, rval in ps["roi_r"].items():
                 key = (layer, model, H, cond, roi)
                 ensure_key(key)
                 z[key][fold][i] = float(fisher_z(np.asarray(rval)))  # r → z（精确还原）
+                w[key][fold][i] = nw
         missing = set(fold_stories[fold]) - seen
         if missing:
-            raise ValueError(f"[{cell['layer']}/{model}/H{H}/{fold}/{cond}] "
+            raise ValueError(f"[{layer}/{model}/H{H}/{fold}/{cond}] "
                              f"缺少故事评分：{sorted(missing)}")
 
     for p in sorted(cells_dir.glob("main_*.json")):
@@ -98,17 +96,26 @@ def load_bootstrap_data(cells_dir: Path, fold_stories: dict[str, list[str]]) -> 
     for p in sorted(cells_dir.glob("final_*.json")):
         ingest(json.load(open(p)), "normal")
 
-    for f in folds:
-        if np.isnan(weights[f]).any():
-            bad = [fold_stories[f][i] for i in np.nonzero(np.isnan(weights[f]))[0]]
-            raise ValueError(f"[{f}] 有故事从未出现在任何 cell：{bad}")
+    # 每个 key 无缺失故事
     for key, byf in z.items():
         for f in folds:
             if np.isnan(byf[f]).any():
                 bad = [fold_stories[f][i] for i in np.nonzero(np.isnan(byf[f]))[0]]
                 raise ValueError(f"[{key}] fold {f} 缺故事 z：{bad}")
 
-    return BootstrapData(folds=folds, fold_stories=fold_stories, weights=weights, z=z)
+    # 验收5复核：主层 normal 与 shift 权重逐故事相等（共同 mask）
+    for key in z:
+        layer, model, H, cond, roi = key
+        if layer == "main" and cond == "normal":
+            shift_key = (layer, model, H, "shift", roi)
+            if shift_key in w:
+                for f in folds:
+                    if not np.array_equal(w[key][f], w[shift_key][f]):
+                        raise ValueError(
+                            f"[{model}/H{H}/{roi}/{f}] 主层 normal 与 shift 有效 TR 权重"
+                            f"不等 → 未用共同 mask（违反验收5）")
+
+    return BootstrapData(folds=folds, fold_stories=fold_stories, z=z, w=w)
 
 
 def layer_flip(ci_main: tuple, ci_final: tuple) -> dict:
@@ -199,19 +206,58 @@ def main():
         },
     }
 
-    # shifted 是否都算出（验收5）
+    # shifted 是否都算出（验收5 前半）
     shifted_names = execution_log["robustness"]["shifted_r_by_h"] + \
         [n for k in ("shifted_delta_local", "shifted_delta_total", "shifted_delta_long")
          for n in execution_log["robustness"][k]]
     shifted_all_finite = all(np.isfinite(estimands[n]["point"]) for n in shifted_names)
 
+    # 验收5 后半：shifted 若"稳定复制"架构效应（40s 位移后架构差值 CI 仍排除 0）→
+    # 反常，应触发解释限制/排查漂移伪影，而非当作机制证据。
+    def ci_excludes_zero(name):
+        e = estimands[name]
+        return np.isfinite(e["ci_lo"]) and np.isfinite(e["ci_hi"]) and (
+            (e["ci_lo"] > 0 and e["ci_hi"] > 0) or (e["ci_lo"] < 0 and e["ci_hi"] < 0))
+    shifted_arch = ["shifted_rwkv_minus_pythia_delta_total_ifg_main",
+                    "shifted_mamba_minus_pythia_delta_total_ifg_main"]
+    shifted_diagnostic = {
+        "shifted_architecture_contrasts": {n: {**estimands[n],
+                                               "ci_excludes_zero": bool(ci_excludes_zero(n))}
+                                          for n in shifted_arch},
+        "shifted_reproduces_architecture_effect": bool(any(ci_excludes_zero(n) for n in shifted_arch)),
+        "note": "若为 true：40s 位移未消除架构差值，需排查漂移/位置伪影，停止机制解释",
+    }
+
+    # 验收1：execution_log 里每个注册项映射的估计量都真实算出且有限（程序化，非自我声明）
+    def _leaves(x):
+        if isinstance(x, list):
+            return list(x)
+        if isinstance(x, dict):
+            return [n for v in x.values() for n in _leaves(v)]
+        return []
+    logged = _leaves(execution_log)
+    registry_complete = all(
+        n in estimands and np.isfinite(estimands[n]["point"]) for n in logged)
+
     verdict = {
-        "1_all_registry_entries_have_results": True,     # 见 execution_log 全部映射到已算 name
+        "1_all_registry_entries_have_results": bool(registry_complete),  # 逐条核对已算
         "2_rq1_by_hspecific_paired_diffs": True,          # 结构性：RQ1 用 {arch}_minus_pythia_r{H}
         "3_bootstrap_unit_is_story": True,                # 结构性：BootstrapData 抽样单位=story
         "4_same_indices_across_conditions": True,         # 结构性：paired_bootstrap 共用索引
         "5_shifted_computed": bool(shifted_all_finite),
         "6_layer_flip_by_opposite_nonzero_ci": True,      # 见 flips（规则实现，非点估计排名）
+    }
+
+    # 已知缺口：repeatability（交付物7）需 wheretheressmoke 逐次响应，现有 .hf5 只有
+    # 跨重复平均 → 数据不可得，暂缺（P1，不阻塞确认性主结论）。显式记录而非静默省略。
+    known_gaps = {
+        "ifg_pt_repeatability": {
+            "status": "not_computed",
+            "reason": "per-repeat responses for wheretheressmoke unavailable (only "
+                      "cross-repeat average in .hf5); repeatability is P1, does not block "
+                      "the two confirmatory contrasts. ROI interpretation reports base r / "
+                      "CI width / shift-drop without a repeatability ceiling.",
+        },
     }
 
     manifest = {
@@ -223,8 +269,10 @@ def main():
         "fwer_control": cfg["statistics"]["confirmatory_fwer_control"],
         "confirmatory": confirmatory,
         "layer_flip": flips,
+        "shifted_diagnostic": shifted_diagnostic,
         "estimands": estimands,
         "execution_log": execution_log,
+        "known_gaps": known_gaps,
         "verdict": verdict,
         "verdict_all_pass": all(verdict.values()),
     }
@@ -234,14 +282,15 @@ def main():
     with open(out_dir / "m5_results.json", "w") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
-    _print_summary(estimands, confirmatory, flips, shifted_all_finite, out_dir)
+    _print_summary(estimands, confirmatory, flips, shifted_all_finite,
+                   shifted_diagnostic, out_dir)
 
 
 def _fmt(e: dict) -> str:
     return f"{e['point']:+.4f} [{e['ci_lo']:+.4f}, {e['ci_hi']:+.4f}]"
 
 
-def _print_summary(estimands, confirmatory, flips, shifted_ok, out_dir):
+def _print_summary(estimands, confirmatory, flips, shifted_ok, shifted_diag, out_dir):
     print("\n[m5] === 确认性家族（IFG 主层 Δr_total 架构差值，Holm α=0.05） ===", flush=True)
     for n, e in confirmatory.items():
         star = "✅拒绝H0" if e["reject"] else "未拒绝"
@@ -263,6 +312,9 @@ def _print_summary(estimands, confirmatory, flips, shifted_ok, out_dir):
               f"实质翻转={'是' if fl['substantive_flip'] else '否'}", flush=True)
 
     print(f"\n[m5] shifted 负控制全部算出: {'✅' if shifted_ok else '⚠️ 有缺失/NaN'}", flush=True)
+    repro = shifted_diag["shifted_reproduces_architecture_effect"]
+    print(f"[m5] shifted 诊断: 40s位移后架构差值CI仍排除0 = {'⚠️ 是（需排查漂移伪影）' if repro else '否（符合预期，位移消除了效应）'}",
+          flush=True)
     print(f"[m5] 结果 → {out_dir / 'm5_results.json'}", flush=True)
 
 

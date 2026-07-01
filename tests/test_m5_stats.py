@@ -15,15 +15,17 @@ from src.stats.bootstrap import (
 
 
 def _toy_data():
-    """2 fold、每 fold 3 story。两个 key：A、B（B = A 每值 +0.5 z）。"""
+    """2 fold、每 fold 3 story。两个 key：A、B（B = A 每值 +0.5 z），共用同一权重。"""
     fold_stories = {"f0": ["s0", "s1", "s2"], "f1": ["t0", "t1", "t2"]}
-    weights = {"f0": np.array([10.0, 20.0, 30.0]), "f1": np.array([5.0, 5.0, 10.0])}
+    wv = {"f0": np.array([10.0, 20.0, 30.0]), "f1": np.array([5.0, 5.0, 10.0])}
     zA = {"f0": np.array([0.1, 0.2, 0.3]), "f1": np.array([0.0, 0.4, 0.2])}
     zB = {"f0": zA["f0"] + 0.5, "f1": zA["f1"] + 0.5}
-    z = {("main", "A", 8, "normal", "roi"): zA,
-         ("main", "B", 8, "normal", "roi"): zB}
-    return BootstrapData(folds=["f0", "f1"], fold_stories=fold_stories,
-                         weights=weights, z=z)
+    keyA = ("main", "A", 8, "normal", "roi")
+    keyB = ("main", "B", 8, "normal", "roi")
+    z = {keyA: zA, keyB: zB}
+    w = {keyA: {f: v.copy() for f, v in wv.items()},
+         keyB: {f: v.copy() for f, v in wv.items()}}
+    return BootstrapData(folds=["f0", "f1"], fold_stories=fold_stories, z=z, w=w)
 
 
 def test_aggregate_point_matches_manual():
@@ -35,7 +37,7 @@ def test_aggregate_point_matches_manual():
     f1z = (0.0 * 5 + 0.4 * 5 + 0.2 * 10) / 20
     # cross-fold weights = fold weight sums = 60, 20
     agg = (f0z * 60 + f1z * 20) / 80
-    assert aggregate_to_r(d.z[keyA], d.weights, idx) == pytest.approx(np.tanh(agg))
+    assert aggregate_to_r(d.z[keyA], d.w[keyA], idx) == pytest.approx(np.tanh(agg))
 
 
 def test_paired_self_difference_is_exactly_zero():

@@ -27,30 +27,34 @@ import numpy as np
 class BootstrapData:
     """配对 bootstrap 的输入（story 级 z 标量 + 权重，已按 fold 对齐）。
 
-    z 和 weights 的每个 per-fold 数组都按 fold_stories[fold] 的顺序对齐，故一次
-    重抽产生的整数索引可同时索引所有 key 的 z 与共享的 weights。
+    z 和 w 的每个 per-fold 数组都按 fold_stories[fold] 的顺序对齐，故一次重抽产生的
+    整数索引可同时索引所有 key。**权重按 key 存**（不是全局共享）：主层用 shift-限制
+    mask 的有效 TR，最终层 normal 用非限制 mask 的有效 TR，两者每故事 n_eff 不同；
+    配对靠"所有 key 共用同一组 story 索引"实现，与权重是否相同无关。
     """
     folds: list[str]                              # canonical fold 顺序
     fold_stories: dict[str, list[str]]            # fold -> canonical story 顺序
-    weights: dict[str, np.ndarray]                # fold -> <float>[n_story] 有效 TR 权重
     z: dict[tuple, dict[str, np.ndarray]]         # key -> fold -> <float>[n_story] z 标量
+    w: dict[tuple, dict[str, np.ndarray]]         # key -> fold -> <float>[n_story] 有效 TR 权重
 
     def keys(self):
         return self.z.keys()
 
 
 def aggregate_to_r(z_by_fold: dict[str, np.ndarray],
-                   weights: dict[str, np.ndarray],
+                   w_by_fold: dict[str, np.ndarray],
                    idx_by_fold: dict[str, np.ndarray]) -> float:
     """一个 (model,H,layer,condition,ROI) 的聚合 r：fold 内加权 z → 跨 fold 加权 z → tanh。
 
-    z_by_fold / weights 每个数组按同一 story 顺序对齐；idx_by_fold 给出该次重抽在每个
-    fold 的 story 行索引（点估计传 arange 即不重抽）。nan（空 ROI/无有效点）被跳过。
+    z_by_fold / w_by_fold 是**同一 key** 的 z 与权重，每数组按同一 story 顺序对齐；
+    idx_by_fold 给出该次重抽在每个 fold 的 story 行索引（点估计传 arange 即不重抽）。
+    nan（空 ROI/无有效点）被跳过。此聚合等价于 M4 的两层加权（fold 权重=fold 内有效
+    TR 和），故点估计精确复现 M4 的跨折 r。
     """
     fold_z, fold_w = [], []
     for fold, idx in idx_by_fold.items():
         zz = z_by_fold[fold][idx]
-        ww = weights[fold][idx]
+        ww = w_by_fold[fold][idx]
         m = np.isfinite(zz) & np.isfinite(ww)
         wsum = ww[m].sum()
         if not m.any() or wsum == 0:
@@ -84,14 +88,14 @@ def paired_bootstrap(
 
     # 点估计：不重抽
     id_idx = _identity_idx(data.fold_stories)
-    point_r = {k: aggregate_to_r(data.z[k], data.weights, id_idx) for k in data.keys()}
+    point_r = {k: aggregate_to_r(data.z[k], data.w[k], id_idx) for k in data.keys()}
     point_est = estimand_fn(point_r)
 
     draws = []
     for _ in range(n_boot):
         idx = {f: rng.integers(0, len(data.fold_stories[f]), len(data.fold_stories[f]))
                for f in data.folds}
-        r_tab = {k: aggregate_to_r(data.z[k], data.weights, idx) for k in data.keys()}
+        r_tab = {k: aggregate_to_r(data.z[k], data.w[k], idx) for k in data.keys()}
         draws.append(estimand_fn(r_tab))
     return point_est, draws
 
