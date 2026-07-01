@@ -123,15 +123,29 @@ def himalaya_ridgecv_solver(
     Xtr: np.ndarray, Ytr: np.ndarray, Xte: np.ndarray,
     lambda_grid: np.ndarray, inner_folds: int, seed: int,
 ):
-    """生产 solver：himalaya RidgeCV（per-target λ via inner CV）。惰性导入。"""
+    """生产 solver：himalaya RidgeCV（per-target λ via inner CV）。惰性导入。
+
+    显存管理：95556 体素若不分块，CV 内部 (n_samples, n_targets) 预测矩阵会
+    一次性摊平实例化，实测单次分配 18.27GB 导致 OOM（24GB 卡上无法容纳）。
+    用 solver_params 按体素/alpha 分块 + Y_in_cpu 保留响应在 CPU 按批传输，
+    思路与 Phase1 GPU 脚本的 vox_chunk 显存策略一致。
+    """
     from himalaya.ridge import RidgeCV
     from himalaya.backend import set_backend
-    from sklearn.model_selection import check_cv, KFold
+    from sklearn.model_selection import KFold
 
     set_backend("torch_cuda", on_error="warn")
     cv = KFold(n_splits=inner_folds)     # 时间序列连续块，不打乱
-    model = RidgeCV(alphas=lambda_grid, cv=cv,
-                    fit_intercept=False)
+    model = RidgeCV(
+        alphas=lambda_grid, cv=cv, fit_intercept=False,
+        solver_params=dict(
+            local_alpha=True,           # per-voxel alpha（spec: alpha_scope=per_voxel）
+            n_targets_batch=5000,       # 95556 体素分块，避免全量摊平 OOM
+            n_targets_batch_refit=2000, # 全训练集 refit 阶段同样分块
+            n_alphas_batch=5,           # 13 个 λ 也分块，进一步控显存
+            Y_in_cpu=True,              # 响应矩阵留 CPU，按批传输到 GPU
+        ),
+    )
     model.fit(Xtr, Ytr)
     pred_te = np.asarray(model.predict(Xte))
     best_lambdas = np.asarray(model.best_alphas_)
