@@ -141,13 +141,13 @@ def himalaya_ridgecv_solver(
     cv = KFold(n_splits=inner_folds)     # 时间序列连续块，不打乱
     model = RidgeCV(
         alphas=lambda_grid, cv=cv, fit_intercept=False,
+        Y_in_cpu=True,                  # RidgeCV 顶层参数（不可放 solver_params）：响应留 CPU
         solver_params=dict(
             score_func=correlation_score,  # spec: selection_metric=validation_pearson_r
             local_alpha=True,           # per-voxel alpha（spec: alpha_scope=per_voxel）
             n_targets_batch=5000,       # 95556 体素分块，避免全量摊平 OOM
             n_targets_batch_refit=2000, # 全训练集 refit 阶段同样分块
             n_alphas_batch=5,           # 13 个 λ 也分块，进一步控显存
-            Y_in_cpu=True,              # 响应矩阵留 CPU，按批传输到 GPU
         ),
     )
     model.fit(Xtr, Ytr)
