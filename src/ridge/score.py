@@ -44,20 +44,33 @@ def fisher_z_inv(z: np.ndarray) -> np.ndarray:
     return np.tanh(z)
 
 
-def roi_mean_r(voxel_r: np.ndarray, roi_columns: np.ndarray) -> float:
-    """ROI 平均 r：先 fisher-z 再均值再逆变换（spec: transform_before_roi_average=fisher_z）。
+def roi_mean_fisherz(voxel_r: np.ndarray, roi_columns: np.ndarray) -> float:
+    """ROI 内体素 r 的 fisher-z 平均，返回 **z 空间**标量。
 
-    Args:
-        voxel_r:     <float>[V] 全体素 r。
-        roi_columns: <int>[k] 该 ROI 的列索引（进入统一 voxel mask 后的列号）。
-
-    Returns:
-        ROI 的代表 r（标量）。
+    所有跨 story/fold 的 ROI 加权都在 z 空间做（相关系数平均的标准做法），最后
+    才 tanh 回 r 展示。故这里返回 z，而非 r。空 ROI 返回 nan。
     """
     if len(roi_columns) == 0:
         return float("nan")
-    z = fisher_z(voxel_r[roi_columns])
-    return float(fisher_z_inv(z.mean()))
+    return float(fisher_z(voxel_r[roi_columns]).mean())
+
+
+def roi_mean_r(voxel_r: np.ndarray, roi_columns: np.ndarray) -> float:
+    """ROI 平均 r：fisher-z→均值→逆变换（spec: transform_before_roi_average=fisher_z）。
+
+    = tanh(roi_mean_fisherz(...))。用于直接展示单个 voxel_r 向量的 ROI 标量。
+    """
+    return float(fisher_z_inv(roi_mean_fisherz(voxel_r, roi_columns)))
+
+
+def weighted_mean_scalar(values: list[float], weights: list[float]) -> float:
+    """按权重对标量列表加权平均（忽略 nan 值及其权重）。用于跨 story/fold 汇总 ROI z。"""
+    v = np.asarray(values, dtype=np.float64)
+    w = np.asarray(weights, dtype=np.float64)
+    ok = np.isfinite(v)
+    if not ok.any() or w[ok].sum() == 0:
+        return float("nan")
+    return float((v[ok] * w[ok]).sum() / w[ok].sum())
 
 
 def effective_tr_weighted_mean(

@@ -173,6 +173,55 @@ def test_run_encoding_cv():
 
 
 # --------------------------------------------------------------------------- #
+# ROI 聚合下沉到 story 级（M3 模块4：每 story fisher-z→ROI，再 fold/跨fold 汇总 z）
+# --------------------------------------------------------------------------- #
+
+def test_roi_aggregated_at_story_level_not_from_fold_voxel_r():
+    """ROI z 必须由 per-story roi_z 加权得到，而非对 fold voxel_r 再算 roi_mean_fisherz。
+    两者因 fisher-z 非线性 + story 间 voxel r 分布不同而不等价。"""
+    from src.ridge.score import roi_mean_fisherz, weighted_mean_scalar
+    data = _make_stories(n_stories=3, T=80, D=8, V=6, signal=True, noise=0.02)
+    data["s3"] = StoryData(X=RNG.standard_normal((150, 8)),
+                           Y=RNG.standard_normal((150, 6)), tr_times=_tr_times(150))
+    roi_cols = {"roiA": np.array([0, 1, 2]), "roiB": np.array([3, 4, 5])}
+    fr = run_fold(data, ["s1", "s2"], ["s0", "s3"], numpy_ridgecv_solver,
+                  roi_columns=roi_cols, pca_k=6, seed=0, verbose=False)
+
+    # 正确路径：per-story roi_z 按有效TR加权
+    neff = [ss.n_eff_tr for ss in fr.story_scores]
+    for name in roi_cols:
+        expected_z = weighted_mean_scalar(
+            [ss.roi_z[name] for ss in fr.story_scores], neff)
+        assert np.isclose(fr.roi_z[name], expected_z, atol=1e-12)
+    # 错误路径（对 fold voxel_r 再算 ROI）应给出不同值 → 证明我们没走错路径
+    wrong_z = roi_mean_fisherz(fr.voxel_r, roi_cols["roiA"])
+    assert not np.isclose(fr.roi_z["roiA"], wrong_z, atol=1e-6)
+
+
+def test_per_story_scores_preserved():
+    """FoldResult 保留每个有效 story 的 voxel_r/roi_z/n_eff_tr（M4保存/M5 bootstrap）。"""
+    data = _make_stories(n_stories=3, signal=True, noise=0.02)
+    roi_cols = {"roiA": np.array([0, 1])}
+    fr = run_fold(data, ["s1", "s2"], ["s0"], numpy_ridgecv_solver,
+                  roi_columns=roi_cols, pca_k=8, seed=0, verbose=False)
+    assert len(fr.story_scores) == 1
+    ss = fr.story_scores[0]
+    assert ss.story == "s0"
+    assert ss.voxel_r.shape == (5,)
+    assert "roiA" in ss.roi_z and np.isfinite(ss.roi_z["roiA"])
+    assert ss.n_eff_tr > 0
+
+
+def test_cv_roi_r_is_tanh_of_roi_z():
+    data = _make_stories(n_stories=4, signal=True, noise=0.02)
+    roi_cols = {"roiA": np.array([0, 1, 2])}
+    folds = [(["s1", "s2", "s3"], ["s0"]), (["s0", "s2", "s3"], ["s1"])]
+    res = run_encoding_cv(data, folds, numpy_ridgecv_solver,
+                          roi_columns=roi_cols, pca_k=8, seed=0)
+    assert np.isclose(res.roi_r["roiA"], np.tanh(res.roi_z["roiA"]))
+
+
+# --------------------------------------------------------------------------- #
 # story-level 评分（里程碑冻结文档 M3 模块4：逐 story 算 r 再汇总，非拼接后算一次）
 # --------------------------------------------------------------------------- #
 

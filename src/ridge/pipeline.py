@@ -37,6 +37,7 @@ from src.fmri.alignment import apply_fir          # noqa: E402
 from src.fmri.mask import common_scoring_mask     # noqa: E402
 from src.ridge.score import (                      # noqa: E402
     voxelwise_pearson, effective_tr_weighted_mean,
+    roi_mean_fisherz, weighted_mean_scalar, fisher_z_inv,
 )
 
 LAMBDA_GRID = np.logspace(-2, 7, 19)   # M3a 后扩上界（原 logspace(-2,4,13)），
@@ -57,16 +58,29 @@ class StoryData:
 
 
 @dataclass
+class StoryScore:
+    """单个 held-out story 的评分（M4 每 story 独立保存 / M5 story-level bootstrap 单位）。"""
+    story: str
+    voxel_r: np.ndarray              # <float>[V]  该 story 每体素 r
+    roi_z: dict                      # {roi_name: fisher-z 空间 ROI 标量}
+    n_eff_tr: int                    # 该 story 有效评分 TR 数（加权用）
+
+
+@dataclass
 class FoldResult:
     test_stories: list[str]
-    voxel_r: np.ndarray              # <float>[V]
+    story_scores: list[StoryScore]   # per-story（下沉的 ROI 聚合 + M5 bootstrap 单位）
+    voxel_r: np.ndarray              # <float>[V]  fold 级：per-story voxel_r 有效TR加权
+    roi_z: dict                      # {roi_name: fold 级 ROI z（per-story roi_z 有效TR加权）}
     valphas: np.ndarray              # <float>[V]
-    n_eff_tr: int                    # 测试集有效评分 TR 数（加权用）
+    n_eff_tr: int                    # 测试集有效评分 TR 数
 
 
 @dataclass
 class CVResult:
-    voxel_r: np.ndarray              # <float>[V]  跨折加权平均
+    voxel_r: np.ndarray              # <float>[V]  跨折加权平均（voxel-level 全脑图用）
+    roi_z: dict                      # {roi_name: 跨折 ROI z}
+    roi_r: dict                      # {roi_name: tanh(roi_z)，展示用}
     folds: list[FoldResult] = field(default_factory=list)
 
 
@@ -187,20 +201,25 @@ def _transform_and_fir(story_data: dict[str, StoryData], stories: list[str],
 
 def run_fold(story_data: dict[str, StoryData],
              train_stories: list[str], test_stories: list[str],
-             solver, *, pca_k=PCA_K, lambda_grid=LAMBDA_GRID,
+             solver, *, roi_columns=None, pca_k=PCA_K, lambda_grid=LAMBDA_GRID,
              inner_folds=INNER_FOLDS, delays_s=DELAYS_S, tr=TR_SECONDS,
              after_s=AFTER_S, seed=0, verbose=True, tag="") -> FoldResult:
     """单外折：训练折 fit scaler/PCA/ridge（一次），测试折逐故事打分再汇总。全程无泄漏。
 
-    拟合/预测本身不按故事拆分（训练折所有故事拼接后一次 fit，测试折所有
-    故事拼接后一次 predict）；只有**评分**按故事切片、各自算 voxel r，再用
-    effective_tr_weighted_mean 按各故事有效 TR 数合并为 fold 级 r（不是把
-    所有测试故事的 TR 先拼接再算一次 r——两者统计量不等价）。
+    拟合/预测不按故事拆分（训练折所有故事拼接后一次 fit，测试折一次 predict）；
+    只有**评分**按故事切片。ROI 与 voxel 两条独立聚合路径（对齐冻结文档 M3 模块4）：
+      - **每 story**：算 voxel r；再对每个 ROI 做 fisher-z→ROI 内均值 → 该 story 的
+        ROI z 标量（roi_columns 提供时）。
+      - **fold 级 voxel r**：per-story voxel r 按有效 TR 数加权平均（spec:
+        fold_summary=effective_tr_weighted_mean，voxel 空间算术加权，供全脑图）。
+      - **fold 级 ROI z**：per-story ROI z 按有效 TR 数在 **z 空间**加权平均（ROI 聚合
+        始终在 story 级完成，不从 fold voxel r 反推——两者 fisher-z/加权顺序不等价）。
+    per-story 结果全部保留在 FoldResult.story_scores（M4 每 story 保存、M5 bootstrap 单位）。
+    roi_columns=None 时只算 voxel（兼容不需要 ROI 的调用/测试）。
 
-    verbose=True 时打印各阶段起止（scaler/PCA、FIR、solver 调用），避免
-    himalaya fit() 期间日志长时间静默让人误以为卡死。solver 内部本身仍是
-    黑箱，但至少能看到是哪个阶段、哪一折在跑、耗时多久。
+    verbose=True 打印各阶段起止，避免 himalaya fit() 期间日志静默让人误以为卡死。
     """
+    roi_columns = roi_columns or {}
     t0 = time.time()
     pfx = f"[fold{tag}]" if tag else "[fold]"
     if verbose:
@@ -232,44 +251,58 @@ def run_fold(story_data: dict[str, StoryData],
     t_solver = time.time()
     pred_te, valphas = solver(Xtr_f, Ytr, Xte_f, lambda_grid, inner_folds, seed)
 
-    # 5) story-level 评分（里程碑冻结文档 M3 模块4：先对每个 held-out story
-    #    单独算 voxel r，再按有效 TR 数汇总为 fold 级 r；ROI 的 fisher-z 平均
-    #    是 roi_mean_r 的事，不在此处做，避免和 story 汇总的加权平均重复变换）
-    per_story_r, per_story_neff, off = [], [], 0
+    # 5) story-level 评分：每 story 单独算 voxel r + ROI z（fisher-z 在 story 级完成）
+    story_scores, off = [], 0
     for s, L in zip(test_stories, lens):
         seg = slice(off, off + L)
         m = common_scoring_mask(story_data[s].tr_times, vte[seg], after_s=after_s)
-        if m.sum() > 0:
-            r_s = voxelwise_pearson(pred_te[seg][m], Yte[seg][m])
-            per_story_r.append(r_s)
-            per_story_neff.append(int(m.sum()))
         off += L
-    if not per_story_r:
+        if m.sum() == 0:
+            continue
+        v_r = voxelwise_pearson(pred_te[seg][m], Yte[seg][m])
+        roi_z = {name: roi_mean_fisherz(v_r, cols)
+                 for name, cols in roi_columns.items()}
+        story_scores.append(StoryScore(story=s, voxel_r=v_r, roi_z=roi_z,
+                                       n_eff_tr=int(m.sum())))
+    if not story_scores:
         raise ValueError(f"折内所有测试故事评分点数为 0: {test_stories}")
-    r = effective_tr_weighted_mean(per_story_r, per_story_neff)
-    n_eff_tr = int(sum(per_story_neff))
+
+    neff = [ss.n_eff_tr for ss in story_scores]
+    # fold 级 voxel r：voxel 空间有效TR加权（算术）
+    fold_voxel_r = effective_tr_weighted_mean(
+        [ss.voxel_r for ss in story_scores], neff)
+    # fold 级 ROI z：z 空间有效TR加权（ROI 聚合始终在 story 级，不从 fold voxel r 反推）
+    fold_roi_z = {name: weighted_mean_scalar(
+                      [ss.roi_z[name] for ss in story_scores], neff)
+                  for name in roi_columns}
+    n_eff_tr = int(sum(neff))
 
     if verbose:
+        roi_show = "  ".join(f"{n}={fisher_z_inv(z):.4f}"
+                             for n, z in fold_roi_z.items())
         print(f"{pfx} 完成 solver={time.time()-t_solver:.1f}s "
-              f"总计={time.time()-t0:.1f}s mean_r={r.mean():.4f} "
-              f"({len(per_story_r)}/{len(test_stories)} 故事有效评分点)", flush=True)
+              f"总计={time.time()-t0:.1f}s mean_r={fold_voxel_r.mean():.4f} "
+              f"({len(story_scores)}/{len(test_stories)} 故事)  {roi_show}", flush=True)
 
-    return FoldResult(test_stories=list(test_stories), voxel_r=r,
+    return FoldResult(test_stories=list(test_stories), story_scores=story_scores,
+                      voxel_r=fold_voxel_r, roi_z=fold_roi_z,
                       valphas=valphas, n_eff_tr=n_eff_tr)
 
 
 def run_encoding_cv(story_data: dict[str, StoryData],
                     folds: list[tuple[list[str], list[str]]],
                     solver, *, verbose=True, **kw) -> CVResult:
-    """全 3 折 CV：逐折 run_fold，按有效 TR 数加权平均每体素 r。"""
+    """全 3 折 CV：逐折 run_fold，voxel r 与 ROI z 各自按有效 TR 数跨折加权平均。"""
     fold_results = []
     for i, (tr_s, te_s) in enumerate(folds, 1):
         if verbose:
             print(f"[cv] === 折 {i}/{len(folds)} ===", flush=True)
         fold_results.append(run_fold(story_data, tr_s, te_s, solver,
                                      verbose=verbose, tag=f" {i}/{len(folds)}", **kw))
-    voxel_r = effective_tr_weighted_mean(
-        [fr.voxel_r for fr in fold_results],
-        [fr.n_eff_tr for fr in fold_results],
-    )
-    return CVResult(voxel_r=voxel_r, folds=fold_results)
+    w = [fr.n_eff_tr for fr in fold_results]
+    voxel_r = effective_tr_weighted_mean([fr.voxel_r for fr in fold_results], w)
+    roi_names = fold_results[0].roi_z.keys()
+    roi_z = {name: weighted_mean_scalar([fr.roi_z[name] for fr in fold_results], w)
+             for name in roi_names}
+    roi_r = {name: float(fisher_z_inv(z)) for name, z in roi_z.items()}
+    return CVResult(voxel_r=voxel_r, roi_z=roi_z, roi_r=roi_r, folds=fold_results)
