@@ -8,7 +8,7 @@ M3a 盲态参数核查 —— 只用 outer training stories + inner CV，不碰 
     从不 load 测试故事响应做评分）；
   - 不比较不同架构的 inner-validation 性能（本脚本一次只诊断一个模型/H）。
 
-用途：在看到任何正式 held-out 结果之前，确认 λ 网格 logspace(-2,4,13) 是否够宽
+用途：在看到任何正式 held-out 结果之前，确认冻结 λ 网格是否够宽
 （边界命中率高则需依 inner validation 扩网格 → 更新 spec/hash/freeze tag），
 以及 PCA/solver 数值是否健康。若边界命中率低、方差保留合理、无 NaN/零方差，
 则可冻结进入 M3b。
@@ -158,13 +158,12 @@ def main():
                     help="判定'有信号体素'的 inner-CV score 阈值（默认 0.10）；"
                          "只有这些体素的边界命中率才作为网格是否够宽的判据")
     ap.add_argument("--lambda-log-min", type=float, default=-2,
-                    help="探索用 λ 网格下界指数（默认 -2，与冻结 spec 一致）")
-    ap.add_argument("--lambda-log-max", type=float, default=4,
-                    help="探索用 λ 网格上界指数（默认 4，与冻结 spec 一致；"
-                         "命中率高时可临时调大，如 7，仅用于诊断探索，"
-                         "不会改动 pipeline.py 里真正冻结的 LAMBDA_GRID）")
-    ap.add_argument("--lambda-n", type=int, default=13,
-                    help="探索用 λ 网格点数（默认 13，与冻结 spec 一致）")
+                    help="探索用 λ 网格下界指数（默认 -2，与当前冻结 spec 一致）")
+    ap.add_argument("--lambda-log-max", type=float, default=7,
+                    help="探索用 λ 网格上界指数（默认 7，与当前冻结 spec 一致；"
+                         "改此值即用探索性网格诊断，不会改动 pipeline.py 冻结的 LAMBDA_GRID）")
+    ap.add_argument("--lambda-n", type=int, default=19,
+                    help="探索用 λ 网格点数（默认 19，与当前冻结 spec 一致）")
     args = ap.parse_args()
 
     cfg = load_config()

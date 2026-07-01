@@ -1,3 +1,13 @@
+# ── 变更记录 ──────────────────────────────────────────────────────────────
+# 2026-07-01  ridge.lambda_grid: logspace(-2,4,13)=[0.01,1e4] → logspace(-2,7,19)=[0.01,1e7]
+#   依据：M3a 盲态核查（scripts/m3a_blind_check.py，只用 outer training + inner CV，
+#   不碰 held-out r）发现原网格下**有信号体素**（inner-CV score>0.10，n≈18000-20000，
+#   cv_max~0.5）100% 撞上界 1e4。根因：PCA-100 输出的 PC scores 未标准化，方差远大于
+#   native 的单位方差 z-score 特征，所需正则化强度大几个数量级。扩到 [0.01,1e7] 后
+#   信号体素边界命中率降至 0.000（3 折一致）。保持每 0.5 log10 分辨率（点数 13→19）。
+#   选择扩网格（方案A）而非 PCA 白化（方案B），因扩网格已使信号体素 0% 撞界即足够。
+#   此修改在看到任何 outer held-out r 之前完成，符合 M3a 纪律。freeze tag 见 git。
+# ──────────────────────────────────────────────────────────────────────────
 context_lengths_H:
 - 8
 - 32
@@ -24,7 +34,7 @@ pca:
 ridge:
   solver: himalaya
   alpha_scope: per_voxel
-  lambda_grid: logspace(-2, 4, 13)
+  lambda_grid: logspace(-2, 7, 19)   # M3a 后扩上界，见顶部变更记录
   inner_folds: 2
   selection_metric: validation_pearson_r
   tie_break_rule: prefer_larger_lambda

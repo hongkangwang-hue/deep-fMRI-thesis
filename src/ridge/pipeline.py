@@ -5,7 +5,7 @@ M3 / M2-C Phase 2 编码管线核心 —— 防泄漏的故事级 3 折 CV。
   下采样+trim 后的 TR 级特征
     → StandardScaler + PCA-100  (apply_before_fir=true, fit 仅外层训练故事)
     → FIR 延迟 2/4/6/8s        (故事内，不跨故事)
-    → himalaya RidgeCV          (per-voxel λ, inner 2-fold, λ∈logspace(-2,4,13))
+    → himalaya RidgeCV          (per-voxel λ, inner 2-fold, λ∈logspace(-2,7,19))
     → 逐 held-out story 单独算 pearson r (common_scoring_mask: >100s ∩ FIR_valid)
     → story 间 effective-TR 加权平均为 fold 级 r
     → 3 外折再 effective-TR 加权平均为最终 r
@@ -39,7 +39,8 @@ from src.ridge.score import (                      # noqa: E402
     voxelwise_pearson, effective_tr_weighted_mean,
 )
 
-LAMBDA_GRID = np.logspace(-2, 4, 13)
+LAMBDA_GRID = np.logspace(-2, 7, 19)   # M3a 后扩上界（原 logspace(-2,4,13)），
+                                       # 见 frozen/analysis_spec.yaml 变更记录
 DELAYS_S = (2, 4, 6, 8)
 TR_SECONDS = 2.0
 AFTER_S = 100.0

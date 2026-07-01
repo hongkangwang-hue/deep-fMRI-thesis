@@ -73,7 +73,7 @@ pca:
 ridge:
   encoding_model: vectorized_voxelwise_ridge
   alpha_scope: per_voxel
-  lambda_grid: logspace(-2, 4, 13)
+  lambda_grid: logspace(-2, 7, 19)   # M3a 后扩上界；见 frozen/analysis_spec.yaml 变更记录
   inner_folds: 2
   selection_metric: validation_pearson_r
   tie_break_rule: prefer_larger_lambda
