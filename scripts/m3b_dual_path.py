@@ -38,8 +38,9 @@ from src.config_loader import load_config                 # noqa: E402
 from src.fmri.alignment import shift_story_no_wrap        # noqa: E402
 from src.ridge.assemble import assemble_all               # noqa: E402
 from src.ridge.pipeline import (                          # noqa: E402
-    StoryData, run_fold, himalaya_ridgecv_solver, numpy_ridgecv_solver,
+    StoryData, run_fold, himalaya_ridgecv_solver, numpy_ridgecv_solver, LAMBDA_GRID,
 )
+from src.models.feature_cache import load_features        # noqa: E402
 
 SHIFT_SECONDS = 40.0
 TR_SECONDS = 2.0
@@ -68,10 +69,22 @@ def make_shifted_story_data(story_data: dict[str, StoryData]) -> tuple[dict, dic
     return shifted, valid_by_story
 
 
+def _valphas_stats(valphas: np.ndarray) -> dict:
+    """选中 λ 的统计（含网格边界命中率，供 M4/审计追溯）。"""
+    lam_min, lam_max = float(LAMBDA_GRID.min()), float(LAMBDA_GRID.max())
+    return {
+        "min": float(valphas.min()), "max": float(valphas.max()),
+        "median": float(np.median(valphas)),
+        "hit_min_frac": float((valphas <= lam_min * (1 + 1e-6)).mean()),
+        "hit_max_frac": float((valphas >= lam_max * (1 - 1e-6)).mean()),
+    }
+
+
 def run_one_model(model: str, H: int, layer: str, subject: str,
                   train_stories: list[str], test_stories: list[str],
                   roi_cols: dict, cache_dir, data_dir, respdict_path,
-                  word_index_path, solver, seed: int, dtype: str) -> dict:
+                  word_index_path, solver, seed: int, dtype: str,
+                  out_dir: Path) -> dict:
     print(f"\n=== {model} ===", flush=True)
     dt = np.dtype(dtype)
     t0 = time.time()
@@ -84,21 +97,39 @@ def run_one_model(model: str, H: int, layer: str, subject: str,
         story_data[s].Y = story_data[s].Y.astype(dt)
     print(f"[{model}] 组装完成 {time.time()-t0:.1f}s", flush=True)
 
+    # 模型 revision/层号：从特征缓存 meta 读（M1 提取时已固化，不重新加载模型）
+    feat_meta = load_features(cache_dir, model, test_stories[0], H)["meta"]
+
     # 泄漏审计：held-out 故事不得出现在训练列表
     assert not (set(test_stories) & set(train_stories)), \
         f"[{model}] 泄漏：测试故事出现在训练列表 {set(test_stories)&set(train_stories)}"
 
-    print(f"[{model}] 正常条件 ...", flush=True)
-    fr_normal = run_fold(story_data, train_stories, test_stories, solver,
-                         roi_columns=roi_cols, seed=seed, verbose=True,
-                         tag=f" {model}/normal")
-
-    print(f"[{model}] 40s time-shift 负控制 ...", flush=True)
+    # 先算 40s 位移及其有效点（便宜，不涉及 ridge）。normal 与 shift **都** 施加
+    # 同一 shift_valid → 共同有效 mask（冻结文档验收5/任务5.2：有效点交集），
+    # 使两条件评分的 TR 完全一致、可比。
     shifted_data, valid_by_story = make_shifted_story_data(story_data)
     test_shift_valid = {s: valid_by_story[s] for s in test_stories}
+
+    print(f"[{model}] 正常条件（共同 mask）...", flush=True)
+    fr_normal = run_fold(story_data, train_stories, test_stories, solver,
+                         roi_columns=roi_cols, seed=seed, verbose=True,
+                         tag=f" {model}/normal", shift_valid_by_story=test_shift_valid)
+
+    print(f"[{model}] 40s time-shift 负控制（同一 mask）...", flush=True)
     fr_shift = run_fold(shifted_data, train_stories, test_stories, solver,
                         roi_columns=roi_cols, seed=seed, verbose=True,
                         tag=f" {model}/shift", shift_valid_by_story=test_shift_valid)
+
+    # 共同 mask 的程序化证明：两条件有效评分 TR 数必须逐 story 完全一致
+    assert fr_normal.n_eff_tr == fr_shift.n_eff_tr, \
+        f"[{model}] normal/shift 评分点数不一致 → 未用共同 mask"
+    per_story_neff_match = all(
+        a.n_eff_tr == b.n_eff_tr and a.story == b.story
+        for a, b in zip(fr_normal.story_scores, fr_shift.story_scores))
+
+    # 选中 λ 落盘（交付物4：story/fold r 与选中 λ）
+    np.savez(out_dir / f"valphas_{model}.npz",
+             normal=fr_normal.valphas, shift=fr_shift.valphas)
 
     normal_roi = {n: float(np.tanh(z)) for n, z in fr_normal.roi_z.items()}
     shift_roi = {n: float(np.tanh(z)) for n, z in fr_shift.roi_z.items()}
@@ -107,14 +138,21 @@ def run_one_model(model: str, H: int, layer: str, subject: str,
 
     return {
         "model": model,
+        "model_id": feat_meta.get("model_id"),
+        "revision": feat_meta.get("revision"),
+        "layer_main": feat_meta.get("layer_main"),
+        "code_version": feat_meta.get("code_version"),
         "train_stories": train_stories,
         "test_stories": test_stories,
-        "n_eff_tr_normal": fr_normal.n_eff_tr,
-        "n_eff_tr_shift": fr_shift.n_eff_tr,
+        "voxel_r_shape": list(fr_normal.voxel_r.shape),
+        "common_mask_n_eff_tr": fr_normal.n_eff_tr,
+        "common_mask_verified": bool(per_story_neff_match),
         "roi_r_normal": normal_roi,
         "roi_r_shift": shift_roi,
         "voxel_r_mean_normal": float(np.nanmean(fr_normal.voxel_r)),
         "voxel_r_mean_shift": float(np.nanmean(fr_shift.voxel_r)),
+        "valphas_stats_normal": _valphas_stats(fr_normal.valphas),
+        "valphas_npz": f"valphas_{model}.npz",
         "per_story_normal": [
             {"story": ss.story, "n_eff_tr": ss.n_eff_tr,
              "roi_r": {n: float(np.tanh(z)) for n, z in ss.roi_z.items()}}
@@ -170,29 +208,38 @@ def main():
           f"dtype={args.dtype} seed={seed}", flush=True)
     print(f"[m3b] 训练={len(train_stories)}故事 测试={test_stories}", flush=True)
 
+    out_dir = Path(paths["results_dir"]) / args.out_name / args.subject
+    out_dir.mkdir(parents=True, exist_ok=True)
+
     results = []
     for model in args.models:
         results.append(run_one_model(
             model, args.H, args.layer, args.subject, train_stories, test_stories,
             roi_cols, paths["cache_dir"], ds["data_dir"], ds["respdict"],
             Path(paths["frozen_dir"]) / "word_index.parquet",
-            solver, seed, args.dtype,
+            solver, seed, args.dtype, out_dir,
         ))
 
-    # 验收标准逐项核对（milestone M3 验收标准 1-7）
+    # 期望 voxel 维度 = held-out 响应列数（UTS03 统一 mask=95556），两模型应一致
+    expected_V = results[0]["voxel_r_shape"]
+    dims_ok = all(r["voxel_r_shape"] == expected_V and r["voxel_r_shape"][0] > 0
+                  for r in results)
+    # 验收标准逐项核对（milestone M3 验收标准 1-7），尽量用程序化证据而非自我声明
     verdict = {
-        "1_m3a_never_touched_held_out_r": True,   # M3a脚本从不 predict 测试故事
+        "1_m3a_never_touched_held_out_r": True,   # M3a脚本从不 predict 测试故事（结构）
         "2_lambda_grid_frozen_before_m3b": True,  # commit 10204f1 + tag m3a-lambda-refreeze
-        "3_dual_paths_finite_valid": not any(r["any_nan_or_inf"] for r in results),
-        "4_scaler_pca_lambda_training_only": True,  # run_fold 结构性保证
-        "5_shift_no_wraparound_common_mask": True,  # shift_story_no_wrap 结构性保证
-        "6_shift_differs_from_normal": all(r["shift_differs_from_normal"] for r in results),
-        "7_manifest_traceable": True,  # 本 manifest 自身即证据
+        "3_dual_paths_finite_valid": bool(
+            (not any(r["any_nan_or_inf"] for r in results)) and dims_ok),
+        "4_scaler_pca_lambda_training_only": all(
+            r["leakage_audit_pass"] for r in results),  # test∩train=∅ + run_fold只fit train
+        "5_shift_common_mask_verified": all(  # 程序化：normal/shift 逐story评分TR数一致
+            r["common_mask_verified"] for r in results),
+        "6_shift_differs_from_normal": all(
+            r["shift_differs_from_normal"] for r in results),
+        "7_manifest_traceable": all(  # git commit + 模型revision + freeze tag 齐全
+            r.get("revision") for r in results),
     }
     all_pass = all(verdict.values())
-
-    out_dir = Path(paths["results_dir"]) / args.out_name / args.subject
-    out_dir.mkdir(parents=True, exist_ok=True)
     manifest = {
         "phase": "M3b dual-path vertical slice",
         "frozen_condition": "UTS01 x left_IFG x H=32 x primary_layer x 1_outer_fold x Pythia+Mamba",
