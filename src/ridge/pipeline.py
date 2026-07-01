@@ -6,8 +6,14 @@ M3 / M2-C Phase 2 编码管线核心 —— 防泄漏的故事级 3 折 CV。
     → StandardScaler + PCA-100  (apply_before_fir=true, fit 仅外层训练故事)
     → FIR 延迟 2/4/6/8s        (故事内，不跨故事)
     → himalaya RidgeCV          (per-voxel λ, inner 2-fold, λ∈logspace(-2,4,13))
-    → 测试故事每体素 pearson r  (common_scoring_mask: >100s ∩ FIR_valid)
-    → 3 外折 effective-TR 加权平均
+    → 逐 held-out story 单独算 pearson r (common_scoring_mask: >100s ∩ FIR_valid)
+    → story 间 effective-TR 加权平均为 fold 级 r
+    → 3 外折再 effective-TR 加权平均为最终 r
+
+story-then-fold 的两层加权平均均调用同一 effective_tr_weighted_mean（见
+milestone/里程碑总览_V4.9_最终冻结版.md M3 模块4："先对每个 held-out story
+单独计算 voxel r，再形成 fold 级汇总"）。ROI 的 fisher-z 平均只在 roi_mean_r
+里做一次（对 voxel），不会和 story/fold 的加权平均混在一起重复变换。
 
 本模块为**纯数值核心**：输入是已对齐好的 per-story 特征/响应字典，不碰文件、
 不做下采样（那是 assemble.py 的事）。solver 可插拔——本地测试用 numpy ridge，
@@ -183,7 +189,12 @@ def run_fold(story_data: dict[str, StoryData],
              solver, *, pca_k=PCA_K, lambda_grid=LAMBDA_GRID,
              inner_folds=INNER_FOLDS, delays_s=DELAYS_S, tr=TR_SECONDS,
              after_s=AFTER_S, seed=0, verbose=True, tag="") -> FoldResult:
-    """单外折：训练折 fit scaler/PCA/ridge，测试折打分。全程无泄漏。
+    """单外折：训练折 fit scaler/PCA/ridge（一次），测试折逐故事打分再汇总。全程无泄漏。
+
+    拟合/预测本身不按故事拆分（训练折所有故事拼接后一次 fit，测试折所有
+    故事拼接后一次 predict）；只有**评分**按故事切片、各自算 voxel r，再用
+    effective_tr_weighted_mean 按各故事有效 TR 数合并为 fold 级 r（不是把
+    所有测试故事的 TR 先拼接再算一次 r——两者统计量不等价）。
 
     verbose=True 时打印各阶段起止（scaler/PCA、FIR、solver 调用），避免
     himalaya fit() 期间日志长时间静默让人误以为卡死。solver 内部本身仍是
@@ -207,34 +218,43 @@ def run_fold(story_data: dict[str, StoryData],
         story_data, train_stories, scaler, pca, delays_s, tr)
     Xtr_f, Ytr = Xtr_f[vtr], Ytr[vtr]
 
-    # 3) 测试折：transform→FIR；评分用 common_scoring_mask（>100s ∩ FIR_valid）
+    # 3) 测试折：transform→FIR（评分 mask 留到第 5 步逐故事构建）
     Xte_f, Yte, vte, trt_te, lens = _transform_and_fir(
         story_data, test_stories, scaler, pca, delays_s, tr)
-    # 逐故事构建 >100s∩FIR mask，再拼接（mask 须按故事算 tr_times）
-    score_mask_parts, off = [], 0
-    for s, L in zip(test_stories, lens):
-        seg = slice(off, off + L)
-        m = common_scoring_mask(story_data[s].tr_times, vte[seg], after_s=after_s)
-        score_mask_parts.append(m)
-        off += L
-    score_mask = np.concatenate(score_mask_parts)
 
     if verbose:
         print(f"{pfx} 特征就绪 Xtr={Xtr_f.shape} Xte={Xte_f.shape} "
               f"({time.time()-t0:.1f}s)，调用 solver.fit()（无逐次打印，"
               f"可 nvidia-smi 观察 GPU 是否在动）...", flush=True)
 
-    # 4) ridge：训练折拟合，测试折全量预测，再按评分 mask 取子集算 r
+    # 4) ridge：训练折拟合一次，测试折全量预测一次（拟合/预测不按故事拆分）
     t_solver = time.time()
     pred_te, valphas = solver(Xtr_f, Ytr, Xte_f, lambda_grid, inner_folds, seed)
-    r = voxelwise_pearson(pred_te[score_mask], Yte[score_mask])
+
+    # 5) story-level 评分（里程碑冻结文档 M3 模块4：先对每个 held-out story
+    #    单独算 voxel r，再按有效 TR 数汇总为 fold 级 r；ROI 的 fisher-z 平均
+    #    是 roi_mean_r 的事，不在此处做，避免和 story 汇总的加权平均重复变换）
+    per_story_r, per_story_neff, off = [], [], 0
+    for s, L in zip(test_stories, lens):
+        seg = slice(off, off + L)
+        m = common_scoring_mask(story_data[s].tr_times, vte[seg], after_s=after_s)
+        if m.sum() > 0:
+            r_s = voxelwise_pearson(pred_te[seg][m], Yte[seg][m])
+            per_story_r.append(r_s)
+            per_story_neff.append(int(m.sum()))
+        off += L
+    if not per_story_r:
+        raise ValueError(f"折内所有测试故事评分点数为 0: {test_stories}")
+    r = effective_tr_weighted_mean(per_story_r, per_story_neff)
+    n_eff_tr = int(sum(per_story_neff))
 
     if verbose:
         print(f"{pfx} 完成 solver={time.time()-t_solver:.1f}s "
-              f"总计={time.time()-t0:.1f}s mean_r={r.mean():.4f}", flush=True)
+              f"总计={time.time()-t0:.1f}s mean_r={r.mean():.4f} "
+              f"({len(per_story_r)}/{len(test_stories)} 故事有效评分点)", flush=True)
 
     return FoldResult(test_stories=list(test_stories), voxel_r=r,
-                      valphas=valphas, n_eff_tr=int(score_mask.sum()))
+                      valphas=valphas, n_eff_tr=n_eff_tr)
 
 
 def run_encoding_cv(story_data: dict[str, StoryData],

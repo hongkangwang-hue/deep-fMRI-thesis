@@ -24,6 +24,7 @@ from src.ridge.score import (
     effective_tr_weighted_mean,
 )
 from src.fmri.alignment import apply_fir
+from src.fmri.mask import common_scoring_mask
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
@@ -169,3 +170,81 @@ def test_run_encoding_cv():
     assert res.voxel_r.shape == (5,)
     assert len(res.folds) == 3
     assert res.voxel_r.mean() > 0.6
+
+
+# --------------------------------------------------------------------------- #
+# story-level 评分（里程碑冻结文档 M3 模块4：逐 story 算 r 再汇总，非拼接后算一次）
+# --------------------------------------------------------------------------- #
+
+def test_pooling_vs_per_story_differ_in_general():
+    """纯数学性质：拼接后算一次 r，与逐段算 r 再按点数加权平均，不是同一个统计量。
+
+    构造两段：段A强正相关(pred≈actual)但均值偏移，段B无相关(纯噪声)。若拼接算，
+    段间均值差会像 Simpson's paradox 一样污染相关；逐段算再加权则不受影响。
+    """
+    n1, n2 = 40, 10  # 故意不等长，让加权平均和简单拼接的差异更容易暴露
+    rng = np.random.default_rng(1)
+    actual_a = rng.standard_normal((n1, 3))
+    pred_a = actual_a + 0.01 * rng.standard_normal((n1, 3)) + 5.0  # 强相关 + 均值偏移
+    actual_b = rng.standard_normal((n2, 3))
+    pred_b = rng.standard_normal((n2, 3))  # 与 actual_b 无关
+
+    pooled_r = voxelwise_pearson(
+        np.vstack([pred_a, pred_b]), np.vstack([actual_a, actual_b]))
+    per_segment_r = effective_tr_weighted_mean(
+        [voxelwise_pearson(pred_a, actual_a), voxelwise_pearson(pred_b, actual_b)],
+        [n1, n2])
+
+    assert np.abs(pooled_r - per_segment_r).max() > 0.05, (
+        "构造的场景应能体现拼接 vs 逐段加权的数值差异，若相等说明测试场景没设计对")
+
+
+def test_run_fold_scores_per_story_then_aggregates():
+    """run_fold 对多测试故事的输出，应等于「逐故事算 r 再按有效TR加权平均」，
+    而不是「拼接所有测试故事 TR 后算一次 r」。直接复刻 run_fold 内部步骤验证契约。
+    """
+    data = _make_stories(n_stories=3, T=80, D=8, V=4, signal=True, noise=0.02)
+    # 追加一个更长、纯噪声的第二个测试故事（T 需够大让 >100s mask 有实际评分点，
+    # 否则该故事贡献 0 个点，两种算法会退化成完全相同的计算，测不出差异）
+    data["s3"] = StoryData(
+        X=RNG.standard_normal((150, 8)),
+        Y=RNG.standard_normal((150, 4)),
+        tr_times=_tr_times(150),
+    )
+    # 测试折 = 一个有信号的故事(s0) + 一个纯噪声、长度不同的故事(s3)
+    train = ["s1", "s2"]
+    test = ["s0", "s3"]
+
+    fr = run_fold(data, train, test, numpy_ridgecv_solver, pca_k=6, seed=0, verbose=False)
+
+    # 手动复刻 run_fold 内部：同样的 scaler/PCA/FIR/solver，但显式逐故事切片评分
+    Xtr_raw = np.vstack([data[s].X for s in train])
+    scaler = StandardScaler().fit(Xtr_raw)
+    pca = PCA(n_components=6, svd_solver="full", random_state=0)
+    pca.fit(scaler.transform(Xtr_raw))
+    Xtr_f, Ytr, vtr, _, _ = _transform_and_fir(data, train, scaler, pca, DELAYS_S, TR)
+    Xtr_f, Ytr = Xtr_f[vtr], Ytr[vtr]
+    Xte_f, Yte, vte, _, lens = _transform_and_fir(data, test, scaler, pca, DELAYS_S, TR)
+    pred_te, _ = numpy_ridgecv_solver(
+        Xtr_f, Ytr, Xte_f, np.logspace(-2, 4, 13), 2, 0)
+
+    per_r, per_n, off = [], [], 0
+    for s, L in zip(test, lens):
+        seg = slice(off, off + L)
+        m = common_scoring_mask(data[s].tr_times, vte[seg])
+        per_r.append(voxelwise_pearson(pred_te[seg][m], Yte[seg][m]))
+        per_n.append(int(m.sum()))
+        off += L
+    expected = effective_tr_weighted_mean(per_r, per_n)
+    naive_pool_mask = np.concatenate([
+        common_scoring_mask(data[s].tr_times,
+                            vte[slice(sum(lens[:i]), sum(lens[:i]) + lens[i])])
+        for i, s in enumerate(test)
+    ])
+    naive_pooled = voxelwise_pearson(pred_te[naive_pool_mask], Yte[naive_pool_mask])
+
+    assert np.allclose(fr.voxel_r, expected, atol=1e-10), (
+        "run_fold 应输出逐故事算r再加权平均的结果")
+    assert fr.n_eff_tr == sum(per_n)
+    # 二者不应在此构造场景下恰好相等（否则无法证明改动确实生效）
+    assert not np.allclose(fr.voxel_r, naive_pooled, atol=1e-6)
