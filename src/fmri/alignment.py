@@ -82,3 +82,36 @@ def apply_fir(X: np.ndarray, delays_s=(2, 4, 6, 8), tr: float = 2.0,
         parts.append(dpart)
         valid &= vmask
     return np.hstack(parts), valid
+
+
+def shift_story_no_wrap(X: np.ndarray, seconds: float = 40.0, tr: float = 2.0):
+    """单故事：X_shifted(t) = X(t - seconds)，用于 40s time-shift 负控制。
+
+    与 apply_fir 同一位移约定（正 shift 下移、零填充、故事内不回卷），但只有
+    一档、不做多档拼接。用于 M3b/M4 的 time-shift 技术诊断：把特征相对响应
+    整体错开 40 秒（远超 2-8s 的 FIR 延迟窗），若模型仍给出与正常条件相近的
+    相关，说明存在与语义无关的伪相关（如慢漂移/自相关），而非真实编码信号。
+
+    Args:
+        X:       <float>[n_trs, dim] 单故事 TR 级特征（下采样后、PCA/FIR 前）。
+        seconds: 位移秒数，正数=特征相对响应延后（用更早的特征预测当前响应）。
+        tr:      TR 秒数。
+
+    Returns:
+        (X_shifted <float>[n_trs, dim], valid <bool>[n_trs])  故事内不回卷，
+        边缘无效点显式标记为 False（供 common_scoring_mask 的 shift_valid 使用）。
+    """
+    d = int(round(seconds / tr))
+    nt, ndim = X.shape
+    out = np.zeros_like(X)
+    valid = np.zeros(nt, dtype=bool)
+    if d > 0:
+        out[d:, :] = X[:-d, :]
+        valid[d:] = True
+    elif d < 0:
+        out[:d, :] = X[-d:, :]
+        valid[:d] = True
+    else:
+        out[:] = X
+        valid[:] = True
+    return out, valid

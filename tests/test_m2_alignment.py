@@ -19,7 +19,7 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "encoding"))
 
-from src.fmri.alignment import apply_fir, word_to_tr, _delays_to_shifts
+from src.fmri.alignment import apply_fir, word_to_tr, _delays_to_shifts, shift_story_no_wrap
 from src.fmri.mask import after_time_mask, common_scoring_mask
 from src.fmri.trfile import story_tr_times, expected_response_rows, trimmed_tr_times
 from ridge_utils.interpdata import lanczosinterp2D
@@ -122,6 +122,59 @@ def test_fir_no_cross_story_leakage():
     # 若错误地先拼接再 FIR，故事 B 开头会“借用”故事 A 末尾→这里独立处理则不会
     Xb, _ = apply_fir(story_b, delays_s=(2,), tr=2.0)
     assert np.allclose(Xb[0], 0.0)  # B 第一行仍是零填充，未泄漏 A 的数据
+
+
+# --------------------------- 40s time-shift -----------------------------
+
+def test_shift_story_no_wrap_shape_and_edge_invalid():
+    """40s@TR2 → 位移20行；前20行零填充+无效，其余行等于原信号左移20位。"""
+    rng = np.random.default_rng(0)
+    X = rng.standard_normal((60, 5))
+    Xs, valid = shift_story_no_wrap(X, seconds=40.0, tr=2.0)
+    assert Xs.shape == X.shape
+    assert not valid[:20].any() and valid[20:].all()
+    assert np.allclose(Xs[:20], 0.0)
+    assert np.allclose(Xs[20:], X[:-20])
+
+
+def test_shift_story_no_wrap_no_wraparound():
+    """故事内不回卷：无效区绝不是原信号末尾"tail"被搬到开头，而是零。"""
+    rng = np.random.default_rng(1)
+    X = rng.standard_normal((30, 3)) + 100.0  # 加大偏移，避免偶然与0接近
+    Xs, valid = shift_story_no_wrap(X, seconds=10.0, tr=2.0)  # d=5
+    assert np.allclose(Xs[:5], 0.0)
+    assert not np.allclose(Xs[:5], X[-5:])  # 不是回卷来的尾部
+
+
+def test_shift_story_no_wrap_no_cross_story_leakage():
+    """两个故事各自位移，故事 B 的开头无效区不会"借用"故事 A 的数据。"""
+    rng = np.random.default_rng(2)
+    story_a = rng.standard_normal((30, 4))
+    story_b = rng.standard_normal((25, 4))
+    Xa, va = shift_story_no_wrap(story_a, seconds=40.0, tr=2.0)
+    Xb, vb = shift_story_no_wrap(story_b, seconds=40.0, tr=2.0)
+    assert not va[:20].any() and va[20:].all()
+    assert not vb[:20].any() and vb[20:].all()
+    assert np.allclose(Xb[:20], 0.0)
+
+
+def test_shift_destroys_known_alignment():
+    """40s 位移应显著破坏已知的正常对齐关系（负控制核心诉求）。"""
+    rng = np.random.default_rng(3)
+    nt = 80
+    stim = rng.standard_normal((nt, 1))
+    bold = np.zeros((nt, 1))
+    bold[4:] = stim[:-4]  # 响应 = 8s(=4 TR@TR2) 延迟的刺激（正常范围内）
+
+    Xf, valid = apply_fir(stim, delays_s=(2, 4, 6, 8), tr=2.0)
+    normal_r = max(np.corrcoef(Xf[valid, c], bold[valid, 0])[0, 1]
+                   for c in range(Xf.shape[1]))
+
+    Xs, shift_valid = shift_story_no_wrap(stim, seconds=40.0, tr=2.0)
+    Xsf, fir_valid_s = apply_fir(Xs, delays_s=(2, 4, 6, 8), tr=2.0, valid_in=shift_valid)
+    shifted_r = max(np.corrcoef(Xsf[fir_valid_s, c], bold[fir_valid_s, 0])[0, 1]
+                    for c in range(Xsf.shape[1]))
+    assert normal_r > shifted_r + 0.3
 
 
 # ------------------------- word→TR 与参考一致 ---------------------------

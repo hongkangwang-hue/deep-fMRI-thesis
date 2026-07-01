@@ -203,7 +203,8 @@ def run_fold(story_data: dict[str, StoryData],
              train_stories: list[str], test_stories: list[str],
              solver, *, roi_columns=None, pca_k=PCA_K, lambda_grid=LAMBDA_GRID,
              inner_folds=INNER_FOLDS, delays_s=DELAYS_S, tr=TR_SECONDS,
-             after_s=AFTER_S, seed=0, verbose=True, tag="") -> FoldResult:
+             after_s=AFTER_S, seed=0, verbose=True, tag="",
+             shift_valid_by_story: dict[str, np.ndarray] | None = None) -> FoldResult:
     """单外折：训练折 fit scaler/PCA/ridge（一次），测试折逐故事打分再汇总。全程无泄漏。
 
     拟合/预测不按故事拆分（训练折所有故事拼接后一次 fit，测试折一次 predict）；
@@ -216,6 +217,13 @@ def run_fold(story_data: dict[str, StoryData],
         始终在 story 级完成，不从 fold voxel r 反推——两者 fisher-z/加权顺序不等价）。
     per-story 结果全部保留在 FoldResult.story_scores（M4 每 story 保存、M5 bootstrap 单位）。
     roi_columns=None 时只算 voxel（兼容不需要 ROI 的调用/测试）。
+
+    shift_valid_by_story：可选 {story: <bool>[T]}（T=该故事下采样后、FIR前的
+    TR 行数），供 M3b/M4 的 40s time-shift 负控制用。若给出，测试故事评分时
+    与 FIR-valid、>100s 取交集（common_scoring_mask 的 shift_valid 参数），
+    即 normal/shifted 使用共同有效 mask（冻结文档验收标准5）。是否位移特征
+    本身（X_shifted(t)=X(t-40s)）由调用方在 story_data 里传入已位移的 X 决定，
+    本函数不做位移，只负责把位移导致的边缘无效点纳入评分 mask。
 
     verbose=True 打印各阶段起止，避免 himalaya fit() 期间日志静默让人误以为卡死。
     """
@@ -255,7 +263,14 @@ def run_fold(story_data: dict[str, StoryData],
     story_scores, off = [], 0
     for s, L in zip(test_stories, lens):
         seg = slice(off, off + L)
-        m = common_scoring_mask(story_data[s].tr_times, vte[seg], after_s=after_s)
+        shift_valid_s = None
+        if shift_valid_by_story is not None:
+            shift_valid_s = shift_valid_by_story[s]
+            if len(shift_valid_s) != L:
+                raise ValueError(
+                    f"[{s}] shift_valid 长度 {len(shift_valid_s)} != 该故事 TR 数 {L}")
+        m = common_scoring_mask(story_data[s].tr_times, vte[seg],
+                                shift_valid=shift_valid_s, after_s=after_s)
         off += L
         if m.sum() == 0:
             continue

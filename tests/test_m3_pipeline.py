@@ -13,6 +13,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src.ridge.pipeline import (
@@ -297,3 +298,34 @@ def test_run_fold_scores_per_story_then_aggregates():
     assert fr.n_eff_tr == sum(per_n)
     # 二者不应在此构造场景下恰好相等（否则无法证明改动确实生效）
     assert not np.allclose(fr.voxel_r, naive_pooled, atol=1e-6)
+
+
+# --------------------------------------------------------------------------- #
+# 40s time-shift 负控制：shift_valid_by_story 纳入评分 mask（M3b 用）
+# --------------------------------------------------------------------------- #
+
+def test_shift_valid_by_story_reduces_scored_trs():
+    """shift_valid_by_story 传入时，评分点数应等于 FIR-valid∩>100s∩shift_valid
+    的交集，严格小于（或等于）不传时的点数——验证位移边缘确实被排除评分。"""
+    data = _make_stories(n_stories=3, T=80, signal=True, noise=0.02)
+    test = ["s0"]
+    fr_normal = run_fold(data, ["s1", "s2"], test, numpy_ridgecv_solver,
+                        pca_k=8, seed=0, verbose=False)
+    # >100s mask 对 T=80 的合成故事只留后 25 行（约 index 55-79，见 _tr_times）；
+    # shift_valid 从 index 65 开始有效，与之相交后应比只用 >100s 时更窄
+    T = data["s0"].X.shape[0]
+    shift_valid = np.zeros(T, dtype=bool)
+    shift_valid[65:] = True
+    fr_shifted = run_fold(data, ["s1", "s2"], test, numpy_ridgecv_solver,
+                          pca_k=8, seed=0, verbose=False,
+                          shift_valid_by_story={"s0": shift_valid})
+    assert fr_shifted.n_eff_tr < fr_normal.n_eff_tr
+    assert fr_shifted.n_eff_tr > 0
+
+
+def test_shift_valid_wrong_length_raises():
+    data = _make_stories(n_stories=3, T=80, signal=True, noise=0.02)
+    bad = np.ones(10, dtype=bool)  # 长度与故事 T=80 不符
+    with pytest.raises(ValueError):
+        run_fold(data, ["s1", "s2"], ["s0"], numpy_ridgecv_solver, pca_k=8,
+                 seed=0, verbose=False, shift_valid_by_story={"s0": bad})
