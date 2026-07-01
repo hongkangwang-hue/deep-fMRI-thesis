@@ -128,12 +128,26 @@ def main():
                     help="只诊断指定 fold（如 fold_0）；默认全部")
     ap.add_argument("--boundary-warn", type=float, default=0.05,
                     help="λ 边界命中率超过此比例则提示需考虑扩网格")
+    ap.add_argument("--lambda-log-min", type=float, default=-2,
+                    help="探索用 λ 网格下界指数（默认 -2，与冻结 spec 一致）")
+    ap.add_argument("--lambda-log-max", type=float, default=4,
+                    help="探索用 λ 网格上界指数（默认 4，与冻结 spec 一致；"
+                         "命中率高时可临时调大，如 7，仅用于诊断探索，"
+                         "不会改动 pipeline.py 里真正冻结的 LAMBDA_GRID）")
+    ap.add_argument("--lambda-n", type=int, default=13,
+                    help="探索用 λ 网格点数（默认 13，与冻结 spec 一致）")
     args = ap.parse_args()
 
     cfg = load_config()
     paths, ds = cfg["paths"], cfg["datasets"]
     seed = cfg["seeds"]["pca"]
     dt = np.dtype(args.dtype)
+    lambda_grid = np.logspace(args.lambda_log_min, args.lambda_log_max, args.lambda_n)
+    if not np.allclose(lambda_grid, LAMBDA_GRID):
+        print(f"[m3a] ⚠️ 使用探索性网格 logspace({args.lambda_log_min},"
+              f"{args.lambda_log_max},{args.lambda_n}) = "
+              f"[{lambda_grid.min():.4g},{lambda_grid.max():.4g}]，"
+              f"非冻结 spec 网格，仅供 M3a 诊断探索，不影响 pipeline.py", flush=True)
 
     with open(Path(paths["frozen_dir"]) / "fold_split.json") as f:
         fold_split = json.load(f)
@@ -154,7 +168,7 @@ def main():
         Path(paths["frozen_dir"]) / "word_index.parquet",
     )
 
-    diags = [diagnose_fold(fn, train_by_fold[fn], story_data, LAMBDA_GRID,
+    diags = [diagnose_fold(fn, train_by_fold[fn], story_data, lambda_grid,
                            PCA_K, INNER_FOLDS, seed, dt)
              for fn in fold_names]
 
@@ -172,12 +186,17 @@ def main():
     report = {
         "model": args.model, "H": args.H, "layer": args.layer,
         "subject": args.subject, "dtype": args.dtype, "seed": seed,
-        "lambda_grid": "logspace(-2,4,13)", "pca_k": PCA_K,
+        "lambda_grid": f"logspace({args.lambda_log_min},{args.lambda_log_max},{args.lambda_n})",
+        "lambda_grid_is_frozen_spec": bool(np.allclose(lambda_grid, LAMBDA_GRID)),
+        "pca_k": PCA_K,
         "inner_folds": INNER_FOLDS,
         "folds": diags, "verdict": verdict,
         "note": "M3a blind check: no held-out r computed or saved.",
     }
-    with open(out_dir / f"m3a_{args.model}_H{args.H}_{args.layer}.json", "w") as f:
+    grid_tag = "" if report["lambda_grid_is_frozen_spec"] else \
+        f"_grid{args.lambda_log_min}to{args.lambda_log_max}"
+    out_path = out_dir / f"m3a_{args.model}_H{args.H}_{args.layer}{grid_tag}.json"
+    with open(out_path, "w") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
     print("\n[m3a] === 盲态核查判定 ===", flush=True)
@@ -187,7 +206,7 @@ def main():
           flush=True)
     print(f"[m3a] NaN: {'有⚠️' if verdict['any_nan'] else '无'}  "
           f"零方差Y: {'有⚠️' if verdict['any_zerovar_Y'] else '无'}", flush=True)
-    print(f"[m3a] 报告 → {out_dir}", flush=True)
+    print(f"[m3a] 报告 → {out_path}", flush=True)
 
 
 if __name__ == "__main__":
