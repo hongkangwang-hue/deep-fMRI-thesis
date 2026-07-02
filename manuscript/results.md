@@ -43,6 +43,15 @@ is significantly smaller than Pythia's.
 
 ### Descriptive Context Gain per model (left IFG, main layer)
 
+**⚠️ Read together with the negative control below.** The 40 s time-shift
+control shows that none of the three core models' raw Δr_total below is
+significantly reduced by destroying word order (RWKV's is even
+significantly *larger* under shift) — see "Negative control" for the full
+paired analysis. These per-model magnitudes should therefore **not** be
+quoted as evidence of genuine contextual/linguistic integration on their
+own; only the *between-architecture difference* in gain (the confirmatory
+family above) has been shown to be word-order-specific.
+
 | Model | Δr_total (128−8) | 95% CI |
 |---|---|---|
 | Pythia | +0.0035 | [+0.0020, +0.0051] |
@@ -131,25 +140,37 @@ pass, and must be reported at three distinct levels rather than as a blanket
    (Mamba > Pythia, RWKV < Pythia) is word-order-specific — the two
    confirmatory findings survive this control.
 
-3. **Each model's own raw Context Gain — only partially word-order-specific
-   (important caveat).** The paired normal − shifted Δr_total difference
-   (`delta_total_normal_minus_shift_{model}_ifg_main`, computed within each
-   bootstrap draw) shows that shifting significantly reduces the Context
-   Gain for **Mamba only** (Δ ≈ +0.0023, CI excludes 0); for **Pythia** the
-   reduction is not significant (CI crosses 0), and for **RWKV** the shifted
-   Context Gain is actually *larger* than normal (Δ ≈ −0.0039, CI excludes 0
-   on the negative side). In other words a substantial part of the raw
-   per-model Δr_total survives temporal scrambling, so raw Context Gain must
-   **not** be interpreted as purely genuine long-range linguistic
-   integration — part of it plausibly reflects a low-level statistical
-   property of longer-context representations (greater temporal
-   smoothness/autocorrelation aligning with slow BOLD structure even when
-   misaligned). This does not undermine the confirmatory *architecture
-   difference* (level 2), but it bounds how the *magnitude* of any single
-   model's Context Gain can be interpreted.
+3. **Each model's own raw Context Gain — largely survives temporal
+   scrambling (a stronger caveat than "partial").** The paired normal −
+   shifted Δr_total difference (`delta_total_normal_minus_shift_{model}
+   _ifg_main`, computed within each bootstrap draw; real run, seed
+   `20260701`), left IFG main layer:
 
-*(Exact point estimates + 95% CIs for level 3 are in `m5_results.json`
-after re-running M5 with the paired estimand added; Figure 4c plots them.)*
+   | Model | normal − shifted Δr_total | 95% CI | Verdict |
+   |---|---|---|---|
+   | Pythia | −0.0004 | [−0.0029, +0.0020] | n.s. (crosses 0) |
+   | Mamba | +0.0023 | [−0.0004, +0.0051] | n.s. (crosses 0) |
+   | RWKV | **−0.0039** | **[−0.0063, −0.0015]** | **significant — shift *increased* Context Gain** |
+   | AWD-LSTM | ≈0.0000 | [−0.0002, +0.0002] | n.s. (expected; no gain either way) |
+
+   **Zero of the three core models show a significant reduction** in their
+   own raw Context Gain under shift. RWKV's is significantly *larger* under
+   shift than normal — the opposite of what a clean negative control would
+   predict. This means raw per-model Δr_total (the *descriptive* Context
+   Gain numbers reported above, and in Figure 3b) should **not** be read as
+   evidence of genuine long-range linguistic integration at all — for these
+   three checkpoints, most or all of it survives destroying word order, so
+   it plausibly reflects a low-level statistical property of longer-context
+   representations (e.g., greater temporal smoothness/autocorrelation that
+   aligns with slow BOLD structure regardless of alignment) rather than
+   context-dependent language processing. **This does not undermine the two
+   confirmatory findings** (level 2: the *between-architecture difference*
+   in Context Gain is word-order-specific and survives). It does mean the
+   *descriptive* per-model Context Gain magnitudes (Pythia +0.0035, Mamba
+   +0.0064, RWKV +0.0006 in the normal condition) carry substantially less
+   evidentiary weight as standalone claims than their CIs alone would
+   suggest, and should be presented with this caveat attached whenever
+   quoted.
 
 ## Known gaps
 
