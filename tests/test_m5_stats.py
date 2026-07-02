@@ -12,6 +12,22 @@ from src.stats.bootstrap import (
     BootstrapData, aggregate_to_r, paired_bootstrap, draws_to_arrays,
     percentile_ci, bootstrap_two_sided_p, holm_bonferroni, _identity_idx,
 )
+from src.stats.estimands import compute_estimands
+
+
+def test_context_gain_normal_minus_shift_paired():
+    """负控制配对差值 = normal Δr_total − shifted Δr_total（逐 draw 相减）。"""
+    rt = {}
+    # 构造 pythia IFG 主层 normal/shift 的 H8/H128 r，使 Δr_total 已知
+    rt[("main", "pythia", 8, "normal", "left_IFG")] = 0.10
+    rt[("main", "pythia", 128, "normal", "left_IFG")] = 0.14   # normal Δ=+0.04
+    rt[("main", "pythia", 8, "shift", "left_IFG")] = 0.01
+    rt[("main", "pythia", 128, "shift", "left_IFG")] = 0.04    # shift Δ=+0.03
+    out = compute_estimands(rt)
+    assert out["delta_total_pythia_ifg_main"] == pytest.approx(0.04)
+    assert out["shifted_delta_total_pythia_ifg_main"] == pytest.approx(0.03)
+    # 配对差值 = 0.04 - 0.03 = 0.01（shift 削弱了 0.01 的 gain）
+    assert out["delta_total_normal_minus_shift_pythia_ifg_main"] == pytest.approx(0.01)
 
 
 def _toy_data():

@@ -112,13 +112,44 @@ as the Mamba result.
 
 ## Negative control (40-second time shift)
 
-After a 40 s within-story feature shift (no circular wrap, shared valid-TR
-mask with the normal condition), neither confirmatory architecture contrast
-reproduces a CI that excludes zero (`shifted_diagnostic.
-shifted_reproduces_architecture_effect = false`). This supports that the
-normal-condition effects reflect genuine word-order-locked contextual
-processing rather than drift, story-position confounds, or another
-positional artifact.
+The 40 s within-story feature shift (no circular wrap; out-of-bounds TRs
+dropped; normal and shifted scored on a shared valid-TR mask; scaler/PCA/
+Ridge re-fit on training folds within each condition) is only a **partial**
+pass, and must be reported at three distinct levels rather than as a blanket
+"shift removes the effect":
+
+1. **Absolute brain alignment — destroyed (clean pass).** IFG r collapses
+   from ~0.13 (normal) to ~0.007–0.011 (shifted) across all models/H
+   (`m5_results.json::estimands r_*_left_IFG_main_shift`). The main
+   brain-alignment signal is genuinely word-order-locked.
+
+2. **Between-architecture Context-Gain difference (the confirmatory family)
+   — collapses under shift (supports the confirmatory claim).** The shifted
+   architecture contrasts shrink to ~+0.0001…+0.0005 and no longer exclude
+   zero (`shifted_diagnostic.shifted_reproduces_architecture_effect =
+   false`). So the *difference* in Context Gain between architectures
+   (Mamba > Pythia, RWKV < Pythia) is word-order-specific — the two
+   confirmatory findings survive this control.
+
+3. **Each model's own raw Context Gain — only partially word-order-specific
+   (important caveat).** The paired normal − shifted Δr_total difference
+   (`delta_total_normal_minus_shift_{model}_ifg_main`, computed within each
+   bootstrap draw) shows that shifting significantly reduces the Context
+   Gain for **Mamba only** (Δ ≈ +0.0023, CI excludes 0); for **Pythia** the
+   reduction is not significant (CI crosses 0), and for **RWKV** the shifted
+   Context Gain is actually *larger* than normal (Δ ≈ −0.0039, CI excludes 0
+   on the negative side). In other words a substantial part of the raw
+   per-model Δr_total survives temporal scrambling, so raw Context Gain must
+   **not** be interpreted as purely genuine long-range linguistic
+   integration — part of it plausibly reflects a low-level statistical
+   property of longer-context representations (greater temporal
+   smoothness/autocorrelation aligning with slow BOLD structure even when
+   misaligned). This does not undermine the confirmatory *architecture
+   difference* (level 2), but it bounds how the *magnitude* of any single
+   model's Context Gain can be interpreted.
+
+*(Exact point estimates + 95% CIs for level 3 are in `m5_results.json`
+after re-running M5 with the paired estimand added; Figure 4c plots them.)*
 
 ## Known gaps
 

@@ -76,6 +76,13 @@ def rq1(est: dict, arch: str, H: int):
     return (e["point"], e["ci_lo"], e["ci_hi"]) if e else (None, None, None)
 
 
+def gain_reduction(est: dict, model: str):
+    """负控制配对差值 normal−shifted Context Gain（IFG 主层）：(point, ci_lo, ci_hi)。
+    正且 CI 排除0 = 平移显著削弱了该模型的 Context Gain（负控制对该模型有效）。"""
+    e = _get(est, f"delta_total_normal_minus_shift_{model}_ifg_main")
+    return (e["point"], e["ci_lo"], e["ci_hi"]) if e else (None, None, None)
+
+
 def arch_delta_total(est: dict, arch: str, layer: str = "main"):
     """架构 Δr_total 差值 arch−pythia（IFG，layer∈{main,final}）：(point, ci_lo, ci_hi)。"""
     e = _get(est, f"{arch}_minus_pythia_delta_total_ifg_{layer}")

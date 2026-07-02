@@ -101,4 +101,14 @@ def compute_estimands(rt: dict) -> dict[str, float]:
     out["shifted_mamba_minus_pythia_delta_total_ifg_main"] = (
         out["shifted_delta_total_mamba_ifg_main"] - out["shifted_delta_total_pythia_ifg_main"])
 
+    # ── 稳健性B（负控制的正确统计量）：每模型 normal − shifted Context Gain 的**配对**
+    # 差值（同一次 bootstrap 抽样内相减 → 正确配对 CI）。这是判断"平移是否显著降低了
+    # Context Gain"的关键量：CI 排除 0 且为正 = 平移显著削弱了该模型的上下文增益（负
+    # 控制对该模型有效）；CI 跨 0 = 平移未显著降低（该模型的 Δr_total 大部分非词序特异，
+    # 需谨慎解读）。注意：这检验的是每模型自身的 gain，与架构差值收缩（上面 shifted_*_
+    # minus_pythia）是不同层面——后者才对应确认性家族。
+    for m in MODELS:
+        out[f"delta_total_normal_minus_shift_{m}_ifg_main"] = (
+            out[f"delta_total_{m}_ifg_main"] - out[f"shifted_delta_total_{m}_ifg_main"])
+
     return out

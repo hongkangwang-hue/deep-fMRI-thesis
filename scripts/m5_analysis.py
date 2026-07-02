@@ -203,6 +203,8 @@ def main():
             "shifted_delta_local": [f"shifted_delta_local_{m}_ifg_main" for m in ("pythia", "mamba", "rwkv", "awd_lstm")],
             "shifted_delta_long": [f"shifted_delta_long_{m}_ifg_main" for m in ("pythia", "mamba", "rwkv", "awd_lstm")],
             "shifted_delta_total": [f"shifted_delta_total_{m}_ifg_main" for m in ("pythia", "mamba", "rwkv", "awd_lstm")],
+            "context_gain_normal_minus_shift":
+                [f"delta_total_normal_minus_shift_{m}_ifg_main" for m in ("pythia", "mamba", "rwkv", "awd_lstm")],
         },
     }
 
@@ -220,12 +222,26 @@ def main():
             (e["ci_lo"] > 0 and e["ci_hi"] > 0) or (e["ci_lo"] < 0 and e["ci_hi"] < 0))
     shifted_arch = ["shifted_rwkv_minus_pythia_delta_total_ifg_main",
                     "shifted_mamba_minus_pythia_delta_total_ifg_main"]
+    # 每模型 Context Gain 是否被平移显著削弱（配对差值 normal−shifted，CI 排除0且正=削弱）
+    gain_reduction = {}
+    for m in ("pythia", "mamba", "rwkv", "awd_lstm"):
+        n = f"delta_total_normal_minus_shift_{m}_ifg_main"
+        e = estimands[n]
+        gain_reduction[m] = {**e,
+                             "shift_significantly_reduced_gain":
+                                 bool(ci_excludes_zero(n) and e["point"] > 0)}
     shifted_diagnostic = {
+        # 层面①：架构差值在平移后是否仍成立（对应确认性家族；应为 False=塌掉才好）
         "shifted_architecture_contrasts": {n: {**estimands[n],
                                                "ci_excludes_zero": bool(ci_excludes_zero(n))}
                                           for n in shifted_arch},
         "shifted_reproduces_architecture_effect": bool(any(ci_excludes_zero(n) for n in shifted_arch)),
-        "note": "若为 true：40s 位移未消除架构差值，需排查漂移/位置伪影，停止机制解释",
+        # 层面②：每模型自身 Context Gain 是否被平移显著削弱（配对差值）
+        "per_model_gain_reduction_normal_minus_shift": gain_reduction,
+        "n_models_with_gain_significantly_reduced":
+            int(sum(v["shift_significantly_reduced_gain"] for v in gain_reduction.values())),
+        "note": "架构差值应在平移后塌掉(reproduces=False 才好)；每模型自身 gain 若未被显著"
+                "削弱(reduction CI 跨0)，则该模型 Δr_total 只部分为词序特异，解读须谨慎。",
     }
 
     # 验收1：execution_log 里每个注册项映射的估计量都真实算出且有限（程序化，非自我声明）
@@ -313,8 +329,23 @@ def _print_summary(estimands, confirmatory, flips, shifted_ok, shifted_diag, out
 
     print(f"\n[m5] shifted 负控制全部算出: {'✅' if shifted_ok else '⚠️ 有缺失/NaN'}", flush=True)
     repro = shifted_diag["shifted_reproduces_architecture_effect"]
-    print(f"[m5] shifted 诊断: 40s位移后架构差值CI仍排除0 = {'⚠️ 是（需排查漂移伪影）' if repro else '否（符合预期，位移消除了效应）'}",
+    print(f"[m5] 层面①架构差值: 40s位移后架构差值CI仍排除0 = "
+          f"{'⚠️ 是（确认性发现受威胁，需排查）' if repro else '否（架构差值塌掉，确认性发现是词序特异的✓）'}",
           flush=True)
+    print("[m5] 层面②每模型自身 Context Gain 是否被平移显著削弱（normal−shifted 配对差值）:", flush=True)
+    for m, v in shifted_diag["per_model_gain_reduction_normal_minus_shift"].items():
+        lo, hi, pt = v["ci_lo"], v["ci_hi"], v["point"]
+        sig = (lo > 0 and hi > 0) or (lo < 0 and hi < 0)
+        if sig and pt > 0:
+            tag = "✓显著削弱"
+        elif sig and pt < 0:
+            tag = "⚠️平移反而显著增强gain（更反常，非纯词序信号）"
+        else:
+            tag = "⚠️未显著变化(CI跨0)"
+        print(f"[m5]   {m}: Δgain={pt:+.4f} [{lo:+.4f},{hi:+.4f}] {tag}", flush=True)
+    n_red = shifted_diag["n_models_with_gain_significantly_reduced"]
+    print(f"[m5]   → {n_red}/4 个模型的 Context Gain 被平移显著削弱；未被削弱的模型其 Δr_total "
+          f"只部分为词序特异，解读须谨慎（非纯长程语言整合）", flush=True)
     print(f"[m5] 结果 → {out_dir / 'm5_results.json'}", flush=True)
 
 

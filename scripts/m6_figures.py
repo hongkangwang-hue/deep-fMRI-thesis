@@ -33,7 +33,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config_loader import load_config    # noqa: E402
 from src.viz.m6_data import (                # noqa: E402
-    load_results, r_curve, context_gain, rq1, arch_delta_total,
+    load_results, r_curve, context_gain, rq1, arch_delta_total, gain_reduction,
     confirmatory_rows, ci_excludes_zero,
     CORE_MODELS, REFERENCE_MODEL, MODEL_STYLE, HS, CORE_VS_PYTHIA,
 )
@@ -204,24 +204,32 @@ def fig3(results, est, outdir):
 # ---------------------------------------------------------------------------
 
 def fig4(results, est, outdir):
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
+    from matplotlib.lines import Line2D
+    DRT = r"$\Delta r_{\mathrm{total}}$"                     # Δr_total 的 mathtext
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.8))
+    fig.subplots_adjust(top=0.82, wspace=0.30)
 
-    # (a) IFG r 曲线：正常 vs shifted
+    # (a) IFG r 曲线：normal(实线) vs shifted(点线)——绝对 r 是否被平移摧毁
     ax = axes[0]
     for m in ALL_MODELS:
         st = MODEL_STYLE[m]
         xs = [HPOS[HS.index(h)] for h in HS]
         pn = r_curve(est, m, "left_IFG", "main", "normal")[1]
         ps = r_curve(est, m, "left_IFG", "main", "shift")[1]
-        ax.plot(xs, pn, color=st["color"], linestyle="-", marker=st["marker"],
-                linewidth=1.8, label=f"{m} normal")
+        ax.plot(xs, pn, color=st["color"], linestyle="-", marker=st["marker"], linewidth=1.8)
         ax.plot(xs, ps, color=st["color"], linestyle=":", marker=st["marker"],
-                linewidth=1.3, alpha=0.7)
+                linewidth=1.3, alpha=0.8)
     ax.set_xticks(HPOS); ax.set_xticklabels([f"H={h}" for h in HS])
-    ax.set_title("(a) IFG r: normal (solid) vs 40s shifted (dotted)")
-    ax.set_ylabel("brain score r"); ax.legend(fontsize=7); ax.grid(True, axis="y", alpha=0.3)
+    ax.set_title("(a) IFG brain score r")
+    ax.set_ylabel("brain score r"); ax.grid(True, axis="y", alpha=0.3)
+    # 图例：明确 实线=normal / 点线=shifted + 模型颜色
+    style_handles = [Line2D([0], [0], color="k", linestyle="-", label="normal"),
+                     Line2D([0], [0], color="k", linestyle=":", label="shifted (40s)")]
+    model_handles = [Line2D([0], [0], color=MODEL_STYLE[m]["color"], marker=MODEL_STYLE[m]["marker"],
+                            linestyle="-", label=m) for m in ALL_MODELS]
+    ax.legend(handles=style_handles + model_handles, fontsize=7, loc="upper left", ncol=2)
 
-    # (b) Δr_total：正常 vs shifted（每模型）
+    # (b) Δr_total：normal vs shifted 并排——注意 shifted 并未归零
     ax = axes[1]
     ax.axhline(0, color="k", linewidth=0.8, linestyle=":")
     width = 0.35
@@ -239,15 +247,37 @@ def fig4(results, est, outdir):
             ax.plot([j + width/2]*2, [s_lo, s_hi], color="k", linewidth=1.0)
     ax.set_xticks(range(len(ALL_MODELS)))
     ax.set_xticklabels(ALL_MODELS, rotation=15)
-    ax.set_title("(b) dr_total: normal vs shifted (IFG main)")
-    ax.set_ylabel("dr_total (95% CI)"); ax.legend(fontsize=8); ax.grid(True, axis="y", alpha=0.3)
+    ax.set_title(f"(b) {DRT} (IFG main): normal vs shifted")
+    ax.set_ylabel(f"{DRT} (95% CI)"); ax.legend(fontsize=8); ax.grid(True, axis="y", alpha=0.3)
 
-    diag = results.get("shifted_diagnostic", {})
-    repro = diag.get("shifted_reproduces_architecture_effect")
-    tag = "WARNING: shifted still significant (check drift)" if repro \
-        else "shifted removes effect (as expected)"
-    fig.suptitle(f"Figure 4  40s time-shift negative control -- {tag}",
-                 fontsize=11, fontweight="bold")
+    # (c) 配对差值 normal−shifted Context Gain（关键统计量）：CI 排除0且正=平移显著削弱
+    ax = axes[2]
+    ax.axhline(0, color="k", linewidth=0.8, linestyle=":")
+    for j, m in enumerate(ALL_MODELS):
+        st = MODEL_STYLE[m]
+        pt, lo, hi = gain_reduction(est, m)
+        _errbar(ax, j, pt, lo, hi, st)
+        if pt is not None and lo is not None:
+            sig = (lo > 0 and hi > 0) or (lo < 0 and hi < 0)
+            if sig and pt > 0:
+                txt, col = "reduced", "green"           # 平移削弱了 gain（负控制有效）
+            elif sig and pt < 0:
+                txt, col = "increased!", "red"          # 平移反而增强 gain（更反常）
+            else:
+                txt, col = "n.s.", "gray"               # 未显著变化
+            ax.annotate(txt, (j, hi if hi is not None else pt),
+                        textcoords="offset points", xytext=(0, 6), ha="center",
+                        fontsize=8, color=col)
+    ax.set_xticks(range(len(ALL_MODELS)))
+    ax.set_xticklabels(ALL_MODELS, rotation=15)
+    ax.set_title(f"(c) Context Gain reduction\nnormal − shifted {DRT} (paired 95% CI)")
+    ax.set_ylabel(f"normal − shifted {DRT}"); ax.grid(True, axis="y", alpha=0.3)
+    ylo, yhi = ax.get_ylim(); ax.set_ylim(ylo, yhi + 0.15 * (yhi - ylo))
+
+    # 中性标题：如实说三层结论，不预判"removes effect"
+    fig.suptitle("Figure 4  40s time-shift negative control: absolute r collapses (a), "
+                 f"but per-model {DRT} only partially reduced (b,c)",
+                 fontsize=11, fontweight="bold", y=0.97)
     _save(fig, outdir, "fig4_negative_control")
 
 
