@@ -130,7 +130,9 @@ def fig2(results, est, outdir):
 # ---------------------------------------------------------------------------
 
 def fig3(results, est, outdir):
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
+    # 高度加大 + 顶部预留空间，避免 (c) 面板自己的两行标题跟 suptitle 撞在一起
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5.3))
+    fig.subplots_adjust(top=0.78, wspace=0.32)
 
     # (a) RQ1 H-specific 架构差值 arch−pythia（IFG 主层）
     ax = axes[0]
@@ -188,10 +190,12 @@ def fig3(results, est, outdir):
     ax.set_title("(c) CONFIRMATORY: dr_total arch diff\n(IFG main, Holm alpha=0.05)")
     ax.set_ylabel("dr_total diff (95% CI)")
     ax.grid(True, axis="y", alpha=0.3)
+    ylo, yhi = ax.get_ylim()                    # 给 p 值标注留headroom，避免被顶边裁掉
+    ax.set_ylim(ylo, yhi + 0.18 * (yhi - ylo))
 
     fig.suptitle("Figure 3  Context length x architecture "
                  "((c) is the only confirmatory family; rest exploratory/descriptive)",
-                 fontsize=11, fontweight="bold")
+                 fontsize=11, fontweight="bold", y=0.97)
     _save(fig, outdir, "fig3_rq1_context_gain")
 
 
@@ -276,6 +280,8 @@ def fig5(results, est, outdir):
     ax.scatter([], [], marker="o", color="k", label="main layer")
     ax.scatter([], [], marker="D", color="k", label="final layer")
     ax.legend(fontsize=9); ax.grid(True, axis="y", alpha=0.3)
+    ylo, yhi = ax.get_ylim()                    # 给"FLIP/no flip"标注留headroom，避免被顶边裁掉
+    ax.set_ylim(ylo, yhi + 0.15 * (yhi - ylo))
     _save(fig, outdir, "fig5_layer_robustness")
 
 
