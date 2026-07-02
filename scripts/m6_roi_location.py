@@ -94,12 +94,29 @@ def main():
                                        with_rois=False)
 
     ax = fig.axes[0]
+    # L/R 标注：pycortex flatmap 两半球以 x=0 为界（左半球 x<0，右半球 x>0），
+    # 各自标在该半球宽度中点、图像顶部上方（扩 ylim 留 headroom，不压在脑组织上）
+    xlo, xhi = ax.get_xlim()
+    ylo, yhi = ax.get_ylim()
+    pad = 0.10 * (yhi - ylo)
+    ax.set_ylim(ylo, yhi + pad)
+    ax.text(xlo / 2, yhi + pad * 0.35, "L", ha="center", va="bottom",
+            fontsize=15, fontweight="bold")
+    ax.text(xhi / 2, yhi + pad * 0.35, "R", ha="center", va="bottom",
+            fontsize=15, fontweight="bold")
+
     handles = [Patch(facecolor=st["color"], edgecolor="k",
                      label=f"{st['label']} — {counts[name]} voxels")
                for name, st in ROI_STYLE.items()]
-    ax.legend(handles=handles, loc="lower left", fontsize=9, framealpha=0.9)
-    fig.suptitle(f"Figure 6  ROI locations on {args.subject} cortical flatmap "
-                 "(dominant-vertex assignment)", fontsize=12, fontweight="bold")
+    # 图例放整张图下方居中（不用单个 axes 的 loc，避免偏左下）
+    fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, 0.04),
+              ncol=2, fontsize=12, framealpha=0.9)
+
+    # 主标题中性简洁；归属规则移到第二行小字（图注性质），标题本身不冗长
+    fig.suptitle(f"Figure 6. Anatomical locations of the predefined ROIs in dataset",
+                fontsize=15, fontweight="bold", y=0.99)
+    fig.text(0.5, 0.945, f"ROI definition: dominant-vertex assignment ({args.subject})",
+             ha="center", fontsize=10.5, color="#333333")
 
     outdir = Path(cfg["paths"]["figures_dir"]) / args.subject
     outdir.mkdir(parents=True, exist_ok=True)
