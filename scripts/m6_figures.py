@@ -258,26 +258,28 @@ def fig4(results, est, outdir):
         pt, lo, hi = gain_reduction(est, m)
         _errbar(ax, j, pt, lo, hi, st)
         if pt is not None and lo is not None:
-            sig = (lo > 0 and hi > 0) or (lo < 0 and hi < 0)
-            if sig and pt > 0:
-                txt, col = "reduced", "green"           # 平移削弱了 gain（负控制有效）
-            elif sig and pt < 0:
-                txt, col = "increased!", "red"          # 平移反而增强 gain（更反常）
+            # 客观对称描述：panel 画 normal − shifted，CI 位于 0 上方=normal>shifted，
+            # 下方=shifted>normal，跨0=CI includes 0。不用"reduced/increased"等确认性措辞。
+            if lo > 0 and hi > 0:
+                txt, col = "normal > shifted", "green"
+            elif lo < 0 and hi < 0:
+                txt, col = "shifted > normal", "red"
             else:
-                txt, col = "n.s.", "gray"               # 未显著变化
+                txt, col = "CI includes 0", "gray"
             ax.annotate(txt, (j, hi if hi is not None else pt),
                         textcoords="offset points", xytext=(0, 6), ha="center",
                         fontsize=8, color=col)
     ax.set_xticks(range(len(ALL_MODELS)))
     ax.set_xticklabels(ALL_MODELS, rotation=15)
-    ax.set_title(f"(c) Context Gain reduction\nnormal − shifted {DRT} (paired 95% CI)")
+    ax.set_title(f"(c) normal − shifted {DRT}, paired 95% CI\n"
+                 "[diagnostic; unadjusted, not multiplicity-corrected; not confirmatory]",
+                 fontsize=9)
     ax.set_ylabel(f"normal − shifted {DRT}"); ax.grid(True, axis="y", alpha=0.3)
     ylo, yhi = ax.get_ylim(); ax.set_ylim(ylo, yhi + 0.15 * (yhi - ylo))
 
-    # 中性标题：如实说三层结论，不预判"removes effect"
-    fig.suptitle("Figure 4  40s time-shift negative control: absolute r collapses (a), "
-                 f"but per-model {DRT} only partially reduced (b,c)",
-                 fontsize=11, fontweight="bold", y=0.97)
+    # 中性标题：纯描述，不预判方向（Pythia 未降、RWKV 反升，"reduced"会误导）
+    fig.suptitle("Figure 4. Effects of a 40-s time shift on encoding performance and Context Gain",
+                 fontsize=12, fontweight="bold", y=0.97)
     _save(fig, outdir, "fig4_negative_control")
 
 

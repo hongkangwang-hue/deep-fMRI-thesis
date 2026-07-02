@@ -103,7 +103,10 @@ def load_bootstrap_data(cells_dir: Path, fold_stories: dict[str, list[str]]) -> 
                 bad = [fold_stories[f][i] for i in np.nonzero(np.isnan(byf[f]))[0]]
                 raise ValueError(f"[{key}] fold {f} 缺故事 z：{bad}")
 
-    # 验收5复核：主层 normal 与 shift 权重逐故事相等（共同 mask）
+    # 验收5复核（**必要非充分**）：主层 normal 与 shift 权重(n_eff)逐故事相等。注意这只是
+    # 必要条件——两 mask 可选中不同 TR 却计数相同。**mask 本身逐元素相同的充分验证**在
+    # M4 源头(m4_driver 的 scoring_mask_bit_identical 断言)+ scripts/verify_scoring_mask_
+    # identity.py 完成；此处保留 n_eff 相等作为 M5 侧的廉价交叉检查。
     for key in z:
         layer, model, H, cond, roi = key
         if layer == "main" and cond == "normal":

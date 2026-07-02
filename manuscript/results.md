@@ -43,11 +43,12 @@ is significantly smaller than Pythia's.
 
 ### Descriptive Context Gain per model (left IFG, main layer)
 
-**⚠️ Read together with the negative control below.** The 40 s time-shift
-control shows that none of the three core models' raw Δr_total below is
-significantly reduced by destroying word order (RWKV's is even
-significantly *larger* under shift) — see "Negative control" for the full
-paired analysis. These per-model magnitudes should therefore **not** be
+**⚠️ Read together with the negative control below.** In the 40 s
+time-shift control, for none of the three core models does the paired
+(normal − shifted) Δr_total CI lie above 0 — i.e. destroying word order
+does not lower these raw Context Gains, and for RWKV the paired CI lies
+below 0 (Context Gain larger under shift) — see "Negative control" for the
+full diagnostic. These per-model magnitudes should therefore **not** be
 quoted as evidence of genuine contextual/linguistic integration on their
 own; only the *between-architecture difference* in gain (the confirmatory
 family above) has been shown to be word-order-specific.
@@ -143,24 +144,29 @@ pass, and must be reported at three distinct levels rather than as a blanket
 3. **Each model's own raw Context Gain — largely survives temporal
    scrambling (a stronger caveat than "partial").** The paired normal −
    shifted Δr_total difference (`delta_total_normal_minus_shift_{model}
-   _ifg_main`, computed within each bootstrap draw; real run, seed
-   `20260701`), left IFG main layer:
+   _ifg_main`, differenced within each bootstrap draw; real run, seed
+   `20260701`), left IFG main layer. **This panel/table is a *diagnostic*
+   analysis: unadjusted paired 95% bootstrap CIs across the four models, not
+   multiplicity-corrected, and not part of the confirmatory family; each row
+   is described by where its paired CI lies relative to 0, not as an
+   independent significance test.**
 
-   | Model | normal − shifted Δr_total | 95% CI | Verdict |
+   | Model | normal − shifted Δr_total | paired 95% CI | CI position |
    |---|---|---|---|
-   | Pythia | −0.0004 | [−0.0029, +0.0020] | n.s. (crosses 0) |
-   | Mamba | +0.0023 | [−0.0004, +0.0051] | n.s. (crosses 0) |
-   | RWKV | **−0.0039** | **[−0.0063, −0.0015]** | **significant — shift *increased* Context Gain** |
-   | AWD-LSTM | ≈0.0000 | [−0.0002, +0.0002] | n.s. (expected; no gain either way) |
+   | Pythia | −0.0004 | [−0.0029, +0.0020] | includes 0 |
+   | Mamba | +0.0023 | [−0.0004, +0.0051] | includes 0 |
+   | RWKV | **−0.0039** | **[−0.0063, −0.0015]** | **lies below 0 (shifted > normal)** |
+   | AWD-LSTM | ≈0.0000 | [−0.0002, +0.0002] | includes 0 |
 
-   **Zero of the three core models show a significant reduction** in their
-   own raw Context Gain under shift. RWKV's is significantly *larger* under
-   shift than normal — the opposite of what a clean negative control would
-   predict. This means raw per-model Δr_total (the *descriptive* Context
-   Gain numbers reported above, and in Figure 3b) should **not** be read as
-   evidence of genuine long-range linguistic integration at all — for these
-   three checkpoints, most or all of it survives destroying word order, so
-   it plausibly reflects a low-level statistical property of longer-context
+   For none of the three core models does the paired CI lie **above** 0
+   (which would indicate the shift lowered Context Gain); for RWKV the paired
+   CI lies **below** 0 (shifted Context Gain larger than normal) — the
+   opposite of what a clean negative control would produce. This means raw
+   per-model Δr_total (the *descriptive* Context Gain numbers reported above,
+   and in Figure 3b) should **not** be read as evidence of genuine
+   long-range linguistic integration at all — for these three checkpoints,
+   most or all of it survives destroying word order, so it plausibly
+   reflects a low-level statistical property of longer-context
    representations (e.g., greater temporal smoothness/autocorrelation that
    aligns with slow BOLD structure regardless of alignment) rather than
    context-dependent language processing. **This does not undermine the two

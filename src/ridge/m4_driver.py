@@ -153,14 +153,27 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
             fr_shift = run_fold(shifted_data, train_s, test_s, solver, roi_columns=roi_cols,
                                 seed=seed, tag=tag + "/shift", shift_valid_by_story=shift_valid)
             elapsed_seconds["shift"] = round(time.time() - t_shift, 1)
-            common_mask_verified = fr_normal.n_eff_tr == fr_shift.n_eff_tr and all(
-                a.n_eff_tr == b.n_eff_tr and a.story == b.story
-                for a, b in zip(fr_normal.story_scores, fr_shift.story_scores))
+            # 共同 mask 的**充分**验证：normal 与 shift 逐 story 的布尔评分 mask 必须
+            # 逐元素相同（n_eff 相等只是必要条件——两 mask 可能选中不同 TR 却计数相同）。
+            # 源头断言：任何数据集在这里不一致会直接 raise，不会静默产出不可比的配对。
+            mask_bit_identical = True
+            for a, b in zip(fr_normal.story_scores, fr_shift.story_scores):
+                if a.story != b.story:
+                    raise ValueError(f"[{model}/H{H}/{fn}] normal/shift story 顺序不一致")
+                if a.scoring_mask is None or b.scoring_mask is None:
+                    mask_bit_identical = False
+                    break
+                if not np.array_equal(a.scoring_mask, b.scoring_mask):
+                    raise ValueError(
+                        f"[{model}/H{H}/{fn}/{a.story}] normal 与 shift 评分 mask 逐元素"
+                        f"不相同 → 非共同 mask，配对不成立（n_eff {a.n_eff_tr} vs {b.n_eff_tr}）")
             shift_differs = any(
                 abs(np.tanh(fr_normal.roi_z[n]) - np.tanh(fr_shift.roi_z[n])) > 1e-6
                 for n in fr_normal.roi_z)
             cell["shift"] = _fold_summary(fr_shift)
-            cell["common_mask_verified"] = bool(common_mask_verified)
+            # common_mask_verified 现在是"逐元素 mask 相同"的强验证（不再是 n_eff 计数相等）
+            cell["common_mask_verified"] = bool(mask_bit_identical)
+            cell["scoring_mask_bit_identical"] = bool(mask_bit_identical)
             cell["shift_differs_from_normal"] = bool(shift_differs)
             valphas["shift"] = fr_shift.valphas
 

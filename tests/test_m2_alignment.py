@@ -227,3 +227,26 @@ def test_trfile_axis_lengths_consistent():
     assert len(story_tr_times(resps)) == resps - 5
     assert expected_response_rows(resps) == resps - 5 - 15
     assert len(trimmed_tr_times(resps)) == expected_response_rows(resps)
+
+# --------- FIR/shift 有效掩码与特征值无关（M4 normal/shift 共同 mask 的基础）--------
+
+def test_apply_fir_valid_is_feature_value_independent():
+    """apply_fir 的 valid 只取决于位置/长度，与特征值无关——这是 normal 与 shift
+    条件用同一评分 mask 的前提（见 scripts/verify_scoring_mask_identity.py 步骤①）。"""
+    rng = np.random.default_rng(0)
+    for L in (20, 37, 128):
+        a = rng.standard_normal((L, 5))
+        b = rng.standard_normal((L, 5))          # 不同值、同 shape
+        _, va = apply_fir(a, delays_s=(2, 4, 6, 8), tr=2.0)
+        _, vb = apply_fir(b, delays_s=(2, 4, 6, 8), tr=2.0)
+        assert np.array_equal(va, vb)
+
+
+def test_shift_no_wrap_valid_is_feature_value_independent():
+    rng = np.random.default_rng(1)
+    for L in (25, 60, 130):
+        a = rng.standard_normal((L, 3))
+        b = rng.standard_normal((L, 3))
+        _, va = shift_story_no_wrap(a, seconds=40.0, tr=2.0)
+        _, vb = shift_story_no_wrap(b, seconds=40.0, tr=2.0)
+        assert np.array_equal(va, vb)

@@ -64,6 +64,9 @@ class StoryScore:
     voxel_r: np.ndarray              # <float>[V]  该 story 每体素 r
     roi_z: dict                      # {roi_name: fisher-z 空间 ROI 标量}
     n_eff_tr: int                    # 该 story 有效评分 TR 数（加权用）
+    scoring_mask: np.ndarray | None = None  # <bool>[L] 该 story 实际评分 mask（供 normal/shift
+                                            # 逐元素对比：n_eff 相等只是必要条件，mask 本身
+                                            # 相等才是共同 mask 的充分证据，见 m4_driver 断言）
 
 
 @dataclass
@@ -278,7 +281,7 @@ def run_fold(story_data: dict[str, StoryData],
         roi_z = {name: roi_mean_fisherz(v_r, cols)
                  for name, cols in roi_columns.items()}
         story_scores.append(StoryScore(story=s, voxel_r=v_r, roi_z=roi_z,
-                                       n_eff_tr=int(m.sum())))
+                                       n_eff_tr=int(m.sum()), scoring_mask=m.copy()))
     if not story_scores:
         raise ValueError(f"折内所有测试故事评分点数为 0: {test_stories}")
 
