@@ -288,32 +288,26 @@ def fig4(results, est, outdir):
 # ---------------------------------------------------------------------------
 
 def fig5(results, est, outdir):
+    DRT = r"$\Delta r_{\mathrm{total}}$"
     fig, ax = plt.subplots(figsize=(7.5, 5))
     ax.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    flips = results.get("layer_flip", {})
     width = 0.35
     for i, arch in enumerate(CORE_VS_PYTHIA):
         st = MODEL_STYLE[arch]
         m_pt, m_lo, m_hi = arch_delta_total(est, arch, "main")
         f_pt, f_lo, f_hi = arch_delta_total(est, arch, "final")
-        _errbar(ax, i, m_pt, m_lo, m_hi, st, dx=-width/2)
+        # marker 只编码层位（主层=圆形/最终层=菱形），不随架构变化，与图例严格一致；
+        # 颜色仍按架构区分（继承 MODEL_STYLE 的 color）
+        _errbar(ax, i, m_pt, m_lo, m_hi, {**st, "marker": "o"}, dx=-width/2)
         _errbar(ax, i, f_pt, f_lo, f_hi, {**st, "marker": "D"}, dx=+width/2)
-        base = f"{arch}_minus_pythia_delta_total"
-        fl = flips.get(base, {})
-        ax.annotate("FLIP" if fl.get("substantive_flip") else "no flip",
-                    (i, max(m_hi or 0, f_hi or 0)), textcoords="offset points",
-                    xytext=(0, 10), ha="center", fontsize=9,
-                    color="red" if fl.get("substantive_flip") else "gray")
     ax.set_xticks(range(len(CORE_VS_PYTHIA)))
     ax.set_xticklabels(["RWKV-Pythia", "Mamba-Pythia"])
-    ax.set_ylabel("dr_total arch diff (95% CI)")
-    ax.set_title("Figure 5  Layer robustness: main (circle) vs final (diamond)\n"
-                 "substantive flip = both CIs nonzero with opposite signs")
-    ax.scatter([], [], marker="o", color="k", label="main layer")
-    ax.scatter([], [], marker="D", color="k", label="final layer")
+    ax.set_xlabel("Architecture contrast")
+    ax.set_ylabel(f"Difference in total Context Gain, {DRT}, relative to Pythia")
+    ax.set_title("Figure 5. Layer-wise comparison of total Context Gain contrasts")
+    ax.scatter([], [], marker="o", color="k", label="Predefined main layer")
+    ax.scatter([], [], marker="D", color="k", label="Final layer")
     ax.legend(fontsize=9); ax.grid(True, axis="y", alpha=0.3)
-    ylo, yhi = ax.get_ylim()                    # 给"FLIP/no flip"标注留headroom，避免被顶边裁掉
-    ax.set_ylim(ylo, yhi + 0.15 * (yhi - ylo))
     _save(fig, outdir, "fig5_layer_robustness")
 
 
