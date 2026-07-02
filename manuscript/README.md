@@ -96,19 +96,19 @@ directory; defaults match what produced the numbers in `results.md`.
   via the AutoDL file browser and added to this repo (or the manuscript
   build) by hand.
 
+## Environment
+
+`environment/requirements-lock.txt` (263 lines, captured 2026-07-02 via
+`pip freeze` on the AutoDL GPU server, committed) is the actual environment
+used to produce every M4/M5 result in this draft — key versions: `torch
+2.3.0+cu121`, `himalaya 0.4.11`, `transformers 4.46.3`, `fastai 2.8.7`,
+`numpy 2.5.0`, `pandas 3.0.3`, `scikit-learn 1.9.0`. The root-level
+`requirements.txt` is a stale 4-line stub inherited from the upstream
+template (`datalad`/`pathlib`/`h5py`/`tables`) — **do not use it**; it does
+not reflect this project's actual environment.
+
 ## Known reproducibility gaps (honest, not yet closed)
 
-- **No environment lock file.** `requirements.txt` at the repo root is a
-  stale stub inherited from the upstream template (`datalad`, `pathlib`,
-  `h5py`, `tables`, `numpy` — 4 lines) and does **not** reflect the actual
-  GPU environment used (torch, himalaya, transformers, mamba-ssm, fastai
-  versions are undocumented). `config/config.yaml` declares
-  `environment_lock: environment/requirements-lock.txt`, but that file does
-  not exist. **Before final submission**, run on the AutoDL server:
-  ```bash
-  pip freeze > environment/requirements-lock.txt
-  ```
-  and commit it.
 - **No single frozen-config hash.** `config/config.yaml` declares
   `hash_algorithm: sha256` but no script actually computes one combined hash
   over the `frozen/` artifacts. In practice, provenance is tracked via the
