@@ -66,6 +66,9 @@ python3 scripts/m5_analysis.py
 # M6 — figures and tables (read-only over M5 results)
 python3 scripts/m6_figures.py
 python3 scripts/m6_tables.py
+# M6 supplementary — ROI location flatmap (reads frozen ROI columns + pycortex-db;
+# needs the pycortex-db flatmask/flatverts/surface-info annex caches fetched)
+python3 scripts/m6_roi_location.py
 ```
 
 Every script accepts `--subject`/`--out-name` to point at a different results
@@ -76,6 +79,7 @@ directory; defaults match what produced the numbers in `results.md`.
 | Deliverable | Source file |
 |---|---|
 | Figures 1–5 | `figures/UTS03/fig{1..5}_*.{png,pdf}` ← `scripts/m6_figures.py` ← `results/m5_stats/UTS03/m5_results.json` |
+| Figure 6 (ROI locations, supplementary) | `figures/UTS03/fig6_roi_location.{png,pdf}` ← `scripts/m6_roi_location.py` ← `frozen/roi_columns_UTS03.npz` + pycortex-db |
 | Table 1 (checkpoint audit) | `figures/UTS03/tables/table1_checkpoint_audit.{csv,md}` ← M4 cell meta + `config/config.yaml` |
 | Table 2 (full numbers) | `figures/UTS03/tables/table2_full_numbers.{csv,md}` ← `m5_results.json::estimands` |
 | QC table | `figures/UTS03/tables/qc_table.{csv,md}` ← `frozen/` + M4 cells |
