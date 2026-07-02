@@ -60,24 +60,25 @@ in any core architecture ranking** (see Conclusion Boundaries).
 
 ## RQ3 — Do IFG and PT show different descriptive context patterns?
 
-Point estimates of Δr_total (left IFG vs. bilateral PT, main layer,
-descriptive; from `table2_full_numbers.md`):
+Δr_total (left IFG vs. bilateral PT, main layer) and the dedicated
+IFG-minus-PT contrast (`ifg_minus_pt_delta_total_{model}`, secondary
+exploratory per `contrast_registry.yaml`), unadjusted 95% CI:
 
-| Model | Δr_total, IFG | Δr_total, PT |
-|---|---|---|
-| Pythia | +0.0035 | +0.0027 |
-| Mamba | +0.0064 | +0.0044 |
-| RWKV | +0.0006 | +0.0003 |
-| AWD-LSTM | ≈0.0000 | ≈+0.0001 |
+| Model | Δr_total, IFG | Δr_total, PT | IFG − PT diff | 95% CI |
+|---|---|---|---|---|
+| Pythia | +0.0035 | +0.0027 | +0.0008 | [−0.0007, +0.0024] (crosses 0) |
+| Mamba | +0.0064 | +0.0044 | **+0.0020** | **[+0.0004, +0.0035]** (excludes 0) |
+| RWKV | +0.0006 | +0.0003 | +0.0004 | [−0.0012, +0.0019] (crosses 0) |
+| AWD-LSTM | ≈0.0000 | ≈+0.0001 | ≈−0.0001 | [−0.0002, +0.00004] (crosses 0) |
 
-For the three core models, the point estimate of the context gain is
-numerically larger in IFG than in PT — directionally consistent with IFG
-being more sensitive to longer-range linguistic context. **This is reported
-as a point-estimate pattern only.** The dedicated estimand for this
-comparison (`ifg_minus_pt_delta_total_{model}`, computed in
-`src/stats/estimands.py` and present in `m5_results.json::estimands`) carries
-its own bootstrap CI that has not yet been transcribed into this draft —
-**pull that CI before finalizing this section's wording.**
+Only for **Mamba** does the IFG-vs-PT gain difference have a CI that
+excludes zero — Mamba's context gain is larger in IFG than in PT with
+some confidence. For Pythia, RWKV, and AWD-LSTM the difference is not
+distinguishable from zero. This is a **secondary exploratory** estimate
+(not part of the confirmatory family); it should be read as "for one of
+the four checkpoints, we have some evidence of a larger IFG than PT
+context gain," not as a general claim that IFG is more context-sensitive
+than PT across models.
 
 **Repeatability caveat (per milestone acceptance criterion 7):** IFG/PT
 repeatability could not be computed — `wheretheressmoke` only has
@@ -123,9 +124,6 @@ positional artifact.
 
 - **IFG/PT repeatability**: not computed (data unavailable); limits RQ3 to a
   descriptive, non-region-specific claim (see above).
-- **RQ3 exact IFG-vs-PT CI**: this draft cites only point estimates for the
-  IFG-vs-PT comparison; the CI must be pulled from `m5_results.json` and
-  inserted before this section is final.
 
 ---
 
