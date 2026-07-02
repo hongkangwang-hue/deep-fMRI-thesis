@@ -16,6 +16,10 @@ build/
 # 预训练语义模型数据（大文件，随原始数据包下载，不进 git）
 em_data/
 
+# M6 图表/表格产物（可由 scripts/m6_figures.py / m6_tables.py 从服务器结果重新生成，
+# 二进制图片不进 git；来源说明见 manuscript/README.md）
+figures/*
+
 # Python 编译文件
 *.pyc
 *.pyo
