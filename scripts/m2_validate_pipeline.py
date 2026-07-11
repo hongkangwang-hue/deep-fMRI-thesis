@@ -1,11 +1,16 @@
 """
 M2 — fMRI 对齐与参考验证驱动。
 
+按 --subject 逐被试独立执行（UTS03 已跑过并冻结，UTS01/UTS02 复用同一套规则）。
+
 分步执行（--step）：
-  voxel_mask : 在全部 UTS03 故事并集上构建统一 BOLD-only voxel mask 并持久化到
-               frozen/（所有模型/条件复用同一保留列集合）。
-  roi        : aparc.a2009s → BOLD 95556 列（主导顶点归属，冻结规则 B），与统一
-               voxel mask 求交，校验 min_voxels，持久化 ROI 列索引 + 验证报告。
+  voxel_mask : 在该被试全部故事并集上构建统一 BOLD-only voxel mask 并持久化到
+               frozen/voxel_mask_{subject}.*（该被试的所有模型/条件复用同一保留
+               列集合，体素总数因人而异，95556 只是 UTS03 的观测值）。
+  roi        : aparc.a2009s → BOLD 列（主导顶点归属，冻结规则 B），与该被试的统一
+               voxel mask 求交，校验 min_voxels，持久化到
+               frozen/roi_columns_{subject}.*。pycortex transform 名默认从
+               derivatives/subject_xfms.json 按 --subject 查找（可用 --xfm 覆盖）。
 
 ⚠️ voxel_mask / roi 均为轻量本地步骤（.hf5 流式统计、稀疏矩阵映射），无模型推理、
 无 ridge。roi 依赖 pycortex + nibabel + 已 annex get 的 surface/transform/annot。
@@ -97,7 +102,7 @@ def _set_pycortex_filestore(store: Path) -> None:
         cp.write(f)
 
 
-def step_roi(cfg: dict, subject: str, xfm: str = "UTS03_auto") -> None:
+def step_roi(cfg: dict, subject: str, xfm: str | None = None) -> None:
     import nibabel as nib
     from scipy import ndimage
 
@@ -106,6 +111,11 @@ def step_roi(cfg: dict, subject: str, xfm: str = "UTS03_auto") -> None:
     fs_dir = deriv / "freesurfer_subjdir"
     _set_pycortex_filestore(store)
     import cortex
+
+    if xfm is None:
+        # 逐被试 pycortex transform 名不同（UTS01_auto/UTS02_auto/...），从数据集
+        # derivatives/subject_xfms.json 里查，不硬编码某个被试的名字。
+        xfm = json.loads((deriv / "subject_xfms.json").read_text())[subject]
 
     roi_spec = json.loads(
         (Path(cfg["paths"]["frozen_dir"]) / "roi_spec.json").read_text())
@@ -189,12 +199,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--step", required=True, choices=["voxel_mask", "roi"])
     ap.add_argument("--subject", default="UTS03")
+    ap.add_argument("--xfm", default=None,
+                     help="pycortex transform 名；缺省时从 "
+                          "derivatives/subject_xfms.json 按 --subject 查找")
     args = ap.parse_args()
     cfg = load_config()
     if args.step == "voxel_mask":
         step_voxel_mask(cfg, args.subject)
     elif args.step == "roi":
-        step_roi(cfg, args.subject)
+        step_roi(cfg, args.subject, xfm=args.xfm)
 
 
 if __name__ == "__main__":
