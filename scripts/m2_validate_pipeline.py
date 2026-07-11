@@ -184,7 +184,8 @@ def step_roi(cfg: dict, subject: str, xfm: str | None = None) -> None:
         "subject": subject, "xfm": xfm,
         "atlas": roi_spec["atlas"],
         "assignment_rule": "dominant_vertex_line_nearest",
-        "column_space": "thick_mask_95556_C_order",
+        # thick mask 体素数因被试而异（UTS03=95556），用实测值而非硬编码常数
+        "column_space": f"thick_mask_{int(flat.sum())}_C_order",
         "intersected_with": f"voxel_mask_{subject}.npy",
         "min_voxels_per_roi": min_vox,
         "rois": report,
