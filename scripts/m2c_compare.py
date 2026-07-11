@@ -71,12 +71,25 @@ def compare(ours, ref, spec, ours_valphas=None, ref_valphas=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ours", required=True)
-    ap.add_argument("--ref", default="results/eng1000/UTS03/corrs.npz")
+    ap.add_argument("--ref", default=None,
+                    help="缺省时从 --ours 路径推断被试，用 "
+                         "results/eng1000/<subject>/corrs.npz")
     ap.add_argument("--ours-valphas")
-    ap.add_argument("--ref-valphas", default="results/eng1000/UTS03/valphas.npz")
+    ap.add_argument("--ref-valphas", default=None,
+                    help="缺省时同 --ref 的被试推断规则")
     ap.add_argument("--spec",
                     default="frozen/m2c_reference_validation.yaml")
     args = ap.parse_args()
+
+    if args.ref is None or args.ref_valphas is None:
+        # --ours 形如 results/<out_name>/<subject>/corrs.npz，从中取 subject，
+        # 不硬编码某一个被试（原来固定指向 UTS03，换被试忘了传 --ref 会静默
+        # 拿 UTS03 的参照去对比新被试的结果，对比数字看似正常实则无意义）。
+        subject = Path(args.ours).parent.name
+        if args.ref is None:
+            args.ref = f"results/eng1000/{subject}/corrs.npz"
+        if args.ref_valphas is None:
+            args.ref_valphas = f"results/eng1000/{subject}/valphas.npz"
 
     spec = yaml.safe_load((PROJECT_ROOT / args.spec).read_text())
     ours, ref = _load_vec(args.ours), _load_vec(args.ref)

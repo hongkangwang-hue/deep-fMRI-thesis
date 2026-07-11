@@ -80,12 +80,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--subject", default="UTS03")
     ap.add_argument("--solver", default="himalaya", choices=["himalaya", "numpy"])
-    ap.add_argument("--native",
-                    default="results/eng1000_gpu_rerun/UTS03/corrs.npz",
-                    help="Phase 1 native corrs（与之做空间对比）")
+    ap.add_argument("--native", default=None,
+                    help="Phase 1 native corrs（与之做空间对比）；缺省时按 "
+                         "--subject 取 results/eng1000_gpu_rerun/<subject>/corrs.npz，"
+                         "不固定指向某一个被试")
     ap.add_argument("--seed", type=int, default=None, help="默认 config.seeds.pca")
     ap.add_argument("--out-name", default="eng1000_phase2_frozen")
     args = ap.parse_args()
+
+    if args.native is None:
+        # 原来固定指向 UTS03，换被试忘了传 --native 会静默拿 UTS03 的 Phase1
+        # 结果去和新被试的 Phase2 结果比"空间相关"，数字看似正常实则无意义。
+        args.native = f"results/eng1000_gpu_rerun/{args.subject}/corrs.npz"
 
     cfg = load_config()
     paths, ds = cfg["paths"], cfg["datasets"]
