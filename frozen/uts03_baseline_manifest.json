@@ -1,0 +1,59 @@
+{
+  "purpose": "UTS03 已验证基线的只读锚定登记（三被试扩展 M0 deliverable #2）。本文件登记的是基线的现状指纹，不是新的冻结决定；UTS03 的任何规则改动都应回到各自的冻结文件，不应改这里。",
+  "baseline_git_tag": "uts03-graduation-baseline",
+  "baseline_tag_commit": "26e68944a272f5713bf16c368f43dce72e1b5969",
+  "manifest_generated_at_commit": "26e68944a272f5713bf16c368f43dce72e1b5969",
+  "config_and_frozen_file_hashes_sha256": {
+    "config/config.yaml": {
+      "sha256": "6a23139b153cb58bf7db0f1448438a0efacd089b2070410b60018bca29eef736",
+      "bytes": 2987
+    },
+    "frozen/analysis_spec.yaml": {
+      "sha256": "5f95b78492484ddb58cd6c0999ac0b62e33740b26c1699729a8f8d33b8f60586",
+      "bytes": 2362
+    },
+    "frozen/contrast_registry.yaml": {
+      "sha256": "3e3dca4259e186a7a69a1d05fd664e6be8e5ce90b279a29e384f4669d2af2ba2",
+      "bytes": 854
+    },
+    "frozen/roi_spec.json": {
+      "sha256": "02e78df7fd9bd6da49605836a3eae40cc3b2bef6c761ee05f0f340ccd3ae6e72",
+      "bytes": 890
+    },
+    "frozen/fold_split.json": {
+      "sha256": "a7dfd38a0740934a622c9185126a634f029b5a032eaa6c0fb5968971c5c69372",
+      "bytes": 7459
+    },
+    "frozen/story_manifest.csv": {
+      "sha256": "c3447d6edbffe7f310e29d6da90f8f60d7ec75618e98913cd48e52a2288ea771",
+      "bytes": 3612
+    },
+    "frozen/word_index.parquet": {
+      "sha256": "a2a223ba4358211100ba6b0532c4e3f2f4a0150637f15acad54645cdf716a15f",
+      "bytes": 3102739
+    },
+    "frozen/voxel_mask_UTS03.json": {
+      "sha256": "455dcc76a16b332ce7a314499c0a023052944c2a492d45d4a7c1e4e08dda4108",
+      "bytes": 2681
+    },
+    "frozen/roi_columns_UTS03.json": {
+      "sha256": "f989ff9f71d9d45621a5f2a574908dc56a821752b7ff44790b906f3c396e1d41",
+      "bytes": 1174
+    },
+    "frozen/m2c_reference_validation.yaml": {
+      "sha256": "87bc72b4ece2be2c23d88eb1c4b2983232769e000667c7ca064b3fa87bac15c6",
+      "bytes": 3557
+    }
+  },
+  "eligible_h128_target_set": {
+    "n_eligible_targets": 147846,
+    "n_stories": 84,
+    "hash": "063823364e1a6368fa8520acafef654c13c06a94714aefacb35987d02a3cb715"
+  },
+  "language_feature_cache": {
+    "location": "cache/features/ (gitignored, lives on compute server only)",
+    "integrity_mechanism": "src/models/feature_cache.py: 每个 (model, story, H) 缓存文件在 save_features 时写入内容 sha256 (content_hash)，load_features 每次读取都会重新计算并比对，不一致直接抛错。因此复用缓存的完整性 由代码在每次使用时自动校验，不依赖此处另算一个目录级全局 hash。",
+    "extraction_verified": "M1b（2026-07-01，服务器）：4 模型（pythia/mamba/rwkv/awd_lstm）×3 个 H（8/32/128）= 12 组合，各 83 个 CV 故事全部提取完成，批量提取 vs 逐窗口提取数值比对 max|Δ|<3e-4，全部通过。",
+    "reused_by_three_subject_extension": true
+  }
+}

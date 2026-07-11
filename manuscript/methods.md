@@ -166,3 +166,47 @@ Feature extraction and Ridge fitting ran on an AutoDL GPU instance (RTX
 `fastai` served AWD-LSTM. Config version `v4.9-uts03-pilot`. See
 `README.md` (this folder) for the exact git tags/commits and commands behind
 every stage.
+
+## 13. Pre-registered known biases
+
+Three biases were identified and pre-registered before any new-subject
+results existed (frozen at the UTS03 baseline, tag `uts03-graduation-
+baseline`). None threaten either confirmatory finding, and none require
+rerunning UTS03. They carry over unchanged to the three-subject extension —
+they are properties of the pipeline (inner-CV fitting, FIR/training-mask
+definitions, repeated-story derivatives), not of any one subject's data, so
+they need no re-derivation for UTS01/UTS02.
+
+1. **Mild inner-loop preprocessing optimism.** The inner 2-fold λ selection
+   uses a Scaler and PCA fit on the *entire* outer-training set, so the
+   inner validation fold participates in the PCA estimation it is later
+   scored against. This does not touch the outer held-out fold — it only
+   affects per-voxel λ selection — and is expected to cancel to a large
+   degree in the four-model difference estimates that make up the
+   confirmatory family, since all four models share the same inner-CV
+   procedure.
+2. **Training-side degenerate H=128 rows push Context Gain conservative,
+   not inflated.** The training mask (`fir_valid`) is H-independent and
+   does not additionally enforce the 100-second rule, so early in each
+   story the H=128 window has near-degenerate (near-zero-support) training
+   rows. This biases Context Gain estimates conservative (understates
+   rather than overstates gain). The *scoring* side is unaffected: all 84
+   stories' H=128 first-word midpoints were verified to fall after 100
+   seconds, so held-out evaluation is fair across H.
+3. **Repeatability may be unavailable.** If a repeated story
+   (`wheretheressmoke`) is only distributed as a cross-repeat average with
+   no per-repeat response, repeatability cannot be computed. When this
+   happens, PT is reported conservatively as "no reliable effect detected,"
+   not as region-specific support — this is what was in fact observed for
+   UTS03 (§ Known gaps in `results.md`) and is expected to hold for
+   UTS01/UTS02 as well, since it reflects a dataset-level derivatives
+   limitation (confirmed across all 9 ds003020 subjects), not a per-subject
+   one.
+
+A fourth, related caveat from the negative-control analysis (§10) — that
+single-model raw Δr_total values carry limited evidentiary weight about
+genuine word-order-specific integration, even though the two *between-
+architecture* confirmatory contrasts are unaffected — is not a pre-
+registered bias (it was discovered post hoc from the shifted-condition
+paired comparison) but must be attached to any single-model Context Gain
+number quoted for any subject, present or future (see `results.md`).

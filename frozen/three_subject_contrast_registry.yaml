@@ -1,0 +1,49 @@
+# 三被试预注册对比表的被试维度声明（M0 deliverable #3）。
+#
+# 沿用 frozen/contrast_registry.yaml（UTS03 冻结，只读，不修改）里的分层与
+# contrast 名字，只补充被试维度：确认性家族 family_scope=per_subject（每名被试
+# 一个 2 对比家族，各自独立 Holm 校正，不跨被试合并 p 值/CI）；跨被试只做
+# cross_subject_reading=descriptive_consistency（方向是否一致的描述性判读，
+# 不是统计检验）。逐字对齐
+# milestone/里程碑总览_三被试执行计划_V6_3_阶段一_M0冻结锚定.md 的
+# "预注册对比表与被试维度声明"节。
+
+source_registry: frozen/contrast_registry.yaml   # 只读引用
+
+confirmatory_primary:
+  family_name: ifg_main_layer_delta_total_architecture
+  fwer_control: holm_alpha_0.05
+  family_scope: per_subject          # 每名被试一个 2 对比家族，分别校正
+  cross_subject_reading: descriptive_consistency
+  contrasts:
+    - rwkv_minus_pythia_delta_total_ifg_main
+    - mamba_minus_pythia_delta_total_ifg_main
+  subjects: [UTS01, UTS02, UTS03]
+  uts03_result_reference: results/m5_stats/UTS03/m5_results.json  # 已完成，只读参照
+
+# 以下四组均为 per subject（每名被试各算一份，不跨被试合并），沿用
+# frozen/contrast_registry.yaml 里已展开的命名方式（原文档的 {a,b,c} 花括号
+# 简写只是示意，不是字面 YAML，这里改为逐条展开以保证可解析、可直接被脚本读取）。
+main_estimands_descriptive:
+  - delta_total_pythia_ifg_main
+  - delta_total_rwkv_ifg_main
+  - delta_total_mamba_ifg_main
+exploratory_rq1_same_context_architecture:
+  - rwkv_minus_pythia_r8
+  - rwkv_minus_pythia_r32
+  - rwkv_minus_pythia_r128
+  - mamba_minus_pythia_r8
+  - mamba_minus_pythia_r32
+  - mamba_minus_pythia_r128
+secondary_exploratory:
+  - delta_local_by_model
+  - delta_long_by_model
+  - ifg_vs_pt_descriptive_pattern
+  - awd_lstm_within_model_context_curve
+robustness:
+  - registered_contrasts_on_final_layer_ifg
+  - shifted_r_by_h
+  - shifted_delta_local
+  - shifted_delta_long
+  - shifted_delta_total
+  - per_model_normal_minus_shifted_paired_diff  # diagnostic only, not confirmatory

@@ -1,0 +1,150 @@
+# 三被试扩展主配置（M0 deliverable #1）。
+#
+# 本文件是三被试扩展路径唯一的参数入口，逐字对齐
+# milestone/里程碑总览_三被试执行计划_V6_3_阶段一_M0冻结锚定.md 的"配置示例"节，
+# 只把文档里的占位符换成本仓库的真实值。UTS03 冻结产物（config/config.yaml、
+# frozen/analysis_spec.yaml、frozen/contrast_registry.yaml 等）作为只读基准被
+# 引用，本文件不复制、不修改它们的内容。
+#
+# 变更记录：
+# 2026-07-11  首次写入。frozen_tag 锚定到 uts03-graduation-baseline
+#   (commit 26e6894)；hash 值见 frozen/uts03_baseline_manifest.json（由
+#   scripts/m0_baseline_manifest.py 生成，可重跑核对）。
+
+project: context_length_architecture_brain_encoding
+version: v6.3-three-subjects-m0
+
+baseline:
+  validated_pilot: UTS03                  # M0-M6 complete, method baseline
+  frozen_tag: uts03-graduation-baseline   # 只读引用，不修改；commit 26e6894
+  frozen_tag_commit: 26e68944a272f5713bf16c368f43dce72e1b5969
+  baseline_manifest: frozen/uts03_baseline_manifest.json  # 配置/eligible_h128 hash 登记
+  reuse_language_features: true           # 三被试共享，不重提
+  reuse_eligible_h128: true
+
+seeds:
+  fold_split: 20260629
+  pca: 20260630
+  bootstrap: 20260701
+
+datasets:
+  primary: LeBel_ds003020                 # v3.1.1, commit cb7c536d
+  subjects: [UTS01, UTS02, UTS03]
+  new_subjects_to_add: [UTS01, UTS02]
+  outer_folds: 3
+  split_unit: story
+  repeated_stories_role: repeatability_only
+
+models:
+  transformer: EleutherAI/pythia-160m
+  rwkv: BlinkDL/rwkv-4-pile-169m
+  mamba: state-spaces/mamba-130m
+  lstm: fastai_AWD_LSTM_WT103_FWD
+  contexts_preceding_words: [8, 32, 128]
+  first_eligible_target_index_zero_based: 128
+  primary_layers: {pythia: 8, rwkv: 8, mamba: 16, awd_lstm: 1}      # 0-based block/rnn index，与 UTS03 冻结基线一致
+  robustness_layers: {pythia: 11, rwkv: 11, mamba: 23, awd_lstm: 2} # 各模型最后一层（0-based，= n_layers-1）
+  state_reset_per_window: true
+
+target_set:
+  name: eligible_h128
+  defined_by: full_h128_history_and_word_timing_qc   # stimulus-side only
+  first_eligible_index_zero_based: 128               # i >= 128
+  checks_model_output_validity: false
+  shared_by: [pythia, rwkv, mamba, awd_lstm]
+  awdlstm_xxunk_counts_as_success: true              # metadata only
+  report_xxunk_rate: true
+  non_finite_safeguard: per_model_scoring_or_isfinite_guard
+  frozen_hash: 063823364e1a6368fa8520acafef654c13c06a94714aefacb35987d02a3cb715  # 见 baseline_manifest
+
+brain_analysis:
+  rois:
+    - {name: left_IFG, hemi: L, labels: [G_front_inf-Opercular, G_front_inf-Triangul]}
+    - {name: bilateral_PT, hemi: LR, labels: [G_temp_sup-Plan_tempo]}
+  atlas: destrieux
+  repeatability_by_roi: if_available
+  word_timestamp: midpoint                           # (onset+offset)/2, frozen on UTS03
+  training_mask: fir_valid                           # H-independent
+  scoring_mask: after_100s AND fir_valid AND shift_valid
+  scoring_mask_identity: elementwise_normal_equals_shift
+  crossH_scoring_fairness: verified_word128_midpoint_all_before_100s
+  interpolation: lanczos
+  fir_delays_seconds: [2, 4, 6, 8]
+
+pca:
+  k: 100
+  fit_scope: subject x fold x model x context x layer  # shared by both ROIs
+  inner_cv: fit_on_full_outer_training                 # known mild optimism
+  record_evr_at_k100: per_model_H_fold
+  k_sensitivity_spotcheck: not_specified               # no frozen rule exists yet; write one before enabling
+
+ridge:
+  encoding_model: himalaya_voxelwise_ridge
+  lambda_grid: logspace(-2, 7, 19)                     # refrozen after UTS03 blind check (M3a)
+  inner_folds: 2
+  tie_break_rule: prefer_larger_lambda
+  fitting_key: subject x fold x model x context x layer x condition
+  roi_in_fitting_key: false            # ROI selects columns at scoring time only
+  normal_shift_refit_separately: true  # separate scaler/PCA/lambda/Ridge, not shift-then-reuse
+  normal_shift_share_fitted_objects: false
+
+scoring:
+  aggregation: method_B      # fisher-z aggregate -> tanh back to r -> deltas in r-space
+  fold_merge: tr_weighted_across_folds   # each held-out story once
+  compute_r_separately_per_outer_fold: true
+
+negative_control:
+  time_shift_seconds: 40
+  shift_within_each_story: true
+  circular_shift: false
+  edge_policy: invalid_and_drop
+  reporting: [absolute_r, architecture_delta, per_model_paired_normal_minus_shift]
+  per_model_paired_diff_is: diagnostic_unadjusted_not_confirmatory
+
+matrix_scope:
+  required_cells: [primary+normal, primary+shift40, final_ifg+normal]
+  optional_cells: [final_ifg+shift40]   # P2 only, not part of graduation closure
+
+english1000_reference_gate:
+  protocol: exact_uts03_validated_reference_path   # not the formal 3-fold/PCA-100 pipeline
+  comparison_metric_and_tolerance: frozen_before_new_subject_results
+  uts03_observed_voxel_agreement: 0.9962   # observation, not a cross-subject pass threshold
+  relax_tolerance_for_weaker_signal: false
+  roi_summary_role: secondary_localization_only   # voxel-level is the primary gate
+
+diagnostics_gate:   # first-fold vertical-slice check, engineering only
+  compare_architecture_rankings: false
+  allow_method_change_from_scores: false
+  require_finite_predictions: true
+  assert_normal_shift_mask_equal: true
+
+statistics:
+  analysis_unit: within_subject
+  bootstrap: paired_story_within_fold_joint_over_models
+  bootstrap_scope: within_each_subject_no_cross_subject_pooling
+  bootstrap_iterations: 1000
+  confirmatory_family: [rwkv_minus_pythia_delta_total_ifg_main, mamba_minus_pythia_delta_total_ifg_main]
+  confirmatory_family_scope: per_subject
+  confirmatory_fwer_control: holm_alpha_0.05
+  cross_subject_summary: descriptive_consistency_only
+
+known_biases:
+  inner_cv_pca_optimism: present_negligible_cancels_in_deltas
+  training_side_degenerate_h128_rows: conservative_underestimates_gain
+  repeatability_may_be_unavailable: pt_reported_as_no_reliable_effect
+  # 单模型原始 delta_total（非架构间差值）的长程整合解读力度受限——
+  # UTS03 的 40s time-shift 负控制第③层发现 0/4 模型的原始 Context Gain
+  # 被位移显著削弱（rwkv 甚至显著反向增强），只影响单模型描述性数值的解读，
+  # 不影响两项确认性架构差值结论。三被试沿用同一 caveat，不需重新验证。
+  single_model_delta_total_interpretation: word_order_specificity_not_established_see_m5_layer3
+
+data_availability:
+  # 由 M0 任务4 现场核查（git annex find，只读，未下载任何内容）
+  checked_at_commit: 26e68944a272f5713bf16c368f43dce72e1b5969
+  report: frozen/uts01_uts02_data_availability.md
+  status: known_not_yet_downloaded   # BOLD content 尚未 git annex get，见报告
+
+freeze:
+  extension_spec: frozen/three_subject_extension_spec.yaml（本文件，hash 见 git blob）
+  contrast_registry: frozen/three_subject_contrast_registry.yaml
+  uts03_baseline_manifest: frozen/uts03_baseline_manifest.json
