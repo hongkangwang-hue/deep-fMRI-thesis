@@ -49,8 +49,15 @@ def build_roi_volume(roi_cols: dict, subject: str, xfm: str):
     import cortex
     mask = np.asarray(cortex.db.get_mask(subject, xfm, "thick"))     # (54,84,84) bool
     col_to_full = np.flatnonzero(mask.ravel(order="C"))              # 列号 -> 全 volume 平铺idx
-    if len(col_to_full) != 95556:
-        raise ValueError(f"thick mask True 体素数 {len(col_to_full)} != 95556（与 M2 冻结不符）")
+    # thick mask 列数因被试而异（UTS03=95556），不硬编码某个被试的值。真正要防的是
+    # 「subject/xfm 与冻结 ROI 列不匹配导致索引链错位」——直接校验 ROI 列号是否越界，
+    # 这个不变量与被试无关，比等于某个魔数更本质。
+    n_cols = len(col_to_full)
+    max_roi_col = max(int(roi_cols[name].max()) for name in ROI_STYLE)
+    if max_roi_col >= n_cols:
+        raise ValueError(
+            f"ROI 列号 max={max_roi_col} 超出该被试 thick mask 列空间 {n_cols}"
+            f"（col->full 索引链错位，或 {subject}/{xfm} 与冻结 ROI 列不匹配）")
 
     flat = np.full(mask.size, np.nan)
     counts = {}
@@ -70,13 +77,21 @@ def build_roi_volume(roi_cols: dict, subject: str, xfm: str):
 
 
 def main():
+    import json
+
     ap = argparse.ArgumentParser()
     ap.add_argument("--subject", default="UTS03")
-    ap.add_argument("--xfm", default="UTS03_auto")
+    ap.add_argument("--xfm", default=None,
+                    help="pycortex transform 名；缺省时从 "
+                         "derivatives/subject_xfms.json 按 --subject 查找")
     args = ap.parse_args()
 
     import cortex
     cfg = load_config()
+    if args.xfm is None:
+        # 逐被试 transform 名不同（UTS01_auto/...），从数据集查，不硬编码某被试
+        deriv = Path(cfg["datasets"]["data_dir"]).parent
+        args.xfm = json.loads((deriv / "subject_xfms.json").read_text())[args.subject]
     roi_path = Path(cfg["paths"]["frozen_dir"]) / f"roi_columns_{args.subject}.npz"
     roi_cols = dict(np.load(roi_path))
     for name in ROI_STYLE:
