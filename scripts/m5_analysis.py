@@ -280,7 +280,7 @@ def main():
     }
 
     manifest = {
-        "phase": "M5 preregistered stats (single-subject deviation, inherited from M4/M3b)",
+        "phase": "M5 preregistered per-subject stats (three-subject extension)",
         "git_commit": git_commit_hash(),
         "subject": args.subject, "m4_source": str(cells_dir),
         "n_boot": n_boot, "seed": seed, "alpha": alpha,

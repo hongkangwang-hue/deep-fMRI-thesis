@@ -13,6 +13,7 @@ from src.stats.bootstrap import (
     percentile_ci, bootstrap_two_sided_p, holm_bonferroni, _identity_idx,
 )
 from src.stats.estimands import compute_estimands
+from src.stats.cross_subject import direction_consistency
 
 
 def test_context_gain_normal_minus_shift_paired():
@@ -133,3 +134,54 @@ def test_holm_two_contrasts_confirmatory_like():
     # rwkv(0.03)@0.05/2=0.025 → 0.03>0.025 不拒绝 → mamba 也不拒绝
     assert not out["rwkv"]["reject"]
     assert not out["mamba"]["reject"]
+
+
+# ── M5 跨被试方向一致性判读（描述性，不池化） ──
+
+def _ps(*triples):
+    """把 (point, lo, hi) 三元组按 UTS01/02/03 顺序打包成 per_subject dict。"""
+    subs = ["UTS01", "UTS02", "UTS03"]
+    return {s: {"point": p, "ci_lo": lo, "ci_hi": hi}
+            for s, (p, lo, hi) in zip(subs, triples)}
+
+
+def test_cross_subject_consistent_strong():
+    """三被试同向为正、且各自CI都排除0 → 强被试内重复。"""
+    per = _ps((0.05, 0.01, 0.09), (0.04, 0.01, 0.07), (0.06, 0.02, 0.10))
+    res = direction_consistency(per, subject_order=["UTS01", "UTS02", "UTS03"])
+    assert res["consistency"] == "consistent_strong"
+    assert res["all_same_direction"] and res["n_ci_excludes_zero"] == 3
+    assert res["pooling"] == "none"          # 不池化的显式契约
+    assert "group_level" not in res          # 不生成任何组水平合并量
+
+
+def test_cross_subject_direction_only_when_one_ci_crosses_zero():
+    """三被试同向，但有一名 CI 跨 0 → 部分一致（非强重复）。"""
+    per = _ps((0.05, 0.01, 0.09), (0.03, -0.01, 0.07), (0.06, 0.02, 0.10))
+    res = direction_consistency(per)
+    assert res["consistency"] == "consistent_direction_only"
+    assert res["all_same_direction"] and res["n_ci_excludes_zero"] == 2
+
+
+def test_cross_subject_heterogeneous_on_sign_flip():
+    """有被试方向相反 → 如实报告为被试间异质，不因多数同向就判一致。"""
+    per = _ps((0.05, 0.01, 0.09), (-0.04, -0.08, -0.01), (0.06, 0.02, 0.10))
+    res = direction_consistency(per)
+    assert res["consistency"] == "heterogeneous"
+    assert not res["all_same_direction"]
+
+
+def test_cross_subject_insufficient_on_nan():
+    """任一被试估计缺失(NaN) → 数据不足，不静默按剩余被试判读。"""
+    per = _ps((0.05, 0.01, 0.09), (float("nan"), float("nan"), float("nan")),
+              (0.06, 0.02, 0.10))
+    res = direction_consistency(per)
+    assert res["consistency"] == "insufficient_data"
+
+
+def test_cross_subject_magnitude_range_is_descriptive_not_pooled():
+    """point_min/max 只反映量级范围，等于各被试点估计的极值，不是均值/合并估计。"""
+    per = _ps((0.05, 0.01, 0.09), (0.04, 0.01, 0.07), (0.06, 0.02, 0.10))
+    res = direction_consistency(per)
+    assert res["point_min"] == pytest.approx(0.04)
+    assert res["point_max"] == pytest.approx(0.06)
