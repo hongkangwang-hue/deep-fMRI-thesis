@@ -97,12 +97,16 @@ def table2_numbers(results: dict, outdir: Path):
     _write(pd.DataFrame(rows), outdir, "table2_full_numbers")
 
 
-def qc_table(cfg: dict, cells_dir: Path, results: dict, outdir: Path):
-    """QC/attrition：故事数、有效 TR、voxel/ROI 列数、λ 边界命中等。"""
+def qc_table(cfg: dict, subject: str, cells_dir: Path, results: dict, outdir: Path):
+    """QC/attrition：故事数、有效 TR、voxel/ROI 列数、λ 边界命中等。
+
+    voxel_mask / roi_columns 按 subject 取该被试自己的冻结产物（三被试各不相同：
+    UTS03 恒等、UTS01 排除 10、UTS02 排除 32），不得写死某一名被试。
+    """
     frozen = Path(cfg["paths"]["frozen_dir"])
     fold_split = json.load(open(frozen / "fold_split.json"))
-    vmask = json.load(open(frozen / "voxel_mask_UTS03.json"))
-    roi_cols = dict(np.load(frozen / "roi_columns_UTS03.npz"))
+    vmask = json.load(open(frozen / f"voxel_mask_{subject}.json"))
+    roi_cols = dict(np.load(frozen / f"roi_columns_{subject}.npz"))
 
     n_test = sum(len(v["test_stories"]) for v in fold_split["folds"].values())
     # 每折有效 TR（主层正常）：从任一模型的 main cell 读 per-story n_eff 汇总
@@ -114,7 +118,7 @@ def qc_table(cfg: dict, cells_dir: Path, results: dict, outdir: Path):
             eff_tr[fn] = sum(ps["n_eff_tr"] for ps in cell["normal"]["per_story"])
 
     rows = [
-        ("被试", cfg.get("datasets", {}).get("subjects", "UTS03（单被试，预注册偏离）")),
+        ("被试", f"{subject}（三被试扩展，逐被试独立建模）"),
         ("outer folds", fold_split.get("n_folds")),
         ("每折测试故事数", ", ".join(f"{k}={len(v['test_stories'])}"
                                      for k, v in fold_split["folds"].items())),
@@ -151,7 +155,7 @@ def main():
     print(f"[m6] 生成表格 → {outdir}", flush=True)
     table1_audit(cells_dir, cfg, outdir)
     table2_numbers(results, outdir)
-    qc_table(cfg, cells_dir, results, outdir)
+    qc_table(cfg, args.subject, cells_dir, results, outdir)
     print(f"[m6] 完成。表格在 {outdir}", flush=True)
 
 
