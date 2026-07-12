@@ -77,6 +77,8 @@ class FoldResult:
     roi_z: dict                      # {roi_name: fold 级 ROI z（per-story roi_z 有效TR加权）}
     valphas: np.ndarray              # <float>[V]
     n_eff_tr: int                    # 测试集有效评分 TR 数
+    evr_at_k: float | None = None    # 训练折 PCA 前 pca_k 个成分累计解释方差比（M3 诊断用，
+                                     # 从已 fit 的 PCA 直接读取，不改变任何数值计算）
 
 
 @dataclass
@@ -242,6 +244,7 @@ def run_fold(story_data: dict[str, StoryData],
     scaler = StandardScaler().fit(Xtr_raw)
     pca = PCA(n_components=pca_k, svd_solver="full", random_state=seed)
     pca.fit(scaler.transform(Xtr_raw))
+    evr_at_k = float(pca.explained_variance_ratio_.sum())  # 诊断量，不参与拟合
     del Xtr_raw
 
     # 2) 训练折：transform→FIR；训练只用 FIR-valid（不施加 >100s 评分 mask）
@@ -304,7 +307,7 @@ def run_fold(story_data: dict[str, StoryData],
 
     return FoldResult(test_stories=list(test_stories), story_scores=story_scores,
                       voxel_r=fold_voxel_r, roi_z=fold_roi_z,
-                      valphas=valphas, n_eff_tr=n_eff_tr)
+                      valphas=valphas, n_eff_tr=n_eff_tr, evr_at_k=evr_at_k)
 
 
 def run_encoding_cv(story_data: dict[str, StoryData],
