@@ -122,6 +122,14 @@ def run_one_group(model: str, H: int, layer: str, subject: str,
 
     # 逐元素 mask 一致性（M3 验收标准4，强验证：n_eff 相等只是必要条件，
     # 逐元素 np.array_equal 才是共同 mask 的充分证据）。不一致直接 raise。
+    # 先堵住 zip 静默截断：两条件保留的 story 数必须一致，否则说明某个 story 的评分
+    # mask 在一条件下全空被 run_fold 跳过、在另一条件下没被跳过 → 共同 mask 已不成立，
+    # 若只 zip 遍历会漏掉这个 story 的不一致（共同 mask 恰恰是这道闸门最要害的校验）。
+    if len(fr_normal.story_scores) != len(fr_shift.story_scores):
+        raise ValueError(
+            f"[{model}/H{H}] normal/shift 保留的 story 数不一致 "
+            f"({len(fr_normal.story_scores)} vs {len(fr_shift.story_scores)}) → "
+            f"共同 mask 不成立（某 story 在一条件下评分点数为 0 被跳过）")
     mask_bit_identical = True
     for a, b in zip(fr_normal.story_scores, fr_shift.story_scores):
         if a.story != b.story:
@@ -157,7 +165,7 @@ def run_one_group(model: str, H: int, layer: str, subject: str,
         "model": model, "H": H, "layer": layer,
         "model_id": feat_meta.get("model_id"),
         "revision": feat_meta.get("revision"),
-        "layer_index": feat_meta.get("layer_main"),
+        "layer_index": feat_meta.get("layer_main" if layer == "main" else "layer_final"),
         "code_version": feat_meta.get("code_version"),
         "train_n_stories": len(train_stories),
         "test_stories": test_stories,
