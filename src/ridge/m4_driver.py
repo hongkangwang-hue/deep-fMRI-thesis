@@ -7,7 +7,10 @@ M4 共享驱动逻辑 —— 供 4 个单模型入口脚本
   主层正常/shifted：3 subjects × 2 ROI(IFG+PT) × 4 models × 3 H × 3 folds
   最终层正常（无 shift）：3 subjects × 1 ROI(左IFG) × 4 models × 3 H × 3 folds
 
-⚠️ 预注册偏离（已用户确认，2026-07-01，与 M3b 同一决策）：3 subjects → UTS03 单被试。
+三被试扩展（V6.3）：UTS01/UTS02/UTS03 各被试独立跑一遍本矩阵（逐被试建模，
+不跨被试池化）。此前 UTS03 pilot 阶段"3 subjects → UTS03 单被试"的预注册偏离，
+在 UTS01/UTS02 数据下载后已撤销，回到原始三被试冻结口径。每名被试各跑一次
+（--subject 指定），UTS03 pilot 期已算好的 cells 数值仍然有效、可直接复用。
 
 矩阵单元 = (model, H, layer, fold)。每个单元独立算、独立落盘到
 results/<out-name>/<subject>/cells/，支持按单元跳过的断点续跑。
@@ -264,13 +267,15 @@ def build_manifest(out_dir: Path, models: list[str], H_list: list[int],
         timing["est_remaining_minutes"] = round(avg * n_missing_total / 60, 1)
 
     manifest = {
-        "phase": "M4 full matrix (single-subject deviation)",
+        "phase": "M4 full matrix (three-subject extension, per-subject)",
         "frozen_condition": "3 subjects x 2 ROI(main layer) / 1 ROI(final layer, IFG) "
                             "x 4 models x 3 H x 3 folds",
-        "deviation": {
-            "field": "subjects", "frozen_value": "UTS01,UTS02,UTS03", "actual_value": subject,
-            "reason": "dataset availability constraint (only UTS03 downloaded); "
-                      "user-confirmed 2026-07-01, same decision as M3b",
+        "subject_scope": {
+            "design": "per-subject independent modeling, no cross-subject pooling",
+            "this_manifest_subject": subject,
+            "all_subjects": ["UTS01", "UTS02", "UTS03"],
+            "note": "三被试扩展已撤销 UTS03 pilot 期的单被试预注册偏离；本 manifest 只覆盖"
+                    "该单一被试的矩阵，跨被试一致性判读留到 M5（描述性，不池化）",
         },
         "git_commit": git_commit_hash(),
         "subject": subject, "models": models, "H_list": H_list, "fold_names": fold_names,

@@ -2,7 +2,7 @@
 M4 —— rwkv 单模型驱动。跑该模型在给定 H/layers/folds 范围内的全部单元
 （主层正常+shift双ROI + 最终层正常IFG），独立进程/独立日志/独立续跑。
 
-共享逻辑见 src/ridge/m4_driver.py 顶部文档（冻结条件、预注册偏离、矩阵定义）。
+共享逻辑见 src/ridge/m4_driver.py 顶部文档（冻结条件、三被试扩展说明、矩阵定义）。
 四模型各一份入口脚本（m4_pythia.py/m4_mamba.py/m4_rwkv.py/m4_awd_lstm.py），方便
 分别用不同 GPU/终端并行启动，互不阻塞。全部模型跑完后用
 scripts/m4_aggregate.py 汇总（不跑计算，只扫已有结果文件）。
@@ -32,8 +32,8 @@ MODEL = "rwkv"
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--subject", default="UTS03",
-                    help="⚠️ 冻结条件为3被试(UTS01/02/03)；UTS03单被试是已确认的预注册"
-                         "偏离（数据可得性约束，与M3b同一决策）")
+                    help="三被试(UTS01/UTS02/UTS03)各跑一次，--subject 指定当前被试；"
+                         "UTS03 pilot 期结果已存在可复用，新增的是 UTS01/UTS02")
     ap.add_argument("--H", nargs="+", type=int, default=[8, 32, 128])
     ap.add_argument("--folds", nargs="+", default=None,
                     help="frozen/fold_split.json 的键名子集；默认全部3折")
@@ -67,7 +67,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     word_index_path = Path(paths["frozen_dir"]) / "word_index.parquet"
 
-    print(f"[m4:{MODEL}] subject={args.subject}（⚠️ 冻结条件为3被试，见脚本顶部说明） "
+    print(f"[m4:{MODEL}] subject={args.subject}（三被试逐被试独立跑，见脚本顶部说明） "
           f"H={args.H} folds={fold_names} layers={args.layers} solver={args.solver} "
           f"dtype={args.dtype} seed={seed}", flush=True)
 
