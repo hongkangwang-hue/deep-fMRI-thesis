@@ -25,6 +25,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.config_loader import load_config                              # noqa: E402
 from src.ridge.pipeline import himalaya_ridgecv_solver, numpy_ridgecv_solver  # noqa: E402
 from src.ridge.m4_driver import run_model_matrix                        # noqa: E402
+from src.ridge.assemble import remap_roi_columns_to_voxel_mask          # noqa: E402
 
 MODEL = "pythia"
 
@@ -59,9 +60,18 @@ def main():
     fold_split = {"folds": {k: v for k, v in raw_fold_split["folds"].items()
                             if k in fold_names}}
 
+    # M1 冻结的 BOLD-only 保留列（剔除 NaN/零方差体素）；UTS03 是恒等映射，
+    # UTS01/UTS02 会真正排除若干体素。喂给 assemble_all 压缩 Y，避免这些体素
+    # 的 NaN 直接冲进 ridge 拟合导致 himalaya 报错（M3 竖切已实测触发过）。
+    voxel_mask = np.load(Path(paths["frozen_dir"]) / f"voxel_mask_{args.subject}.npy")
+
     roi_cols_all = dict(np.load(Path(paths["frozen_dir"]) / f"roi_columns_{args.subject}.npz"))
-    roi_cols_main = {k: v for k, v in roi_cols_all.items() if k in ("left_IFG", "bilateral_PT")}
-    roi_cols_final = {"left_IFG": roi_cols_all["left_IFG"]}
+    roi_cols_main_full = {k: v for k, v in roi_cols_all.items() if k in ("left_IFG", "bilateral_PT")}
+    roi_cols_final_full = {"left_IFG": roi_cols_all["left_IFG"]}
+    # roi_columns 里的列号是全量 BOLD 列空间编号；Y 被压缩到 voxel_mask 后同一
+    # 体素的列号会整体前移，必须同步重映射，否则 ROI 打分会取到错误体素。
+    roi_cols_main = remap_roi_columns_to_voxel_mask(roi_cols_main_full, voxel_mask)
+    roi_cols_final = remap_roi_columns_to_voxel_mask(roi_cols_final_full, voxel_mask)
 
     out_dir = Path(paths["results_dir"]) / args.out_name / args.subject
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -73,7 +83,8 @@ def main():
 
     run_model_matrix(MODEL, args.H, args.layers, fold_split, roi_cols_main, roi_cols_final,
                      paths["cache_dir"], ds["data_dir"], ds["respdict"], word_index_path,
-                     solver, seed, args.dtype, out_dir, args.skip_existing, args.subject)
+                     solver, seed, args.dtype, out_dir, args.skip_existing, args.subject,
+                     voxel_mask)
 
     print(f"[m4:{MODEL}] 完成。四模型都跑完后用 scripts/m4_aggregate.py 汇总。", flush=True)
 

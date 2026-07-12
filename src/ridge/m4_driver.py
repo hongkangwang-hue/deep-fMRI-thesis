@@ -91,8 +91,14 @@ def _fold_summary(fr) -> dict:
 def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict,
                   roi_cols: dict, cache_dir, data_dir, respdict_path, word_index_path,
                   solver, seed: int, dtype: str, out_dir: Path, skip_existing: bool,
-                  progress: dict) -> None:
-    """处理一个 (model, H, layer) 组合：组装一次特征，3 折复用。"""
+                  progress: dict, voxel_mask: np.ndarray) -> None:
+    """处理一个 (model, H, layer) 组合：组装一次特征，3 折复用。
+
+    voxel_mask：M1 冻结的 BOLD-only 保留列（frozen/voxel_mask_{subject}.npy），
+    传给 assemble_all 压缩 Y，剔除已知 NaN/零方差体素，避免直接喂进 ridge 拟合
+    崩溃。roi_cols 必须已经用 remap_roi_columns_to_voxel_mask 重映射到同一压缩
+    空间（由调用方在构造 roi_cols_main/roi_cols_final 时做好），本函数不重复做。
+    """
     do_shift = layer == "main"
     prefix = "main" if do_shift else "final"
     fold_names = list(fold_split["folds"].keys())
@@ -111,7 +117,8 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
     all_stories = sorted({s for fo in fold_split["folds"].values()
                           for s in fo["train_stories"] + fo["test_stories"]})
     story_data = assemble_all(all_stories, model, H, layer, subject, cache_dir,
-                              data_dir, respdict_path, word_index_path)
+                              data_dir, respdict_path, word_index_path,
+                              voxel_mask=voxel_mask)
     dt = np.dtype(dtype)
     for s in story_data:
         story_data[s].X = story_data[s].X.astype(dt)
@@ -206,8 +213,13 @@ def process_group(model: str, H: int, layer: str, subject: str, fold_split: dict
 def run_model_matrix(model: str, H_list: list[int], layers: list[str], fold_split: dict,
                      roi_cols_main: dict, roi_cols_final: dict, cache_dir, data_dir,
                      respdict_path, word_index_path, solver, seed: int, dtype: str,
-                     out_dir: Path, skip_existing: bool, subject: str) -> None:
-    """单模型的完整 H×layer×fold 循环——各模型入口脚本的唯一调用入口。"""
+                     out_dir: Path, skip_existing: bool, subject: str,
+                     voxel_mask: np.ndarray) -> None:
+    """单模型的完整 H×layer×fold 循环——各模型入口脚本的唯一调用入口。
+
+    voxel_mask：M1 冻结的 BOLD-only 保留列，见 process_group。roi_cols_main/
+    roi_cols_final 须已在调用方用 remap_roi_columns_to_voxel_mask 重映射过。
+    """
     total = len(H_list) * len(layers) * len(fold_split["folds"])
     progress = {"done": 0, "total": total, "computed": 0, "elapsed_sum": 0.0}
     for H in H_list:
@@ -215,7 +227,7 @@ def run_model_matrix(model: str, H_list: list[int], layers: list[str], fold_spli
             roi_cols = roi_cols_main if layer == "main" else roi_cols_final
             process_group(model, H, layer, subject, fold_split, roi_cols, cache_dir,
                           data_dir, respdict_path, word_index_path, solver, seed, dtype,
-                          out_dir, skip_existing, progress)
+                          out_dir, skip_existing, progress, voxel_mask)
 
 
 def build_manifest(out_dir: Path, models: list[str], H_list: list[int],

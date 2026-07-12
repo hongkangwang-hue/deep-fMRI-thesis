@@ -38,7 +38,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.config_loader import load_config                 # noqa: E402
 from src.fmri.alignment import shift_story_no_wrap        # noqa: E402
-from src.ridge.assemble import assemble_all               # noqa: E402
+from src.ridge.assemble import assemble_all, remap_roi_columns_to_voxel_mask  # noqa: E402
 from src.ridge.pipeline import (                          # noqa: E402
     StoryData, run_fold, himalaya_ridgecv_solver, numpy_ridgecv_solver, LAMBDA_GRID,
 )
@@ -86,7 +86,7 @@ def run_one_group(model: str, H: int, layer: str, subject: str,
                   train_stories: list[str], test_stories: list[str],
                   roi_cols: dict, cache_dir, data_dir, respdict_path,
                   word_index_path, solver, seed: int, dtype: str,
-                  out_dir: Path) -> dict:
+                  out_dir: Path, voxel_mask: np.ndarray) -> dict:
     """一个 (model, H) 竖切：normal + shift 各独立拟合，返回诊断字典。"""
     print(f"\n=== {model} H={H} ===", flush=True)
     dt = np.dtype(dtype)
@@ -94,6 +94,7 @@ def run_one_group(model: str, H: int, layer: str, subject: str,
     story_data = assemble_all(
         train_stories + test_stories, model, H, layer, subject,
         cache_dir, data_dir, respdict_path, word_index_path,
+        voxel_mask=voxel_mask,
     )
     for s in story_data:
         story_data[s].X = story_data[s].X.astype(dt)
@@ -218,10 +219,19 @@ def main():
     fold = fold_split["folds"][args.fold]
     train_stories, test_stories = list(fold["train_stories"]), list(fold["test_stories"])
 
+    # M1 冻结的 BOLD-only 保留列（剔除 NaN/零方差体素，UTS03 是恒等映射，
+    # UTS01/UTS02 会真正排除若干体素）——喂给 assemble_all 压缩 Y，避免这些
+    # 体素的 NaN 直接冲进 ridge 拟合导致 himalaya 报错。
+    voxel_mask = np.load(Path(paths["frozen_dir"]) / f"voxel_mask_{args.subject}.npy")
+
     roi_cols_all = dict(np.load(
         Path(paths["frozen_dir"]) / f"roi_columns_{args.subject}.npz"))
-    roi_cols = {k: v for k, v in roi_cols_all.items()
-                if k in ("left_IFG", "bilateral_PT")}
+    roi_cols_full = {k: v for k, v in roi_cols_all.items()
+                     if k in ("left_IFG", "bilateral_PT")}
+    # roi_columns_{subject}.npz 里的列号是全量 BOLD 列空间的编号；Y 被压缩到
+    # voxel_mask 之后，同一体素的列号会整体前移，必须同步重映射，否则 ROI
+    # 打分会取到错误的体素（或越界）。
+    roi_cols = remap_roi_columns_to_voxel_mask(roi_cols_full, voxel_mask)
 
     print(f"[m3] subject={args.subject} H={args.H} models={args.models} "
           f"layer={args.layer} fold={args.fold} solver={args.solver} "
@@ -238,7 +248,7 @@ def main():
                 model, H, args.layer, args.subject, train_stories, test_stories,
                 roi_cols, paths["cache_dir"], ds["data_dir"], ds["respdict"],
                 Path(paths["frozen_dir"]) / "word_index.parquet",
-                solver, seed, args.dtype, out_dir,
+                solver, seed, args.dtype, out_dir, voxel_mask,
             ))
 
     # 维度一致性：同一被试所有 (model,H) 的 held-out voxel 维度应一致（= 该被试 mask 列数）
