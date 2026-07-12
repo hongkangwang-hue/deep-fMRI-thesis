@@ -18,7 +18,7 @@
 | **M3** | UTS01 新被试端到端竖切复核（迁移正确性闸门） | ✅ 完成——过程中发现并修复一个真实生产 bug（M1 的 voxel_mask 从未在 M3/M4 管线里被真正应用），修复后 8/8 验收标准全过。UTS02 按里程碑规则不需重复跑（竖切只测代码通用性，非被试专属） |
 | **M4** | UTS01、UTS02 逐被试全矩阵扩展（UTS03 复用 pilot 结果） | ✅ 完成——两被试各 72/72 单元，验收标准 1–6 全过，量级 sanity check 正常 |
 | **M5** | 逐被试统计（bootstrap+Holm）+ 跨被试方向一致性综合 | ✅ 完成——两项确认性对比得出跨被试结论，并定位到 UTS01 一处负控制符号翻转异常 |
-| **M6** | 三被试图表与可复现交付 | 🔶 代码已写完并用合成数据端到端测通，**尚未对真实三被试数据执行出图**（下一步） |
+| **M6** | 三被试图表与可复现交付 | ✅ 完成——三被试逐被试图表 + 跨被试并排图 + ROI 空间位置图全部对真实数据出图，已下载到本地；额外完成一项 AWD-LSTM 上下文饱和诊断 |
 
 ---
 
@@ -298,7 +298,7 @@ RQ1 H-specific（探索性）在 H=8/32/128 三点上完全印证同一模式：
 
 ---
 
-# M6 — 三被试图表与可复现交付（代码就绪，尚未对真实数据执行）
+# M6 — 三被试图表与可复现交付
 
 **代码**：`scripts/m6_cross_subject_figures.py`（新建）、`scripts/m6_tables.py`（修复），commit `3d72fd1`。
 
@@ -312,14 +312,62 @@ RQ1 H-specific（探索性）在 H=8/32/128 三点上完全印证同一模式：
 - **修复** `scripts/m6_tables.py`：`qc_table()` 硬编码读 `voxel_mask_UTS03.json`/`roi_columns_UTS03.npz`——按 `--subject` 跑其他被试时会静默报告 UTS03 的体素/ROI 列数。改为按 subject 参数化。同时撤销"UTS03（单被试，预注册偏离）"措辞。
 - 验证：用合成三被试 fixture 端到端跑通（`m5_cross_subject.py` → `m6_cross_subject_figures.py`），两张图 PNG+PDF 均正确生成；被试不匹配守卫按预期拦截（非零退出）。
 
-## 尚未执行的部分
-
-代码已就位并测通，但**尚未对 UTS01/UTS02/UTS03 的真实结果跑出正式图表**。下一步：
+## 实际执行记录（2026-07-12，服务器）
 
 ```bash
 python scripts/m6_figures.py --subject UTS01   # UTS02、UTS03 各一次
 python scripts/m6_tables.py  --subject UTS01   # UTS02、UTS03 各一次
 python scripts/m6_cross_subject_figures.py
+python scripts/m6_roi_location.py --subject UTS01   # UTS02 补一次（Figure 6，UTS03 pilot 阶段已有）
 ```
 
-全部纯 CPU、只读 M5 结构化结果，不重算任何统计。跑完即构成毕业闭环（M6 验收要求：完成即构成毕业闭环）。
+全部纯 CPU、只读 M5 结构化结果，未重算任何统计。产出（服务器 `figures/` 下，共 52 个文件）：
+
+| 目录 | 内容 |
+|---|---|
+| `figures/UTS01/`、`figures/UTS02/`、`figures/UTS03/` | 各自 fig1–6（PNG+PDF）+ `tables/`（qc_table、table1_checkpoint_audit、table2_full_numbers） |
+| `figures/cross_subject/` | `figX_cross_main`、`figX_cross_confirmatory`（PNG+PDF） |
+
+`fig6_roi_location`（ROI 空间位置图）原本只有 UTS03（pilot 阶段产出），`m6_roi_location.py` 本身早已按 subject 参数化（M1 准备阶段 commit `ef0eb38` 修过），只是没人跑过 UTS01/UTS02，本次补齐，跑图时出现的 `Error. nthreads must be a positive integer` 与 M1 阶段同款，非致命噪音，不影响结果。
+
+## 下载到本地
+
+用 `rsync -avz -e "ssh -p <端口>" root@<主机>:~/autodl-tmp/deep-fMRI-dataset/figures/ figures/` 同步到本地 `/home/linux/projects/deep-fMRI-dataset/figures/`，52 个文件全部到位。**注意**：此类下载命令必须在本地终端执行，不能粘贴进服务器 SSH 会话里（曾误粘贴导致 `rsync` 反向在服务器上找本地路径报错）。
+
+**M6 里程碑结案，三被试扩展毕业闭环完成（M0–M6 全部完成）。**
+
+---
+
+# M6 补充诊断 — AWD-LSTM 上下文饱和核实（非 bug，真实发现）
+
+## 起因
+
+复盘图表时注意到 AWD-LSTM 在三被试上 r8/r32/r128 几乎完全打平（UTS01: 0.068289/0.068309/0.068309；UTS02: 0.071384/0.071352/0.071352），怀疑是否存在"H 窗口未真正生效 / recurrent state 被错误复用"这类实现 bug，而非真实的模型属性。
+
+## 核实方法
+
+直接比较同一批目标词在 H=8/32/128 下的原始特征缓存（`load_features`），逐元素展平后算相关与最大绝对差：
+
+```python
+corr(X8 , X32 ) = 0.99987
+corr(X32, X128) = 1.000000
+max|X32 - X128| = 1.5534460544586182e-06
+```
+
+## 判读
+
+- `corr(X32,X128)=1.000000`、`max|diff|≈1.5e-6`——**float32 浮点舍入误差量级**，X32 与 X128 在数值上逐位相同；
+- `corr(X8,X32)=0.99987`——**非零、非浮点噪声级别**的真实差异，说明 8→32 词的历史确实被模型消化、确实改变了输出。
+
+两者组合恰好排除了两种最可能的 bug：
+1. 若"H 机制整体失效"（窗口构造 bug、模型没吃到不同长度历史），X8 与 X32 也应像 X32/X128 一样逐位相同——实际不是；
+2. 若"`reset_state()` 未生效、状态跨窗口污染"，预期是杂乱、非单调的差异模式——实际是干净的单调收敛（H8→H32 有真实但极小的差距，H32→H128 精确归零）。
+
+## 结论
+
+这是该预训练 AWD-LSTM **真实的记忆饱和曲线**：有效上下文窗口在约 32 词处已饱和，超出部分对输出的贡献在 float32 精度下精确为零——符合 LSTM vanishing-gradient 的经典行为，与三被试上 `delta_total_awd_lstm_ifg_main` 精确为零（M5 结果）完全自洽。**不涉及实现错误，不需要改代码或重跑**，按项目纪律直接记录为 Limitations 中的一条如实发现，不作为核心架构排名的证据（AWD-LSTM 本就不参与核心三模型排名）。
+
+附带验证价值：AWD-LSTM 是四模型里最容易暴露"H 未生效"类 bug 的模型（对上下文最敏感），它没有暴露此类问题，反过来加固了整条 H 窗口构造机制（`src/models/windowing.py::build_window`）对 pythia/mamba/rwkv 同样可信的信心。
+
+**建议写入 Limitations 的英文措辞**：
+> AWD-LSTM's effective context window saturates by H≈32 tokens (H=32 and H=128 representations are numerically identical to float32 precision); this recurrent-memory ceiling explains its flat Δr_total across H and is consistent with known vanishing-gradient behavior in LSTMs, not a pipeline artifact — verified by confirming H=8 vs H=32 representations differ non-trivially (r=0.99987) while H=32 vs H=128 do not (r=1.000000, max abs diff at float32 rounding level).
