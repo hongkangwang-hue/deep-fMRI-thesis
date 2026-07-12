@@ -104,6 +104,11 @@ def main():
     ap.add_argument("--out-name", default="m5_cross_subject")
     args = ap.parse_args()
 
+    # 重复被试会让 subj_est 去重成更少的键，而 subject_order 仍含重复 → n_subjects
+    # 与 CI 计数被重复计入，静默给出错误的一致性判读。直接挡掉，不容忍。
+    if len(set(args.subjects)) != len(args.subjects):
+        raise SystemExit(f"--subjects 存在重复：{args.subjects}；跨被试综合要求各被试唯一")
+
     cfg = load_config()
     paths = cfg["paths"]
     m5_dir = Path(paths["results_dir"]) / args.m5_name
