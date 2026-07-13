@@ -98,11 +98,11 @@ FIG2_YLIM_AWD = (0.0, 0.11)     # 实测 hi 需要到 0.0958/0.1021/0.1026
 
 
 def fig2(results, est, subject, outdir):
-    fig = plt.figure(figsize=(10.5, 7.0))
-    gs = fig.add_gridspec(2, 2, height_ratios=[3, 1.3], hspace=0.5, wspace=0.25)
-    ax_ifg = fig.add_subplot(gs[0, 0])
-    ax_pt = fig.add_subplot(gs[0, 1], sharey=ax_ifg)
-    ax_awd = fig.add_subplot(gs[1, :])
+    # 一行三等分（用户明确要求(a)(b)(c)大小一致，取代方案原文"(c)横跨整行作为
+    # 视觉重点"的建议——三个面板宽度、高度完全相同）。
+    fig, (ax_ifg, ax_pt, ax_awd) = plt.subplots(1, 3, figsize=(15, 4.6))
+    fig.subplots_adjust(top=0.78, bottom=0.28, wspace=0.3)
+    ax_pt.sharey(ax_ifg)
 
     core_vals = []
     for ax, roi, title in ((ax_ifg, "left_IFG", "(a) Left IFG"),
@@ -179,11 +179,10 @@ FIG3C_XLIM = (-0.005, 0.007)    # 三人实测均已覆盖，无需调整
 
 
 def fig3(results, est, subject, outdir):
-    fig = plt.figure(figsize=(11, 8.6))
-    gs = fig.add_gridspec(2, 2, height_ratios=[1.15, 1], hspace=0.55, wspace=0.28)
-    ax_a = fig.add_subplot(gs[0, 0])
-    ax_b = fig.add_subplot(gs[0, 1])
-    ax_c = fig.add_subplot(gs[1, :])
+    # 一行三等分（用户明确要求(a)(b)(c)大小一致，取代方案原文"(c)横跨整行作为
+    # 视觉重点"的建议）。
+    fig, (ax_a, ax_b, ax_c) = plt.subplots(1, 3, figsize=(17, 4.8))
+    fig.subplots_adjust(top=0.78, bottom=0.3, wspace=0.32)
 
     # (a) Matched-Context Architecture Contrasts
     ax_a.axhline(0, color="k", linewidth=LW_ZERO, linestyle=":")
@@ -291,11 +290,10 @@ FIG4C_XLIM = (-0.008, 0.008)    # 实测 lo 需要到 -0.0070
 
 
 def fig4(results, est, subject, outdir):
-    fig = plt.figure(figsize=(11, 8.6))
-    gs = fig.add_gridspec(2, 2, height_ratios=[1.15, 1], hspace=0.55, wspace=0.28)
-    ax_a = fig.add_subplot(gs[0, 0])
-    ax_b = fig.add_subplot(gs[0, 1])
-    ax_c = fig.add_subplot(gs[1, :])
+    # 一行三等分（用户明确要求(a)(b)(c)大小一致，取代方案原文"(c)横跨整行作为
+    # 视觉重点"的建议）。
+    fig, (ax_a, ax_b, ax_c) = plt.subplots(1, 3, figsize=(17, 4.8))
+    fig.subplots_adjust(top=0.78, bottom=0.3, wspace=0.32)
 
     # (a) Encoding Performance: normal(实线) vs shifted(点线)
     a_vals = []
