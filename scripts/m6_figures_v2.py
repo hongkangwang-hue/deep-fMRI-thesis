@@ -88,10 +88,13 @@ def _bottom_legend(fig, handles, *, ncol=None, y=-0.02):
 # Figure 2 — Encoding Performance Across Context Lengths
 # ---------------------------------------------------------------------------
 
-# 三被试固定坐标范围（方案11.2：不逐被试自动缩放；superseded 安全网见 safe_lim）。
-# 基于三被试已观测量级（核心模型 IFG/PT 主层 r 约 0.06–0.15）留出安全边界。
+# 三被试固定坐标范围（方案11.2：不逐被试自动缩放；safe_lim 是安全网，不是常规
+# 路径）。以下数值已用 UTS01/UTS02/UTS03 三人的真实 M5 结果核对过（服务器实测，
+# 2026-07-13）：每个范围都比三人实际需要的最大跨度再留一点余量，三人都不应
+# 再触发 safe_lim 的自动扩展警告；若后续重跑 M5（换种子/改故事划分等）导致
+# 数值变化到触发警告，把新的警告数字加入下面注释、按同样方法重新收紧范围。
 FIG2_YLIM_CORE = (0.0, 0.17)
-FIG2_YLIM_AWD = (0.0, 0.09)
+FIG2_YLIM_AWD = (0.0, 0.11)     # 实测 hi 需要到 0.0958/0.1021/0.1026
 
 
 def fig2(results, est, subject, outdir):
@@ -170,9 +173,9 @@ reference and is not part of the core three-model architecture ranking.
 # Figure 3 — Architecture-Specific Context Effects
 # ---------------------------------------------------------------------------
 
-FIG3A_YLIM = (-0.006, 0.010)
-FIG3B_YLIM = (-0.002, 0.008)
-FIG3C_XLIM = (-0.005, 0.007)
+FIG3A_YLIM = (-0.008, 0.012)    # 实测 lo 需要到 -0.0067，hi 需要到 0.0108
+FIG3B_YLIM = (-0.003, 0.010)    # 实测 lo 需要到 -0.0024，hi 需要到 0.0094
+FIG3C_XLIM = (-0.005, 0.007)    # 三人实测均已覆盖，无需调整
 
 
 def fig3(results, est, subject, outdir):
@@ -282,9 +285,9 @@ resampling, 1000 draws).
 # Figure 4 — Temporal-Shift Control
 # ---------------------------------------------------------------------------
 
-FIG4A_YLIM = (-0.01, 0.17)
-FIG4B_YLIM = (-0.002, 0.008)
-FIG4C_XLIM = (-0.004, 0.007)
+FIG4A_YLIM = (-0.012, 0.17)     # 实测 lo 需要到 -0.0102
+FIG4B_YLIM = (-0.003, 0.010)    # 实测 hi 需要到 0.0094
+FIG4C_XLIM = (-0.008, 0.008)    # 实测 lo 需要到 -0.0070
 
 
 def fig4(results, est, subject, outdir):
@@ -392,7 +395,7 @@ resampling).
 # Figure 5 — Layer Sensitivity of Context-Gain Contrasts
 # ---------------------------------------------------------------------------
 
-FIG5_XLIM = (-0.004, 0.008)
+FIG5_XLIM = (-0.006, 0.009)     # 实测 lo 需要到 -0.0050
 
 
 def fig5(results, est, subject, outdir):
