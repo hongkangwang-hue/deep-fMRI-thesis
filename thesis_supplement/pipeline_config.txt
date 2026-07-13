@@ -1,0 +1,103 @@
+==============================================================================
+第4节：实际执行的预处理流程（如实核对代码，非计划书推测）
+来源：src/fmri/{trfile,alignment,mask}.py 的实现 + frozen/analysis_spec.yaml + config/config.yaml（这两个 yaml 是代码实际读取、跑 M1-M6 时真实生效的配置，不是另一份“计划”文档）
+==============================================================================
+
+- 是否排除故事开始前 100 秒
+  是。src/fmri/mask.py::after_time_mask，阈值 HELDOUT_SCORE_AFTER_SECONDS=100.0s，按 trim 后 TR 中心时间判定，只保留 >100s 的 TR。
+
+- 是否排除故事结尾 20 秒
+  否——代码里没有单独的“结尾20秒”规则。结尾影响来自 src/fmri/trfile.py 的 TRIM_LAST=5（5个TR×2.0s=10.0秒，对齐 LeBel 参考实现的 encoding_utils trim=5 规则），不是独立的20秒规则；如果论文草稿写了“排除结尾20秒”，需要改成如实描述这个 trim 规则，不能照抄未实现的计划书条款。
+
+- 是否使用 Savitzky–Golay 滤波
+  否——src/fmri/、src/ridge/、src/models/ 全代码库检索不到 savgol/Savitzky 相关调用，未实现，未使用。
+
+- 是否对 BOLD 做标准化
+  是，但不在本项目代码里做——训练故事的 .hf5 在数据集 derivatives 阶段已按体素 z-score(std=1)（[[m2-pipeline-state]] 记录的核对结论），loader 不重复 z-score；held-out 故事 wheretheressmoke 是跨重复平均，std≈0.36，不是单位方差。
+
+- 标准化是否只基于训练故事
+  BOLD 标准化不适用（上条：标准化发生在数据集 derivatives 阶段，非本项目代码步骤）。本项目代码里真正“只用训练折拟合”的是 StandardScaler(语言特征侧) 与 PCA——两者 fit_scope 均为 outer_training_stories_only（frozen/analysis_spec.yaml），程序化保证：src/ridge/pipeline.py 的 run_fold 每折用该折的 training stories 单独 fit scaler/PCA/ridge，测试故事只 transform。
+
+- 词时间是否使用 midpoint
+  是。target_audit 的 first_eligible_midpoint_sec 及 Lanczos 重采样都用 (onset_s+offset_s)/2 作为词的代表时刻（src/fmri/alignment.py::word_to_tr 的 data_times 参数）。
+
+- Lanczos 重采样参数
+  src/fmri/alignment.py::word_to_tr，window=3（Lanczos 窗叶数，等同参考实现 lanczosinterp2D 默认值），复用 encoding/ridge_utils/interpdata.py 的算子（与 LeBel 参考实现数值一致，M2-C Phase 1 用此路径核对通过：voxel_r=0.9962）。
+
+- FIR 是否为 2、4、6、8 秒
+  是。src/fmri/alignment.py::apply_fir 默认 delays_s=(2, 4, 6, 8)，TR=2.0s，对应位移 1/2/3/4 个 TR；前 4 个 TR 因最大延迟缺乏历史支撑被标记为边缘无效（FIR valid mask）。
+
+- PCA 是否在 FIR 之前
+  是。frozen/analysis_spec.yaml::pca.apply_before_fir=true；实现顺序也确认是 特征下采样到 TR → PCA-100 → FIR 展开（诊断脚本 diag_awd_lstm_context_decay.py 的 [4] 阶段专门核实过这个顺序，因为直觉顺序容易搞反）。
+
+- PCA 是否只使用 outer-training stories 拟合
+  是。frozen/analysis_spec.yaml::pca.fit_scope=outer_training_stories_only，src/ridge/pipeline.py::run_fold 每折只用该折训练故事 fit PCA，测试故事只 transform，程序化防泄漏（M3a 盲态核查专门验证过不碰 held-out r）。
+
+- Ridge λ 候选范围
+  logspace(-2, 7, 19) = [0.01, 1e7]，每 0.5 log10 一个点（19 个候选）。**注意这不是计划书原始网格**：原网格 logspace(-2,4,13)=[0.01,1e4]在 M3a 盲态核查（只用 inner-CV，不碰 held-out r）中发现信号体素（inner-CV score>0.10）100% 撞上界，根因是 PCA-100 输出未标准化、方差远超 native 参考实现的单位方差特征；已按 inner-validation 结果扩网格重新冻结（commit 见 git tag m3a-lambda-refreeze），扩网格后信号体素边界命中率=0.000。
+
+- λ 是否在训练故事内部选择
+  是。frozen/analysis_spec.yaml::ridge.inner_folds=2，selection_metric=validation_pearson_r，在训练折内部再切 2 份做 inner CV 选 λ，held-out outer test 故事从不参与选择。
+
+==============================================================================
+附：frozen/analysis_spec.yaml 原文（供逐条对照）
+==============================================================================
+# ── 变更记录 ──────────────────────────────────────────────────────────────
+# 2026-07-01  ridge.lambda_grid: logspace(-2,4,13)=[0.01,1e4] → logspace(-2,7,19)=[0.01,1e7]
+#   依据：M3a 盲态核查（scripts/m3a_blind_check.py，只用 outer training + inner CV，
+#   不碰 held-out r）发现原网格下**有信号体素**（inner-CV score>0.10，n≈18000-20000，
+#   cv_max~0.5）100% 撞上界 1e4。根因：PCA-100 输出的 PC scores 未标准化，方差远大于
+#   native 的单位方差 z-score 特征，所需正则化强度大几个数量级。扩到 [0.01,1e7] 后
+#   信号体素边界命中率降至 0.000（3 折一致）。保持每 0.5 log10 分辨率（点数 13→19）。
+#   选择扩网格（方案A）而非 PCA 白化（方案B），因扩网格已使信号体素 0% 撞界即足够。
+#   此修改在看到任何 outer held-out r 之前完成，符合 M3a 纪律。freeze tag 见 git。
+# ──────────────────────────────────────────────────────────────────────────
+context_lengths_H:
+- 8
+- 32
+- 128
+first_eligible_target_index_0based: 128
+window_definition: H preceding words + target word = H+1 tokens total
+state_reset_per_window: true
+transformer_reuse_external_kv_cache: false
+primary_layers:
+  pythia: 8
+  rwkv: 8
+  mamba: 16
+  awd_lstm: 1
+robustness_layers:
+  pythia: 11
+  rwkv: 11
+  mamba: 23
+  awd_lstm: 2
+pca:
+  n_components: 100
+  fit_scope: outer_training_stories_only
+  apply_before_fir: true
+  svd_solver: full
+ridge:
+  solver: himalaya
+  alpha_scope: per_voxel
+  lambda_grid: logspace(-2, 7, 19)   # M3a 后扩上界，见顶部变更记录
+  inner_folds: 2
+  selection_metric: validation_pearson_r
+  tie_break_rule: prefer_larger_lambda
+scoring:
+  voxel_metric: pearson_r
+  transform_before_roi_average: fisher_z
+  fold_summary: effective_tr_weighted_mean
+heldout_score_after_story_seconds: 100
+fir_delays_seconds:
+- 2
+- 4
+- 6
+- 8
+negative_control:
+  time_shift_seconds: 40
+  shift_within_each_story: true
+  circular_shift: false
+  edge_policy: invalid_and_drop
+seeds:
+  fold_split: 20260629
+  pca: 20260630
+  bootstrap: 20260701
