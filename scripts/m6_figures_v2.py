@@ -51,10 +51,17 @@ from src.viz.m6_data import (                 # noqa: E402
 from src.viz.m6_style_v2 import (             # noqa: E402
     MODEL_STYLE, CORE_MODELS, REFERENCE_MODEL, HPOS,
     FS_BIG_TITLE, FS_PANEL_TITLE, FS_AXIS, FS_LEGEND,
-    LW_DATA, LW_ERRBAR, LW_ZERO,
+    LW_DATA, LW_ERRBAR, LW_ZERO, ZERO_LINE_COLOR, ZERO_LINE_STYLE,
+    CONNECTOR_COLOR, CONNECTOR_LW, LAYER_OFFSET, CAPSIZE, MARKER_SIZE,
     style_axes, subject_tag, fmt_p, safe_lim,
     annotate_with_headroom_h, save_with_caption,
 )
+
+
+def _zero_line(ax, orient="h"):
+    """统一零线样式（V2 §16）。"""
+    fn = ax.axhline if orient == "h" else ax.axvline
+    fn(0, color=ZERO_LINE_COLOR, linewidth=LW_ZERO, linestyle=ZERO_LINE_STYLE)
 
 
 def _errbar_v(ax, x, pt, lo, hi, style, label=None, dx=0.0):
@@ -89,12 +96,13 @@ def _bottom_legend(fig, handles, *, ncol=None, y=-0.02):
 # ---------------------------------------------------------------------------
 
 # 三被试固定坐标范围（方案11.2：不逐被试自动缩放；safe_lim 是安全网，不是常规
-# 路径）。以下数值已用 UTS01/UTS02/UTS03 三人的真实 M5 结果核对过（服务器实测，
-# 2026-07-13）：每个范围都比三人实际需要的最大跨度再留一点余量，三人都不应
-# 再触发 safe_lim 的自动扩展警告；若后续重跑 M5（换种子/改故事划分等）导致
-# 数值变化到触发警告，把新的警告数字加入下面注释、按同样方法重新收紧范围。
-FIG2_YLIM_CORE = (0.0, 0.17)
-FIG2_YLIM_AWD = (0.0, 0.11)     # 实测 hi 需要到 0.0958/0.1021/0.1026
+# 路径）。数值已用 UTS01/UTS02/UTS03 真实 M5 结果核对（服务器实测 2026-07-13）。
+# V2 §15.2：Figure 2 是折线图，纵轴不从零起，放大以看清核心模型间约 0.001–0.008
+# 的差异（下限用方案给的保守值 0.090，避免夸大差异，也不裁掉核心模型 CI 下沿）。
+# AWD 面板同样不从零起，但上限保留到 0.11 覆盖实测 PT hi≈0.1026（方案建议的
+# 0.100 会裁掉，故不采用其上限）。
+FIG2_YLIM_CORE = (0.090, 0.150)
+FIG2_YLIM_AWD = (0.050, 0.110)
 
 
 def fig2(results, est, subject, outdir):
@@ -137,8 +145,7 @@ def fig2(results, est, subject, outdir):
                 ax_awd.plot([x, x], [lo, hi], color=st["color"], alpha=0.5, linewidth=LW_ERRBAR)
                 awd_vals += [lo, hi]
     ax_awd.set_xticks([0, 1, 2]); ax_awd.set_xticklabels(["8", "32", "128"])
-    ax_awd.set_title("(c) AWD-LSTM Historical Reference — separate y-scale",
-                     fontsize=FS_PANEL_TITLE)
+    ax_awd.set_title("(c) AWD-LSTM Reference", fontsize=FS_PANEL_TITLE)
     ax_awd.set_xlabel("Context Length (tokens)", fontsize=FS_AXIS)
     ax_awd.set_ylabel("Encoding Score, $r$", fontsize=FS_AXIS)
     safe_lim(ax_awd, FIG2_YLIM_AWD, awd_vals, context="fig2(c)")
@@ -184,15 +191,15 @@ def fig3(results, est, subject, outdir):
     fig, (ax_a, ax_b, ax_c) = plt.subplots(1, 3, figsize=(17, 4.8))
     fig.subplots_adjust(top=0.78, bottom=0.3, wspace=0.32)
 
-    # (a) Matched-Context Architecture Contrasts
-    ax_a.axhline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    # (a) Matched-Context Architecture Contrasts —— 面板内自带 2 项对比图例（V2 §15.3）
+    _zero_line(ax_a, "h")
     a_vals = []
     for arch in CORE_VS_PYTHIA:
         st = MODEL_STYLE[arch]
         xs = [HPOS[h] for h in HS]
         pts = [rq1(est, arch, h)[0] for h in HS]
         ax_a.plot(xs, pts, color=st["color"], marker=st["marker"],
-                 linewidth=LW_DATA, markersize=6)
+                 linewidth=LW_DATA, markersize=6, label=f"{st['label']} − Pythia")
         for h, x in zip(HS, xs):
             p, lo, hi = rq1(est, arch, h)
             if p is not None:
@@ -203,10 +210,11 @@ def fig3(results, est, subject, outdir):
     ax_a.set_ylabel("Encoding-Score Difference vs Pythia", fontsize=FS_AXIS)
     ax_a.set_title("(a) Matched-Context Architecture Contrasts", fontsize=FS_PANEL_TITLE)
     safe_lim(ax_a, FIG3A_YLIM, a_vals, context="fig3(a)")
+    ax_a.legend(fontsize=FS_LEGEND, loc="upper left", frameon=False)
     style_axes(ax_a)
 
-    # (b) Context Gain by Model — 点/误差棒替代柱状图（方案5.6）
-    ax_b.axhline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    # (b) Context Gain by Model —— 面板内自带 4 模型图例（V2 §15.3）
+    _zero_line(ax_b, "h")
     kinds = ["local", "long", "total"]
     width = 0.18
     b_vals = []
@@ -216,7 +224,7 @@ def fig3(results, est, subject, outdir):
             pt, lo, hi = context_gain(est, m, "left_IFG", kind)
             x = k + (j - 1.5) * width
             if pt is not None:
-                _errbar_v(ax_b, x, pt, lo, hi, st)
+                _errbar_v(ax_b, x, pt, lo, hi, st, label=st["label"] if k == 0 else None)
                 if lo is not None:
                     b_vals += [lo, hi]
     ax_b.set_xticks(range(len(kinds)))
@@ -224,10 +232,13 @@ def fig3(results, est, subject, outdir):
     ax_b.set_ylabel(r"Context Gain, $\Delta r$", fontsize=FS_AXIS)
     ax_b.set_title("(b) Context Gain by Model", fontsize=FS_PANEL_TITLE)
     safe_lim(ax_b, FIG3B_YLIM, b_vals, context="fig3(b)")
+    ax_b.legend(fontsize=FS_LEGEND, loc="upper left", frameon=False, ncol=2)
     style_axes(ax_b)
 
-    # (c) CONFIRMATORY — 横向森林图（方案5.7 + 保留"CONFIRMATORY"标签，见文件头说明）
-    ax_c.axvline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    # (c) Total Context-Gain Contrasts（去掉标题里的 "CONFIRMATORY:"，V2 §15.3；
+    # 确认性/Holm 说明进图注）——横向森林图。p 值如实标原始 bootstrap p，星号单独
+    # 表示"经 Holm α=0.05 校正后拒绝 H0"（fmt_p 文档说明：两者不冗余、不误标）。
+    _zero_line(ax_c, "v")
     rows = confirmatory_rows(results)
     order = {"rwkv_minus_pythia_delta_total_ifg_main": 1,
             "mamba_minus_pythia_delta_total_ifg_main": 0}
@@ -241,14 +252,13 @@ def fig3(results, est, subject, outdir):
         if row["ci_lo"] is not None:
             c_vals += [row["ci_lo"], row["ci_hi"]]
         labels.append((y, f"{st['label']} − Pythia"))
-        star = "*" if row.get("reject") else ""
-        txt = f"{star} {fmt_p(row['p'], holm=True)}".strip()
+        star = "* " if row.get("reject") else ""
+        txt = f"{star}{fmt_p(row['p'])}".strip()
         annots.append((row["ci_hi"] if row["ci_hi"] is not None else row["point"], y, txt, "black"))
     ax_c.set_yticks([y for y, _ in labels])
     ax_c.set_yticklabels([lab for _, lab in labels])
     ax_c.set_xlabel(r"Difference in Total Context Gain, $\Delta r_{\mathrm{total}}$", fontsize=FS_AXIS)
-    ax_c.set_title("(c) CONFIRMATORY: Total Context-Gain Contrasts", fontsize=FS_PANEL_TITLE,
-                  fontweight="bold")
+    ax_c.set_title("(c) Total Context-Gain Contrasts", fontsize=FS_PANEL_TITLE)
     ax_c.set_ylim(-0.7, len(rows) - 0.3)
     safe_lim(ax_c, FIG3C_XLIM, c_vals, axis="x", context="fig3(c)")
     style_axes(ax_c, grid_axis="x")
@@ -257,25 +267,20 @@ def fig3(results, est, subject, outdir):
     fig.suptitle("Architecture-Specific Context Effects", fontsize=FS_BIG_TITLE,
                 fontweight="bold", y=0.99)
     subject_tag(fig, subject, x=0.985, y=0.99)
-    _bottom_legend(fig, [Line2D([0], [0], color=MODEL_STYLE[a]["color"],
-                                marker=MODEL_STYLE[a]["marker"], linestyle="-",
-                                linewidth=LW_DATA, label=f"{MODEL_STYLE[a]['label']} − Pythia")
-                        for a in CORE_VS_PYTHIA] +
-                  [Line2D([0], [0], color=MODEL_STYLE[m]["color"], marker=MODEL_STYLE[m]["marker"],
-                          linestyle="", markersize=7, label=MODEL_STYLE[m]["label"])
-                   for m in CORE_MODELS + [REFERENCE_MODEL]], ncol=6)
 
     caption = f"""
 Figure 3. Architecture-specific context effects, subject {subject}.
 (a) Matched-context architecture contrasts (RWKV/Mamba minus Pythia encoding
-score at the same H), IFG primary layer, exploratory. (b) Three descriptive
+score at the same H), IFG primary layer; exploratory. (b) Three descriptive
 Context Gain measures per model, IFG primary layer: Delta r_local = r32-r8,
-Delta r_long = r128-r32, Delta r_total = r128-r8. (c) The two CONFIRMATORY
-Delta r_total architecture contrasts (IFG primary layer), the only estimands
-in this figure carrying a confirmatory conclusion; Holm-Bonferroni corrected
-at family-wise alpha=0.05 across these two comparisons. * = rejects H0 after
-Holm correction. Error bars/whiskers are 95% bootstrap CI (paired story
-resampling, 1000 draws).
+Delta r_long = r128-r32, Delta r_total = r128-r8; descriptive. (c) is the ONLY
+CONFIRMATORY family in this study: the two Delta r_total architecture contrasts
+(IFG primary layer), the only estimands carrying a confirmatory conclusion,
+Holm-Bonferroni corrected at family-wise alpha=0.05 across the two comparisons.
+Values shown are the raw two-sided bootstrap p; * marks contrasts that reject
+H0 after Holm correction (the p shown is NOT the Holm-adjusted p — Holm is
+step-down, so the * decision is not recoverable from the raw p alone). Error
+bars/whiskers are 95% bootstrap CI (paired story resampling, 1000 draws).
 """.strip()
     save_with_caption(fig, outdir, "fig3_rq1_context_gain", caption)
 
@@ -314,22 +319,23 @@ def fig4(results, est, subject, outdir):
     style_axes(ax_a)
 
     # (b) Total Context Gain: paired points (normal-shifted connected), 方案6.5
-    ax_b.axhline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    # V2 §15.4：面板内加"● Normal / ○ Shifted"条件图例，明确实心/空心含义。
+    _zero_line(ax_b, "h")
     b_vals = []
     for j, m in enumerate(CORE_MODELS + [REFERENCE_MODEL]):
         st = MODEL_STYLE[m]
         n_pt, n_lo, n_hi = context_gain(est, m, "left_IFG", "total", shifted=False)
         s_pt, s_lo, s_hi = context_gain(est, m, "left_IFG", "total", shifted=True)
         if n_pt is not None and s_pt is not None:
-            ax_b.plot([j, j], [n_pt, s_pt], color="#bbbbbb", linewidth=1.2, zorder=1)
+            ax_b.plot([j, j], [n_pt, s_pt], color=CONNECTOR_COLOR, linewidth=CONNECTOR_LW, zorder=1)
         if n_pt is not None:
             ax_b.errorbar(j, n_pt, yerr=[[n_pt - n_lo], [n_hi - n_pt]], fmt="o",
-                         color=st["color"], ecolor=st["color"], capsize=3, markersize=6,
+                         color=st["color"], ecolor=st["color"], capsize=CAPSIZE, markersize=6,
                          linewidth=LW_DATA, elinewidth=LW_ERRBAR, zorder=2)
             b_vals += [n_lo, n_hi]
         if s_pt is not None:
             ax_b.errorbar(j, s_pt, yerr=[[s_pt - s_lo], [s_hi - s_pt]], fmt="o", mfc="white",
-                         color=st["color"], ecolor=st["color"], capsize=3, markersize=6,
+                         color=st["color"], ecolor=st["color"], capsize=CAPSIZE, markersize=6,
                          linewidth=LW_DATA, elinewidth=LW_ERRBAR, zorder=2)
             b_vals += [s_lo, s_hi]
     ax_b.set_xticks(range(4))
@@ -338,10 +344,16 @@ def fig4(results, est, subject, outdir):
     ax_b.set_ylabel(r"Total Context Gain, $\Delta r_{\mathrm{total}}$", fontsize=FS_AXIS)
     ax_b.set_title("(b) Total Context Gain", fontsize=FS_PANEL_TITLE)
     safe_lim(ax_b, FIG4B_YLIM, b_vals, context="fig4(b)")
+    cond_legend = [Line2D([0], [0], marker="o", color="0.35", mfc="0.35", linestyle="",
+                          markersize=7, label="Normal"),
+                   Line2D([0], [0], marker="o", color="0.35", mfc="white", linestyle="",
+                          markersize=7, label="Shifted")]
+    ax_b.legend(handles=cond_legend, fontsize=FS_LEGEND, loc="upper right", frameon=False)
     style_axes(ax_b)
 
-    # (c) Normal-Shifted Difference — 横向森林图，星号替代长文字（方案6.6）
-    ax_c.axvline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    # (c) Normal-Shifted Difference — 横向森林图，星号替代长文字（方案6.6）；
+    # 去掉标题里的 "diagnostic, unadjusted"（V2 §15.4，移入图注）。
+    _zero_line(ax_c, "v")
     models_c = CORE_MODELS + [REFERENCE_MODEL]
     annots, c_vals = [], []
     for i, m in enumerate(models_c):
@@ -357,8 +369,7 @@ def fig4(results, est, subject, outdir):
     ax_c.set_yticks(range(len(models_c)))
     ax_c.set_yticklabels([MODEL_STYLE[m]["label"] for m in reversed(models_c)])
     ax_c.set_xlabel(r"Normal $-$ Shifted Total Context Gain", fontsize=FS_AXIS)
-    ax_c.set_title("(c) Normal−Shifted Difference (diagnostic, unadjusted)",
-                  fontsize=FS_PANEL_TITLE)
+    ax_c.set_title("(c) Normal−Shifted Difference", fontsize=FS_PANEL_TITLE)
     ax_c.set_ylim(-0.6, len(models_c) - 0.4)
     safe_lim(ax_c, FIG4C_XLIM, c_vals, axis="x", context="fig4(c)")
     style_axes(ax_c, grid_axis="x")
@@ -397,19 +408,23 @@ FIG5_XLIM = (-0.006, 0.009)     # 实测 lo 需要到 -0.0050
 
 
 def fig5(results, est, subject, outdir):
-    fig, ax = plt.subplots(figsize=(8, 4.4))
-    ax.axvline(0, color="k", linewidth=LW_ZERO, linestyle=":")
+    fig, ax = plt.subplots(figsize=(8, 4.6))
+    _zero_line(ax, "v")
     contrasts = list(reversed(CORE_VS_PYTHIA))
     vals = []
     for i, arch in enumerate(contrasts):
         st = MODEL_STYLE[arch]
         y = i
+        # V2 §15.5：主层/最终层上下错开 ±LAYER_OFFSET，避免两组水平 CI 叠在同一
+        # y 线上无法分辨；连接线只连两个点估计、用浅灰细线（不用架构色，免与 CI 混淆）。
+        y_main, y_final = y + LAYER_OFFSET, y - LAYER_OFFSET
         m_pt, m_lo, m_hi = arch_delta_total(est, arch, "main")
         f_pt, f_lo, f_hi = arch_delta_total(est, arch, "final")
         if m_pt is not None and f_pt is not None:
-            ax.plot([m_pt, f_pt], [y, y], color="#bbbbbb", linewidth=1.2, zorder=1)
-        _forest_row(ax, y, m_pt, m_lo, m_hi, st, marker="o")
-        _forest_row(ax, y, f_pt, f_lo, f_hi, st, marker="D")
+            ax.plot([m_pt, f_pt], [y_main, y_final], color=CONNECTOR_COLOR,
+                    linewidth=CONNECTOR_LW, zorder=1)
+        _forest_row(ax, y_main, m_pt, m_lo, m_hi, st, marker="o")
+        _forest_row(ax, y_final, f_pt, f_lo, f_hi, st, marker="D")
         for lo, hi in ((m_lo, m_hi), (f_lo, f_hi)):
             if lo is not None:
                 vals += [lo, hi]

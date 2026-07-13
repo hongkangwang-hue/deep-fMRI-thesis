@@ -17,19 +17,32 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Arial", "Helvetica", "DejaVu Sans"]
 
-# 字号（方案 11.3）
-FS_BIG_TITLE = 12
-FS_PANEL_TITLE = 10.5
-FS_AXIS = 9.5
-FS_TICK = 8.5
-FS_LEGEND = 8.5
+# 字号（V2 §16 最终统一参数）
+FS_BIG_TITLE = 15
+FS_PANEL_TITLE = 11
+FS_AXIS = 10
+FS_TICK = 9
+FS_LEGEND = 9
 FS_SUBJECT_TAG = 10
-FS_ANNOT = 8.5
+FS_ANNOT = 9
 
-# 线宽（方案 11.4）
-LW_DATA = 1.8
-LW_ERRBAR = 1.1
-LW_ZERO = 0.9
+# 线宽 / 标记（V2 §16）
+LW_DATA = 1.7
+LW_ERRBAR = 1.2
+CAPSIZE = 3
+MARKER_SIZE = 7
+
+# 零线（V2 §16）
+LW_ZERO = 1.0
+ZERO_LINE_COLOR = "0.25"
+ZERO_LINE_STYLE = ":"
+
+# 配对连接线（V2 §16：浅灰细线，不用架构色，避免与 CI 混淆）
+CONNECTOR_COLOR = "0.75"
+CONNECTOR_LW = 0.8
+
+# Figure 5 主层/最终层上下错开量（V2 §15.5：避免同一 y 上两组 CI 重叠）
+LAYER_OFFSET = 0.12
 
 # 模型配色/点形/线型（方案 11.1）。RWKV 原用纯绿色（v1 的 #2ca02c），方案明确
 # 建议避免纯绿以提高色觉友好性，v2 改用蓝绿色；其余沿用 v1 已验证的选择。
@@ -92,15 +105,22 @@ def subject_tag(ax_or_fig, subject: str, *, x=0.99, y=0.99):
         ha="right", va="top", fontsize=FS_SUBJECT_TAG, fontweight="bold")
 
 
-def fmt_p(p: float | None, holm: bool = False) -> str:
-    """p 值格式化：与本项目 bootstrap 分辨率（n_boot=1000 → 最小 1/1000）对齐，
-    写 p<0.001 而不是 p<0.0001（后者暗示了 1000 次重抽样给不出的精度）。"""
+def fmt_p(p: float | None) -> str:
+    """原始 bootstrap p 值格式化。
+
+    与本项目 bootstrap 分辨率（n_boot=1000 → 最小 1/1000）对齐，写 p<0.001 而不是
+    p<0.0001（后者暗示了 1000 次重抽样给不出的精度）。
+
+    **刻意不加 "Holm-adjusted" 前缀**：src/stats/bootstrap.py::holm_bonferroni 返回的
+    `p` 是原始双尾 bootstrap p 值，不是 Holm 校正后的 p；Holm 的多重比较结论由
+    `reject` 字段（对应图上的星号）承载。把原始 p 标成 "Holm-adjusted" 是错误的，
+    会误导读者。图上如实标原始 p，星号单独表示"经 Holm α=0.05 校正后拒绝 H0"，
+    两者不冗余（Holm 是 step-down，光看原始 p 推不出 reject）。"""
     if p is None:
         return ""
-    prefix = "Holm-adj. " if holm else ""
     if p < 0.001:
-        return f"{prefix}p<0.001"
-    return f"{prefix}p={p:.3f}"
+        return "p<0.001"
+    return f"p={p:.3f}"
 
 
 def annotate_with_headroom(ax, items, *, dy_points=6, fontsize=FS_ANNOT):
