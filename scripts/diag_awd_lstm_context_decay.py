@@ -111,7 +111,8 @@ def section3_cache_identity(cache_dir, model, story):
     return hashes
 
 
-def section4_pca_stage(cache_dir, model, cfg, subject):
+def section4_pca_stage(cache_dir, model, cfg, subject, pca_max_stories):
+    import gc
     from sklearn.preprocessing import StandardScaler
     from sklearn.decomposition import PCA
 
@@ -134,37 +135,46 @@ def section4_pca_stage(cache_dir, model, cfg, subject):
                           ds["data_dir"], respdict, word_index)
     sd128 = assemble_story(test_story, model, 128, "main", subject, cache_dir,
                            ds["data_dir"], respdict, word_index)
+    Xtest32_f32 = sd32.X.astype(np.float32)          # 后面投影用，float32 与正式管线一致
+    Xtest128_f32 = sd128.X.astype(np.float32)
     r_interp = _diff_stats(sd32.X.astype(np.float64), sd128.X.astype(np.float64))
     print(f"\n  [4a] TR 插值后（故事={test_story}，形状={sd32.X.shape}）:")
     print(f"       H32 vs H128: corr={r_interp['corr']:.6f}  "
           f"mean|diff|={r_interp['mean_abs_diff']:.3e}  max|diff|={r_interp['max_abs_diff']:.3e}")
+    del sd32, sd128
 
-    # -- 4b. PCA 后（真实训练折，StandardScaler+PCA-100，CPU轻量拟合，非Ridge）--
-    train_stories = fold["train_stories"]
-    print(f"\n  [4b] PCA-100 拟合（fold_0 训练折，{len(train_stories)} 个故事，"
-          f"H32/H128 各自独立拟合，与正式管线一致）...")
+    # -- 4b. PCA 后（StandardScaler+PCA-100，CPU轻量拟合，非Ridge）--
+    # 内存教训（上一版在此处被 OOM Killed）：awd_lstm 主层 1152 维，比其余模型的
+    # 400 维宽近 3 倍；float64 是正式管线 float32 的两倍内存；且原代码把 H=32、
+    # H=128 两份完整训练矩阵同时留在内存里。改为：float32、每个 H 用完立刻释放、
+    # 训练故事数可控（--pca-max-stories，默认远小于 fold 全部 55 个故事，诊断
+    # 用途不需要复现冻结 fold 的精确 PCA 对象，只需验证 evr@100 与投影后是否
+    # 仍数值一致）。
+    train_stories = fold["train_stories"][:pca_max_stories]
+    print(f"\n  [4b] PCA-100 拟合（训练故事取 {len(train_stories)}/{len(fold['train_stories'])}"
+          f"，H32/H128 各自独立拟合、依次处理不同时占内存，float32）...")
     seed = cfg["seeds"]["pca"]
-    Xtr = {}
+    evr = {}
+    Z = {}
     for H in (32, 128):
         parts = [assemble_story(s, model, H, "main", subject, cache_dir,
-                                ds["data_dir"], respdict, word_index).X
+                                ds["data_dir"], respdict, word_index).X.astype(np.float32)
                 for s in train_stories]
-        Xtr[H] = np.concatenate(parts, axis=0).astype(np.float64)
-    evr = {}
-    pcas = {}
-    for H in (32, 128):
-        scaler = StandardScaler().fit(Xtr[H])
-        pca = PCA(n_components=100, svd_solver="full", random_state=seed).fit(scaler.transform(Xtr[H]))
+        Xtr = np.concatenate(parts, axis=0)
+        del parts
+        scaler = StandardScaler().fit(Xtr)
+        pca = PCA(n_components=100, svd_solver="full", random_state=seed).fit(scaler.transform(Xtr))
+        del Xtr
+        gc.collect()
         evr[H] = float(pca.explained_variance_ratio_.sum())
-        pcas[H] = (scaler, pca)
+        Xtest = Xtest32_f32 if H == 32 else Xtest128_f32
+        Z[H] = pca.transform(scaler.transform(Xtest)).astype(np.float64)
+        del scaler, pca
+        gc.collect()
         print(f"       H={H}: evr@100={evr[H]:.6f}")
     print(f"       evr@100 差值 |H32-H128| = {abs(evr[32]-evr[128]):.3e}")
 
-    # 用各自拟合的 PCA 把同一个测试故事投影过去，比较 PCA 空间表示
-    s32, p32 = pcas[32]; s128, p128 = pcas[128]
-    Z32 = p32.transform(s32.transform(sd32.X.astype(np.float64)))
-    Z128 = p128.transform(s128.transform(sd128.X.astype(np.float64)))
-    r_pca = _diff_stats(Z32, Z128)
+    r_pca = _diff_stats(Z[32], Z[128])
     print(f"       测试故事 {test_story} 投影到各自PCA空间后: corr={r_pca['corr']:.6f}  "
           f"mean|diff|={r_pca['mean_abs_diff']:.3e}  max|diff|={r_pca['max_abs_diff']:.3e}")
     print("\n  结论：若 [2]（原始输出）已在 float32 精度下无差异，[4a]（线性插值，保幂等）、")
@@ -213,6 +223,10 @@ def main():
                     help="仅用于满足 assemble_story 的 Y 加载接口，本诊断不使用/不依赖 Y 的正确性")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--model", default="awd_lstm")
+    ap.add_argument("--pca-max-stories", type=int, default=15,
+                    help="4b 步 PCA 拟合用的训练故事数上限（诊断用途，"
+                         "不追求复现冻结fold的精确PCA对象，只验证evr@100是否一致；"
+                         "awd_lstm主层1152维，故事数太多在部分容器上会被OOM killer杀掉）")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -221,7 +235,7 @@ def main():
     section1_window_facts()
     section2_raw_feature_compare(cache_dir, args.model, args.story)
     section3_cache_identity(cache_dir, args.model, args.story)
-    section4_pca_stage(cache_dir, args.model, cfg, args.subject)
+    section4_pca_stage(cache_dir, args.model, cfg, args.subject, args.pca_max_stories)
     section5_distance_binned_sensitivity(cache_dir, args.model, args.story,
                                          args.n_targets, args.device, cfg)
 
