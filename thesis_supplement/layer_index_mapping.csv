@@ -1,0 +1,9 @@
+model,role,config_layer_idx_0based,n_layers_total,block_position_1based,hidden_states_index_taken,depth_fraction,is_literal_final_block
+pythia,primary,8,12,9/12,9,0.75,False
+pythia,robustness,11,12,12/12,12,1.0,True
+rwkv,primary,8,12,9/12,9,0.75,False
+rwkv,robustness,11,12,12/12,12,1.0,True
+mamba,primary,16,24,17/24,17,0.7083,False
+mamba,robustness,23,24,24/24,24,1.0,True
+awd_lstm,primary,1,3,2/3,rnns[1] (直接hook，无embedding位移),0.6667,False
+awd_lstm,robustness,2,3,3/3,rnns[2] (直接hook，无embedding位移),1.0,True
