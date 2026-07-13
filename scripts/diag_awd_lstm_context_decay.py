@@ -221,13 +221,22 @@ def main():
     ap.add_argument("--n-targets", type=int, default=300)
     ap.add_argument("--subject", default="UTS03",
                     help="仅用于满足 assemble_story 的 Y 加载接口，本诊断不使用/不依赖 Y 的正确性")
-    ap.add_argument("--device", default="cuda")
+    ap.add_argument("--device", default="auto",
+                    help="auto=探测 torch.cuda.is_available() 自动选择；"
+                         "AWD-LSTM 仅44M参数、300目标×14个H点，CPU也能轻松跑完")
     ap.add_argument("--model", default="awd_lstm")
     ap.add_argument("--pca-max-stories", type=int, default=15,
                     help="4b 步 PCA 拟合用的训练故事数上限（诊断用途，"
                          "不追求复现冻结fold的精确PCA对象，只验证evr@100是否一致；"
                          "awd_lstm主层1152维，故事数太多在部分容器上会被OOM killer杀掉）")
     args = ap.parse_args()
+
+    device = args.device
+    if device == "auto":
+        import torch
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"[diag] --device auto → 探测到 {device}"
+              f"（GPU 不可用时自动退回 CPU，AWD-LSTM 规模小，CPU 完全可行）")
 
     cfg = load_config()
     cache_dir = cfg["paths"]["cache_dir"]
@@ -237,7 +246,7 @@ def main():
     section3_cache_identity(cache_dir, args.model, args.story)
     section4_pca_stage(cache_dir, args.model, cfg, args.subject, args.pca_max_stories)
     section5_distance_binned_sensitivity(cache_dir, args.model, args.story,
-                                         args.n_targets, args.device, cfg)
+                                         args.n_targets, device, cfg)
 
     print("\n" + "=" * 70)
     print("[完成] 以上全部为诊断输出，未写入 frozen/ 或任何正式结果目录。")
