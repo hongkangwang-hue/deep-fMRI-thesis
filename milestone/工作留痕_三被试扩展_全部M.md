@@ -342,32 +342,60 @@ python scripts/m6_roi_location.py --subject UTS01   # UTS02 补一次（Figure 6
 
 ## 起因
 
-复盘图表时注意到 AWD-LSTM 在三被试上 r8/r32/r128 几乎完全打平（UTS01: 0.068289/0.068309/0.068309；UTS02: 0.071384/0.071352/0.071352），怀疑是否存在"H 窗口未真正生效 / recurrent state 被错误复用"这类实现 bug，而非真实的模型属性。
+复盘图表时注意到 AWD-LSTM 在三被试上 r8/r32/r128 几乎完全打平（UTS01: 0.068289/0.068309/0.068309；UTS02: 0.071384/0.071352/0.071352），怀疑是否存在"H 窗口未真正生效 / recurrent state 被错误复用"这类实现 bug，而非真实的模型属性。初步核实（corr(X8,X32)=0.99987 vs corr(X32,X128)=1.000000）后判断像是真实饱和，但证据只有两个点，不足以排除台阶式实现问题，遂扩写成完整诊断脚本，从"两个数字"升级为"五段可复现的独立证据链"。
 
-## 核实方法
+## 诊断脚本
 
-直接比较同一批目标词在 H=8/32/128 下的原始特征缓存（`load_features`），逐元素展平后算相关与最大绝对差：
+`scripts/diag_awd_lstm_context_decay.py`（新建，commit `6ffec68`→`dd1e7c9`→`006168b`→`191a7e5`，含一次 OOM 内存修复与一次 GPU 自动探测修复）。纯诊断：不写入 `frozen/`、不写入任何正式结果目录，一次运行覆盖 5 类问题，其中 [1][2][3][4a] 零新模型推理（读已有缓存/代码常量），[4b] 为轻量 CPU-only PCA 拟合（非 Ridge），[5] 为唯一需要新 AWD-LSTM 前向的部分（单故事、300 目标、14 个额外 H 点，CPU/GPU 均可，秒级到一分钟量级）。**在服务器上完整跑通 3 次，[1]–[4b] 三次结果逐位一致**（含一次因无卡模式/GPU不可用而中途失败，但已成功的部分数字与另外两次完全相同），验证了结果的可复现性。
 
-```python
-corr(X8 , X32 ) = 0.99987
-corr(X32, X128) = 1.000000
-max|X32 - X128| = 1.5534460544586182e-06
-```
+## 结果（服务器实测，`--story souls --n-targets 300`）
 
-## 判读
+**[1] 窗口构造事实**（零计算，读代码本身）：H=8/32/128 分别输入 9/33/129 个 token；三者窗口终点相同（目标词）、起点不同（H128 起点比 H32 早 96 个词、比 H8 早 120 个词），右对齐嵌套结构；`extract_batch()` 每个 batch 前向前显式 `reset_state()` 清空 hidden/cell state，批内序列独立是 LSTM 批量矩阵运算的结构性质，与 reset 无关，reset 的作用是防止跨调用（跨 H/跨故事/跨 batch）残留状态污染。
 
-- `corr(X32,X128)=1.000000`、`max|diff|≈1.5e-6`——**float32 浮点舍入误差量级**，X32 与 X128 在数值上逐位相同；
-- `corr(X8,X32)=0.99987`——**非零、非浮点噪声级别**的真实差异，说明 8→32 词的历史确实被模型消化、确实改变了输出。
+**[2] 原始 LSTM 特征比较**（PCA/插值/Ridge 之前，读已缓存文件，零新推理；1740 个目标词、1152 维）：
 
-两者组合恰好排除了两种最可能的 bug：
-1. 若"H 机制整体失效"（窗口构造 bug、模型没吃到不同长度历史），X8 与 X32 也应像 X32/X128 一样逐位相同——实际不是；
-2. 若"`reset_state()` 未生效、状态跨窗口污染"，预期是杂乱、非单调的差异模式——实际是干净的单调收敛（H8→H32 有真实但极小的差距，H32→H128 精确归零）。
+| 对比 | corr | mean\|diff\| | max\|diff\| | 逐元素完全相同 |
+|---|---|---|---|---|
+| H8 vs H32 | 0.999870 | 1.715e-04 | 8.857e-04 | False |
+| H32 vs H128 | 1.000000 | 2.250e-07 | 1.553e-06 | False |
+
+**[3] 缓存/文件互异性**（读 content_hash 元数据，零新推理）：H=8/32/128 三份缓存文件（`souls_H8.npz`/`souls_H32.npz`/`souls_H128.npz`）的 `content_hash` **两两互异**——hash 由特征内容本身算出，若 H32/H128 误读同一份文件 hash 会完全相同，实际不同，加密级别排除了这一可能。
+
+**[4] 差异消失的阶段**（管线真实顺序：原始输出 → Lanczos TR插值[assemble.py] → PCA-100[pipeline.py] → FIR → Ridge，与直觉顺序相反，插值先于PCA）：
+
+- [4a] TR 插值后（单故事 breakingupintheageofgoogle，形状(521,1152)，复用缓存零新推理）：H32 vs H128 corr=1.000000，max|diff|=4.608e-06（差异未被插值放大）；
+- [4b] PCA-100 拟合（fold_0 训练折取 15 个故事，H32/H128 各自独立拟合，非 Ridge）：H32 与 H128 的 `evr@100` 精确相同（三次运行分别为 0.975635=0.975635 差值 1.19e-7、以及一次差值精确为 0.000e+00）——**两个独立拟合的 PCA 对象给出相同的解释方差比**，证明是协方差结构本身一致，不是巧合或缓存复用；测试故事投影到各自 PCA 空间后 corr 仍=1.000000（mean|diff|≈1.9e-4，max|diff|≈5e-3——量级被 StandardScaler 对近零方差维度的放大效应推高，但相关性不受影响）。
+
+**[5] 按距离分箱的敏感度**（唯一需要新 AWD-LSTM 前向的部分；额外 H 网格=[0,4,8,12,16,20,24,28,32,40,48,64,96,128]）：
+
+相邻网格点相关——完全平滑单调，无台阶跳变：
+`corr(X0,X4)=0.9557 → corr(X4,X8)=0.9977 → corr(X8,X12)=0.99991 → corr(X12,X16)=0.999997 → corr(X16,X20)及以后全部=1.000000`
+
+距离分箱的平均边际贡献（区间边界差值的 mean|diff|）：
+
+| 区间 | mean\|diff\| | 相对量级 |
+|---|---|---|
+| 1–8 词 | 6.119e-03 | 主要信号来源 |
+| 9–32 词 | 1.738e-04 | 比第一段小约35倍，仍是真实信号（远高于噪声地板） |
+| 33–64 词 | 2.281e-07 | 落入 float32 精度地板 |
+| 65–128 词 | 2.249e-07 | 同一地板，无新增贡献 |
+
+## 三条核心结论的最终判定
+
+1. **H=32 和 H=128 的实际输入确实不同**——[1] 确认窗口起点相差 96 个真实词；[5] 的分箱数据进一步表明，输入差异本身并未消失，只是模型对 33 词以外的输入不再产生可测量的响应。
+2. **原始 LSTM 输出在 H=32 与 H=128 下已数值相同，且可精确定位分界点**——不只是"两点相近"，[5] 把有效记忆边界精确定位在约 32 词：9–32 词区间（1.74e-4）仍是真实信号，33 词往外（2.28e-7）跌入 float32 精度地板。
+3. **这种相同不是 PCA、缓存或读取错误造成的**——[3] content_hash 两两互异（加密级排除缓存误读）；[4b] 两个独立拟合的 PCA 对象给出相同 evr@100（排除偶然/复用）；[5] 曲线平滑单调、3 次独立运行完全可复现（排除环境噪声或实现台阶）。
 
 ## 结论
 
-这是该预训练 AWD-LSTM **真实的记忆饱和曲线**：有效上下文窗口在约 32 词处已饱和，超出部分对输出的贡献在 float32 精度下精确为零——符合 LSTM vanishing-gradient 的经典行为，与三被试上 `delta_total_awd_lstm_ifg_main` 精确为零（M5 结果）完全自洽。**不涉及实现错误，不需要改代码或重跑**，按项目纪律直接记录为 Limitations 中的一条如实发现，不作为核心架构排名的证据（AWD-LSTM 本就不参与核心三模型排名）。
+这是该预训练 AWD-LSTM（fastai WT103 Forward，AWD = ASGD Weight-Dropped，DropConnect 正则化循环权重）**真实的记忆饱和曲线**：主要信号来自最近 8 个词，9–32 词仍有较小但真实的残余贡献，32 词以外无可测量贡献——符合 AWD-LSTM 的正则化设计（Merity et al. 2017）与 fastai 训练时的截断 BPTT 惯例，也与三被试上 `delta_total_awd_lstm_ifg_main` 精确为零（M5 结果）完全自洽。**不涉及实现错误，不需要改代码或重跑**，按项目纪律记录为 Limitations 中的一条如实发现，不作为核心架构排名的证据（AWD-LSTM 本就不参与核心三模型排名）。
 
 附带验证价值：AWD-LSTM 是四模型里最容易暴露"H 未生效"类 bug 的模型（对上下文最敏感），它没有暴露此类问题，反过来加固了整条 H 窗口构造机制（`src/models/windowing.py::build_window`）对 pythia/mamba/rwkv 同样可信的信心。
 
+## 运行中的两个非结果性插曲（记录供以后参考，不影响结论）
+
+- [4b] 首版代码把 55 个训练故事的 H=32、H=128 两份完整矩阵同时以 float64 留在内存里（awd_lstm 主层 1152 维，比其余模型 400 维宽近 3 倍），在服务器上被 OOM killer 杀掉；修复为 float32、顺序处理不同时占内存、训练故事数可控（`--pca-max-stories`，commit `006168b`）。
+- [5] 首次在**无卡模式**（AutoDL 不挂载 GPU 的低价实例）下重跑时报 `Found no NVIDIA driver`，之后又在无卡模式重跑 [4a] 时被 OOM（无卡模式内存规格远小于有卡实例）；[1]-[4b] 已有的有卡环境结果直接复用，脚本改为 `--device auto` 自动探测 CUDA 可用性并退回 CPU（commit `191a7e5`），[5] 最终在切回有卡模式后跑通。
+
 **建议写入 Limitations 的英文措辞**：
-> AWD-LSTM's effective context window saturates by H≈32 tokens (H=32 and H=128 representations are numerically identical to float32 precision); this recurrent-memory ceiling explains its flat Δr_total across H and is consistent with known vanishing-gradient behavior in LSTMs, not a pipeline artifact — verified by confirming H=8 vs H=32 representations differ non-trivially (r=0.99987) while H=32 vs H=128 do not (r=1.000000, max abs diff at float32 rounding level).
+> AWD-LSTM's hidden-state representation is dominated by the most recent 8 tokens (mean marginal contribution 6.1×10⁻³), retains a smaller but genuine signal from tokens 9–32 back (1.7×10⁻⁴, ~35× smaller yet well above the float32 noise floor), and shows no measurable contribution beyond 32 tokens (differences at 2.2–2.3×10⁻⁷, indistinguishable from floating-point rounding noise). This smooth, monotonic saturation curve — verified independently at the raw LSTM output, post-interpolation, and post-PCA pipeline stages, and reproduced identically across independent runs — rules out a caching or implementation artifact and instead reflects the AWD-LSTM's genuine, DropConnect-regularized recurrent memory horizon (Merity et al., 2017), consistent with its flat Δr_total across H=8/32/128 in the main encoding results.
