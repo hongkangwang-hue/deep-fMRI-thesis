@@ -25,8 +25,8 @@
 | 0 | 冻结决策（seed、scope、condition 命名） | 无 | ✅ `config/freeze_manifest.json` |
 | 1 | 上下文置换纯函数 + 单测 | 无 | ✅ `src/context_perturb.py` + `tests/`（15 单测） |
 | 2 | 硬闸门断言 + 词形重复诊断（§2.4） | 无 | ✅ `scripts/m4s_assert_impl.py` → `results/`（对全部84故事跑通） |
-| 3 | 打乱上下文特征重提取 | GPU | 🟡 代码已写好，本地已验证接线正确，**待你确认后上服务器跑** |
-| 4 | ctx1 条件 Ridge 重拟合 | Ridge | ⏸ 待步骤 3 完成 |
+| 3 | 打乱上下文特征重提取 | GPU | ✅ 已在服务器跑完（3模型×H{8,128}×83故事，`cache/features_ctx1/`，normal缓存未动） |
+| 4 | ctx1 条件 Ridge 重拟合 | Ridge | 🟡 代码已写好，本地已验证复用逻辑正确，**待你确认后上服务器跑** |
 | 5 | 统计量 `D_m`/`I_MP` + bootstrap CI | 轻量 | ⏸ 待步骤 4 完成 |
 | 6 | 论文 Figure 17 / Table 9 | 无 | ⏸ 待步骤 5 完成 |
 
