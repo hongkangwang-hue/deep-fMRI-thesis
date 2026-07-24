@@ -1,0 +1,219 @@
+{
+  "master_seed": 20260724,
+  "hard_assertions": {
+    "A_single_permutation_per_story": {
+      "adollshouse": true,
+      "adventuresinsayingyes": true,
+      "afatherscover": true,
+      "againstthewind": true,
+      "alternateithicatom": true,
+      "avatar": true,
+      "backsideofthestorm": true,
+      "becomingindian": true,
+      "beneaththemushroomcloud": true,
+      "birthofanation": true,
+      "bluehope": true,
+      "breakingupintheageofgoogle": true,
+      "buck": true,
+      "catfishingstrangerstofindmyself": true,
+      "cautioneating": true,
+      "christmas1940": true,
+      "cocoonoflove": true,
+      "comingofageondeathrow": true,
+      "exorcism": true,
+      "eyespy": true,
+      "firetestforlove": true,
+      "food": true,
+      "forgettingfear": true,
+      "fromboyhoodtofatherhood": true,
+      "gangstersandcookies": true,
+      "goingthelibertyway": true,
+      "goldiethegoldfish": true,
+      "golfclubbing": true,
+      "gpsformylostidentity": true,
+      "hangtime": true,
+      "haveyoumethimyet": true,
+      "howtodraw": true,
+      "ifthishaircouldtalk": true,
+      "inamoment": true,
+      "itsabox": true,
+      "jugglingandjesus": true,
+      "kiksuya": true,
+      "leavingbaghdad": true,
+      "legacy": true,
+      "life": true,
+      "lifeanddeathontheoregontrail": true,
+      "lifereimagined": true,
+      "listo": true,
+      "mayorofthefreaks": true,
+      "metsmagic": true,
+      "mybackseatviewofagreatromance": true,
+      "myfathershands": true,
+      "myfirstdaywiththeyankees": true,
+      "naked": true,
+      "notontheusualtour": true,
+      "odetostepfather": true,
+      "onlyonewaytofindout": true,
+      "penpal": true,
+      "quietfire": true,
+      "reachingoutbetweenthebars": true,
+      "shoppinginchina": true,
+      "singlewomanseekingmanwich": true,
+      "sloth": true,
+      "souls": true,
+      "stagefright": true,
+      "stumblinginthedark": true,
+      "superheroesjustforeachother": true,
+      "sweetaspie": true,
+      "swimmingwithastronauts": true,
+      "thatthingonmyarm": true,
+      "theadvancedbeginner": true,
+      "theclosetthatateeverything": true,
+      "thecurse": true,
+      "thefreedomridersandme": true,
+      "theinterview": true,
+      "thepostmanalwayscalls": true,
+      "theshower": true,
+      "thetiniestbouquet": true,
+      "thetriangleshirtwaistconnection": true,
+      "threemonths": true,
+      "thumbsup": true,
+      "tildeath": true,
+      "treasureisland": true,
+      "undertheinfluence": true,
+      "vixenandtheussr": true,
+      "waitingtogo": true,
+      "whenmothersbullyback": true,
+      "wheretheressmoke": true,
+      "wildwomenanddancingqueens": true
+    },
+    "B_adjacent_overlap": {
+      "n_pairs_checked": 443286,
+      "n_failures": 0,
+      "failures_sample": [],
+      "pass": true
+    },
+    "E_target_word_and_set_unchanged": {
+      "total_eligible_h128_targets": 147846,
+      "expected_from_m0_freeze": 147846,
+      "match": true
+    },
+    "C_cross_model_consistency": {
+      "status": "结构性保证（非空跑验证）",
+      "reason": "story_permutation(story_id, master_seed, n_words) 签名不含 model 参数，置换生成与模型无关，任何模型用同一 (story_id, seed) 必然拿到同一置换"
+    },
+    "D_cross_subject_consistency": {
+      "status": "结构性保证（非空跑验证）",
+      "reason": "同理，签名不含 subject 参数；刺激侧特征本就与被试无关（被试差异只在 BOLD/ROI/拟合阶段引入）"
+    },
+    "F_mask_unchanged": {
+      "status": "结构性保证，Step 4 用真实数据复核",
+      "reason": "C1 只改变喂给模型的词内容，不改变任何时间戳/TR 对齐，故评分 mask（after_100s ∩ FIR_valid）不可能受影响；待 Step 4 产出真实 per-story 评分 mask 后按 np.array_equal(mask_ctx1, mask_normal) 逐元素复核"
+    }
+  },
+  "origin_form_summary_by_H": [
+    {
+      "H": 8,
+      "mean_origin_inclusion": 0.0047191114513206005,
+      "mean_origin_inclusion_expected": 0.0046889269895307294,
+      "mean_form_repetition": 0.08948077340100886
+    },
+    {
+      "H": 32,
+      "mean_origin_inclusion": 0.018678494842101018,
+      "mean_origin_inclusion_expected": 0.018755707958122918,
+      "mean_form_repetition": 0.25822613832561747
+    },
+    {
+      "H": 128,
+      "mean_origin_inclusion": 0.0747920182277359,
+      "mean_origin_inclusion_expected": 0.07502283183249167,
+      "mean_form_repetition": 0.5071523016678301
+    }
+  ],
+  "form_repetition_by_freq_tier": [
+    {
+      "H": 8,
+      "freq_tier": "f=2-5",
+      "mean_form_repetition_rate": 0.015240669535968325,
+      "n_stories": 84,
+      "n_targets_total": 36643
+    },
+    {
+      "H": 8,
+      "freq_tier": "f>5",
+      "mean_form_repetition_rate": 0.1502417692826447,
+      "n_stories": 84,
+      "n_targets_total": 86308
+    },
+    {
+      "H": 8,
+      "freq_tier": "hapax(f=1)",
+      "mean_form_repetition_rate": 0.004722499584254879,
+      "n_stories": 84,
+      "n_targets_total": 24895
+    },
+    {
+      "H": 32,
+      "freq_tier": "f=2-5",
+      "mean_form_repetition_rate": 0.058373022324535985,
+      "n_stories": 84,
+      "n_targets_total": 36643
+    },
+    {
+      "H": 32,
+      "freq_tier": "f>5",
+      "mean_form_repetition_rate": 0.42645724414400493,
+      "n_stories": 84,
+      "n_targets_total": 86308
+    },
+    {
+      "H": 32,
+      "freq_tier": "hapax(f=1)",
+      "mean_form_repetition_rate": 0.01872641441251085,
+      "n_stories": 84,
+      "n_targets_total": 24895
+    },
+    {
+      "H": 128,
+      "freq_tier": "f=2-5",
+      "mean_form_repetition_rate": 0.21618874507605698,
+      "n_stories": 84,
+      "n_targets_total": 36643
+    },
+    {
+      "H": 128,
+      "freq_tier": "f>5",
+      "mean_form_repetition_rate": 0.7753053830318503,
+      "n_stories": 84,
+      "n_targets_total": 86308
+    },
+    {
+      "H": 128,
+      "freq_tier": "hapax(f=1)",
+      "mean_form_repetition_rate": 0.07582347037352832,
+      "n_stories": 84,
+      "n_targets_total": 24895
+    }
+  ],
+  "expected_table_v642": {
+    "H=8": {
+      "origin_inclusion": "≈0.4%",
+      "form_rep_f1": "≈0.4%",
+      "form_rep_f5": "≈2.1%",
+      "form_rep_f50": "≈19%"
+    },
+    "H=32": {
+      "origin_inclusion": "≈1.7%",
+      "form_rep_f1": "≈1.7%",
+      "form_rep_f5": "≈8.2%",
+      "form_rep_f50": "≈58%"
+    },
+    "H=128": {
+      "origin_inclusion": "≈6.8%",
+      "form_rep_f1": "≈6.8%",
+      "form_rep_f5": "≈30%",
+      "form_rep_f50": "≈97%"
+    }
+  }
+}

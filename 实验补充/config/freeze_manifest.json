@@ -1,0 +1,47 @@
+{
+  "_说明": "Step 0 冻结决策。按 V6.4.2 §11 精神，涉及结果解读的选择必须在看到 held-out 结果前写死。当前只到 Step 2（零算力），本文件只冻结 Step 0-2 需要的项；Step 3 起的算力 scope 给了默认档，正式提交算力前可再确认。",
+
+  "master_seed": 20260724,
+  "master_seed_source": "沿用《里程碑增补老师修改建议上下文控制.md》V6.4.2 §0.7 原文冻结值，未改动",
+
+  "seed_derivation": {
+    "formula": "story_seed = int.from_bytes(sha256(f'{master_seed}|{story_id}'.encode()).digest()[:8], 'big')",
+    "禁止": "不得使用 Python 内置 hash(story_id)，其对 str 的结果受 PYTHONHASHSEED 影响，跨进程不可复现",
+    "对应实现": "实验补充/src/context_perturb.py::story_seed"
+  },
+
+  "condition_naming": {
+    "新条件": "ctx1（对应 V6.4.2 的 C1 / ctx_shuffle_story）",
+    "现有条件真实代码键名": "normal / shift（不是 V6.4.2 草稿里写的 shift40，已核对 src/ridge/m4_driver.py 与 src/stats/estimands.py）"
+  },
+
+  "perturbation_definition": {
+    "做法": "对每篇故事的完整词序列生成一次固定置换 π；目标词 w_i 位置与内容不变；上下文槽位 i-H..i-1 改放置换后序列 s[i-H:i] 对应的词",
+    "禁止": "禁止逐窗口独立打乱（V6.4.2 §0.6）——会破坏滑窗 H-1 重叠，导致下降无法区分'语言结构没了'还是'自相关没了'"
+  },
+
+  "scope_default_for_step3_4": {
+    "档位": "L1 M4S-Core",
+    "条件": "仅 C1（不做 C2 block-shuffle）",
+    "模型": ["pythia", "rwkv", "mamba"],
+    "H": [8, 128],
+    "被试": ["UTS01", "UTS02", "UTS03"],
+    "层": "主层",
+    "ROI": "left_IFG",
+    "备注": "此为默认档，尚未提交任何算力步骤；正式跑 Step 3/4 前可降为 L2（仅 Mamba+Pythia）——L2 已足以回答'Mamba相对Pythia的优势是否依赖真实语言结构'这个主问题"
+  },
+
+  "ood_diagnostic_2_3": {
+    "本轮是否做": false,
+    "原因": "需要真实模型的 L2 范数/有效维度/NLL，属于 M4S-Extended（算力步骤），本轮 Step 0-2 不涉及",
+    "如最终不做的后果": "Limitations 须写明 OOD 退化的 H 依赖性未经检查"
+  },
+
+  "word_form_repetition_2_4": {
+    "本轮是否做": true,
+    "属性": "M4S-Core 必做，零算力（只依赖置换索引+词表）",
+    "产出位置": "实验补充/results/step2_diagnostics.json"
+  },
+
+  "asterisk_convention_for_paper": "留待 Step 6（论文对接）再定，不影响 Step 0-2"
+}
