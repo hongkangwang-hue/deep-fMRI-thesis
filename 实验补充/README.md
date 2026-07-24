@@ -27,7 +27,7 @@
 | 2 | 硬闸门断言 + 词形重复诊断（§2.4） | 无 | ✅ `scripts/m4s_assert_impl.py` → `results/`（对全部84故事跑通） |
 | 3 | 打乱上下文特征重提取 | GPU | ✅ 已在服务器跑完（3模型×H{8,128}×83故事，`cache/features_ctx1/`，normal缓存未动） |
 | 4 | ctx1 条件 Ridge 重拟合 | Ridge | 🟡 代码已写好，本地已验证复用逻辑正确，**待你确认后上服务器跑** |
-| 5 | 统计量 `D_m`/`I_MP` + bootstrap CI | 轻量 | ⏸ 待步骤 4 完成 |
+| 5 | 统计量 `D_m`/`I_MP` + bootstrap CI | 轻量CPU | 🟡 代码已写好（`src/ctx1_estimands.py`+`scripts/m5s_context_control_stats.py`），本地端到端 smoke 通过，**待步骤 4 出 cells 后跑** |
 | 6 | 论文 Figure 17 / Table 9 | 无 | ⏸ 待步骤 5 完成 |
 
 Step 0–2 全部本地零算力，已产出真实结果（见 `results/`）。
