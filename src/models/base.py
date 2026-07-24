@@ -90,10 +90,19 @@ class ModelAdapter(ABC):
     # ── 基类统一逻辑 ──────────────────────────────────────────────────────
 
     def extract(
-        self, words: list[str], i: int, H: int, layers: LayerSpec
+        self, words: list[str], i: int, H: int, layers: LayerSpec,
+        window_override: list[str] | None = None,
     ) -> WindowRepr:
-        """提取故事内位置 i、上下文长度 H 的目标词双层表示。"""
-        window = build_window(words, i, H)
+        """提取故事内位置 i、上下文长度 H 的目标词双层表示。
+
+        window_override: 可选，直接提供 H+1 词的窗口内容，跳过内部
+            build_window(words, i, H)。默认 None 时行为与之前完全一致。
+            供刺激侧上下文控制等需要自定义窗口内容、但复用完全相同的
+            tokenize/pooling/state-reset 逻辑的场景使用（见
+            实验补充/scripts/m4s_extract_perturbed_features.py）；本类不
+            依赖、不导入任何生成 window_override 内容的逻辑。
+        """
+        window = window_override if window_override is not None else build_window(words, i, H)
         self.reset_state()
         token_ids, spans, is_unk = self.tokenize_with_spans(window)
 
@@ -142,17 +151,31 @@ class ModelAdapter(ABC):
     def extract_batch(
         self, words: list[str], indices: list[int], H: int,
         layers: LayerSpec, batch_size: int = 32,
+        windows_override: list[list[str]] | None = None,
     ) -> list[WindowRepr]:
         """批量提取一组目标位置 indices 在上下文 H 下的双层表示。
 
         所有窗口均为 H+1 词，但 tokenize 后 token 数可不同 → 右侧 padding。
         因果性保证批量结果与逐窗 extract 逐元素等价（仅 GPU kernel 差异引入
         ~1e-4 浮点误差，由脚本的 verify 步把关）。返回顺序与 indices 一致。
+
+        windows_override: 可选，长度必须等于 indices，逐位提供该目标位置
+            对应的 H+1 词窗口内容，跳过内部逐个 build_window(words, i, H)。
+            默认 None 时行为与之前完全一致。含义同 extract() 的
+            window_override，批量版本。
         """
+        if windows_override is not None and len(windows_override) != len(indices):
+            raise ValueError(
+                f"windows_override 长度 {len(windows_override)} != "
+                f"indices 长度 {len(indices)}"
+            )
         results: list[WindowRepr] = []
         for start in range(0, len(indices), batch_size):
             chunk = indices[start : start + batch_size]
-            windows = [build_window(words, i, H) for i in chunk]
+            if windows_override is not None:
+                windows = windows_override[start : start + batch_size]
+            else:
+                windows = [build_window(words, i, H) for i in chunk]
             self.reset_state()
             per = [self.tokenize_with_spans(w) for w in windows]
             token_id_lists = [p[0] for p in per]
