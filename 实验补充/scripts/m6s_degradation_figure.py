@@ -69,8 +69,8 @@ def load_all():
     return ood, lag1, dm
 
 
-def panel_metric_lines(ax, get_value, title, ylabel, logy=False):
-    """A/B 通用：每模型两条线（normal 实线 / ctx1 虚线），横轴 H。"""
+def panel_metric_lines(ax, get_value, title, subtitle, ylabel):
+    """A/B 通用：每模型两条线（normal 实线 / C1 虚线），横轴为上下文长度 H。"""
     x = [0, 1]
     for m in MODELS:
         n = [get_value(m, "normal", h) for h in HS]
@@ -82,12 +82,13 @@ def panel_metric_lines(ax, get_value, title, ylabel, logy=False):
         ax.plot(x, c, color=COLOR[m], linestyle="--", marker="s",
                 linewidth=2.0, markersize=7, alpha=0.85)
     ax.set_xticks(x)
-    ax.set_xticklabels([f"H={h}" for h in HS])
-    ax.set_ylabel(ylabel)
-    ax.set_title(title, fontsize=10)
+    ax.set_xticklabels([str(h) for h in HS])
+    ax.set_xlabel("Context Length H (raw words)", fontsize=9)
+    ax.set_ylabel(ylabel, fontsize=9)
+    # 主标题只说测了什么；副标题只说指标怎么读，都不含结果判断
+    ax.set_title(f"{title}\n{subtitle}", fontsize=10)
     ax.grid(True, axis="y", alpha=0.3)
-    if logy:
-        ax.set_yscale("log")
+    ax.margins(x=0.12)
 
 
 def main():
@@ -113,24 +114,24 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(13, 9.5))
     axA, axB, axC, axD = axes.ravel()
 
-    # ── Panel A：有效维度（核心，符号反转）──────────────────────────────
+    # ── Panel A：有效维度 ──────────────────────────────────────────────
     panel_metric_lines(
         axA, lambda m, c, h: ood_val(m, c, h, "participation_ratio"),
-        "A. Effective dimensionality (participation ratio)\n"
-        "real context → richer;  shuffled context → collapses",
-        "participation ratio (median over stories)")
+        "A. Effective dimensionality",
+        "Higher participation ratio indicates more distributed representations.",
+        "Participation ratio (median over stories)")
     axA.legend(handles=[
-        Line2D([0], [0], color="k", linestyle="-", marker="o", label="normal (real context)"),
-        Line2D([0], [0], color="k", linestyle="--", marker="s", label="ctx1 (shuffled)"),
+        Line2D([0], [0], color="k", linestyle="-", marker="o", label="normal"),
+        Line2D([0], [0], color="k", linestyle="--", marker="s", label="C1 shuffled context"),
     ] + [Line2D([0], [0], color=COLOR[m], lw=3, label=LABEL[m]) for m in MODELS],
         fontsize=7.5, loc="upper left", ncol=2)
 
     # ── Panel B：lag-1 余弦 ────────────────────────────────────────────
     panel_metric_lines(
         axB, lag1_val,
-        "B. Temporal smoothness (lag-1 cosine of adjacent TRs)\n"
-        "shuffling makes representations MORE inert (opposite of expectation)",
-        "lag-1 cosine (median over stories)")
+        "B. Temporal smoothness",
+        "Higher lag-1 cosine indicates slower-changing features.",
+        "Lag-1 cosine similarity between adjacent TRs")
 
     # ── Panel C：有效维度 DiD + 95% CI ─────────────────────────────────
     xs = np.arange(len(MODELS))
@@ -148,9 +149,11 @@ def main():
     axC.margins(y=0.18)
     axC.set_xticks(xs)
     axC.set_xticklabels([LABEL[m] for m in MODELS])
-    axC.set_ylabel("DiD of participation ratio (95% CI)")
-    axC.set_title("C. H-dependent degradation: (ctx1 H8→H128) − (normal H8→H128)\n"
-                  "all three CIs exclude zero → pairing cannot remove it", fontsize=10)
+    axC.set_xlabel("Model", fontsize=9)
+    axC.set_ylabel(r"PR interaction: $\Delta PR_{\mathrm{C1}} - \Delta PR_{\mathrm{normal}}$"
+                   " (95% CI)", fontsize=9)
+    axC.set_title("C. H-dependent shift in effective dimensionality\n"
+                  r"$\Delta PR = PR_{H=128} - PR_{H=8}$", fontsize=10)
     axC.grid(True, axis="y", alpha=0.3)
 
     # ── Panel D：秩序一致性（PR 塌缩 vs D_m）──────────────────────────
@@ -167,24 +170,29 @@ def main():
         axD.annotate(LABEL[m], (pr_did[i], dm_mean[i]),
                      textcoords="offset points", xytext=(9, 6), fontsize=9)
     axD.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    axD.set_xlabel("representational collapse  ←  (PR DiD)")
-    axD.set_ylabel(r"$D_m$ = context-gain loss (mean ± SD over 3 subjects)")
-    axD.set_title("D. Rank-order agreement: the model whose representation\n"
-                  "collapses most also loses the most Context Gain", fontsize=10)
+    # 与 Panel C 保持同一符号约定（原始 DiD，与 Table 10 及正文数字一致），
+    # 只在轴标签里说明方向，避免同一量在一张图里出现两种符号。
+    axD.set_xlabel(r"PR interaction, $\Delta PR_{\mathrm{C1}} - \Delta PR_{\mathrm{normal}}$"
+                   "  (more negative = larger dimensionality shift)", fontsize=9)
+    axD.set_ylabel(r"Mean context-gain reduction, $D_m$ (mean ± SD over participants)",
+                   fontsize=9)
+    axD.set_title("D. Descriptive relation between dimensionality shift\nand gain reduction",
+                  fontsize=10)
     axD.grid(True, alpha=0.3)
-    # 只有 3 个模型 → 单调关系有 1/6 概率纯属偶然。必须标明这是描述性观察，
-    # 不是统计检验，否则读者会把它当成"已证明混淆"的证据。
-    axD.text(0.02, 0.93, "n = 3 models; descriptive rank order, not a statistical test",
+    # 只有 3 个模型 → 单调关系有 1/6 概率纯属偶然。必须标明是描述性比较、
+    # 非统计检验，否则读者会把它当成"已证明混淆"的证据。
+    # 放左下空白区：左上会盖住 Pythia 的点标签（实测渲染后发现并修正）
+    axD.text(0.03, 0.05, "n = 3 models; descriptive comparison only; no statistical test",
              transform=axD.transAxes, fontsize=7.5, style="italic", color="#444444",
              bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                        edgecolor="#cccccc", alpha=0.9))
 
+    # 主标题只说"测了什么"，不含 degradation 这类结论词；结论留给图注与正文。
     fig.suptitle(
-        "Figure 18. Representational degradation under shuffled context\n"
-        "diagnostic · uncorrected · why $D_m$ and $I_{MP}$ cannot be read as evidence "
-        "for dependence on linguistic structure",
-        fontsize=11, fontweight="bold", y=0.99)
-    fig.tight_layout(rect=[0, 0, 1, 0.955])
+        "Figure 18. Representation-Statistic Diagnostics under "
+        "Stimulus-Side Context Perturbation",
+        fontsize=12, fontweight="bold", y=0.995)
+    fig.tight_layout(rect=[0, 0, 1, 0.965])
 
     fig_dir = RESULTS / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)

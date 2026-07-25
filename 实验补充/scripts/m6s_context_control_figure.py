@@ -79,14 +79,23 @@ def _write_table(df: pd.DataFrame, outdir: Path, name: str):
 # ── 数据加载 ──────────────────────────────────────────────────────────────
 
 def load_all(results_dir: Path, m5s_name: str) -> dict[str, dict]:
-    """{subject: estimands dict}，只收真实存在的被试。"""
+    """{subject: estimands dict}，只收真实存在的被试。
+
+    两个候选位置都查：服务器上 Step 5 写到 config 的 results_dir（仓库根 results/，
+    已 gitignore）；同步回本机后放在 实验补充/results/（随仓库走）。这样同一份脚本
+    在服务器与本机都能直接跑，不必改路径。
+    """
+    candidates = [results_dir / m5s_name, SUPPLEMENT_ROOT / "results" / m5s_name]
     out = {}
     for subj in SUBJECTS:
-        p = results_dir / m5s_name / subj / "m5s_results.json"
-        if p.exists():
-            out[subj] = json.load(open(p))["estimands"]
+        for base in candidates:
+            p = base / subj / "m5s_results.json"
+            if p.exists():
+                out[subj] = json.load(open(p))["estimands"]
+                break
         else:
-            print(f"[m6s] 跳过 {subj}：未找到 {p}", flush=True)
+            print(f"[m6s] 跳过 {subj}：在 {[str(c / subj) for c in candidates]} 均未找到",
+                  flush=True)
     if not out:
         raise SystemExit("没有任何被试的 m5s_results.json，先跑 Step 5")
     return out
@@ -142,7 +151,7 @@ def build_figure17(all_est: dict[str, dict], outdir: Path):
     fig, axes = plt.subplots(2, 2, figsize=(13, 9))
     axA, axB, axC, axD = axes.ravel()
 
-    # Panel A：Δr_total，normal(实心) vs ctx1(斜纹)，按模型分组
+    # Panel A：Δr_total，normal(实心) vs C1(斜纹)，按模型分组
     wa = 0.13
     for mi, m in enumerate(CORE_MODELS):
         base = (mi - 1) * (2.2 * wa)
@@ -153,15 +162,17 @@ def build_figure17(all_est: dict[str, dict], outdir: Path):
                     label=f"{MODEL_LABEL[m]} normal" if si == 0 else None)
             _bar_ci(axA, x[si] + base + wa/2, _e(est, f"ctx1_delta_total_{m}_ifg"),
                     MODEL_COLOR[m], wa, hatch="////", alpha=0.55,
-                    label=f"{MODEL_LABEL[m]} ctx1" if si == 0 else None)
+                    label=f"{MODEL_LABEL[m]} C1" if si == 0 else None)
     axA.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    axA.set_title("A. Context Gain " + DRT + " : normal vs shuffled-context (ctx1)", fontsize=10)
-    axA.set_ylabel(DRT + " (95% CI)")
+    axA.set_title("A. Total Context Gain under normal and shuffled (C1) contexts", fontsize=10)
+    axA.set_ylabel(r"Total Context Gain, $\Delta r_{\mathrm{total}} = r_{128} - r_{8}$ (95% CI)",
+                   fontsize=9)
+    axA.set_xlabel("Participant", fontsize=9)
     axA.set_xticks(x); axA.set_xticklabels(subjects)
     axA.legend(fontsize=6.5, ncol=3, loc="upper right")
     axA.grid(True, axis="y", alpha=0.3)
 
-    # Panel B：D_m = normal − ctx1 gain，按模型分组
+    # Panel B：D_m = normal − C1 gain，按模型分组
     wb = 0.22
     for mi, m in enumerate(CORE_MODELS):
         for si, subj in enumerate(subjects):
@@ -169,46 +180,60 @@ def build_figure17(all_est: dict[str, dict], outdir: Path):
                     MODEL_COLOR[m], wb, alpha=0.9,
                     label=MODEL_LABEL[m] if si == 0 else None)
     axB.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    axB.set_title(r"B. $D_m = \Delta r_{\mathrm{total}}^{\mathrm{normal}} - "
-                  r"\Delta r_{\mathrm{total}}^{\mathrm{ctx1}}$  (gain lost when context shuffled)",
-                  fontsize=10)
-    axB.set_ylabel(r"$D_m$ (95% CI)")
+    axB.set_title("B. Model-wise context-perturbation effect", fontsize=10)
+    axB.set_ylabel(r"$D_m = \Delta r_{\mathrm{total}}^{\mathrm{normal}} - "
+                   r"\Delta r_{\mathrm{total}}^{\mathrm{C1}}$ (95% CI)", fontsize=9)
+    axB.set_xlabel("Participant", fontsize=9)
     axB.set_xticks(x); axB.set_xticklabels(subjects)
     axB.legend(fontsize=7); axB.grid(True, axis="y", alpha=0.3)
+    # 中性的读数提示，替代原标题里带结论倾向的 "gain lost"
+    axB.text(0.015, 0.035, "Positive values indicate lower total Context Gain under C1.",
+             transform=axB.transAxes, fontsize=7, style="italic", color="#444444",
+             bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                       edgecolor="#cccccc", alpha=0.9))
 
-    # Panel C：核心交互 I_MP（+ I_RP 若有），按被试
-    wc = 0.28
-    for si, subj in enumerate(subjects):
-        est = all_est[subj]
-        _bar_ci(axC, x[si] - wc/2, _e(est, "I_MP_ifg"), "#6a3d9a", wc, alpha=0.9,
-                label="I_MP (Mamba−Pythia)" if si == 0 else None)
-        _bar_ci(axC, x[si] + wc/2, _e(est, "I_RP_ifg"), "#ff7f00", wc, alpha=0.7,
-                label="I_RP (RWKV−Pythia)" if si == 0 else None)
+    # Panel C（原 D）：两组架构对比，normal vs C1
+    wc = 0.16
+    for gi, (tag, name, col) in enumerate(
+            [("MP", "Mamba−Pythia", "#d62728"), ("RP", "RWKV−Pythia", "#2ca02c")]):
+        base = (gi - 0.5) * (2.3 * wc)
+        for si, subj in enumerate(subjects):
+            est = all_est[subj]
+            _bar_ci(axC, x[si] + base - wc/2, _e(est, f"A_{tag}_normal_ifg"), col, wc,
+                    alpha=0.9, label=f"{name} normal" if si == 0 else None)
+            _bar_ci(axC, x[si] + base + wc/2, _e(est, f"A_{tag}_ctx1_ifg"), col, wc,
+                    hatch="////", alpha=0.5, label=f"{name} C1" if si == 0 else None)
     axC.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    axC.set_title("C. Difference-in-differences interaction (three-level nested; low power)",
-                  fontsize=10)
-    axC.set_ylabel("interaction (95% CI)")
+    axC.set_title("C. Architecture contrasts under normal and shuffled (C1) contexts", fontsize=10)
+    axC.set_ylabel("Architecture contrast in total Context Gain (95% CI)", fontsize=9)
+    axC.set_xlabel("Participant", fontsize=9)
     axC.set_xticks(x); axC.set_xticklabels(subjects)
-    axC.legend(fontsize=7); axC.grid(True, axis="y", alpha=0.3)
+    axC.legend(fontsize=6.5, ncol=2); axC.grid(True, axis="y", alpha=0.3)
 
-    # Panel D：Mamba−Pythia 架构优势 A_MP，normal vs ctx1
-    wd = 0.32
+    # Panel D（原 C）：架构 × 条件交互 I = A^normal − A^C1
+    wd = 0.28
     for si, subj in enumerate(subjects):
         est = all_est[subj]
-        _bar_ci(axD, x[si] - wd/2, _e(est, "A_MP_normal_ifg"), "#d62728", wd, alpha=0.9,
-                label="A_MP normal" if si == 0 else None)
-        _bar_ci(axD, x[si] + wd/2, _e(est, "A_MP_ctx1_ifg"), "#d62728", wd, hatch="////",
-                alpha=0.5, label="A_MP ctx1" if si == 0 else None)
+        _bar_ci(axD, x[si] - wd/2, _e(est, "I_MP_ifg"), "#6a3d9a", wd, alpha=0.9,
+                label=r"$I_{MP}$: Mamba−Pythia" if si == 0 else None)
+        _bar_ci(axD, x[si] + wd/2, _e(est, "I_RP_ifg"), "#ff7f00", wd, alpha=0.7,
+                label=r"$I_{RP}$: RWKV−Pythia" if si == 0 else None)
     axD.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    axD.set_title("D. Mamba−Pythia advantage: normal vs shuffled context", fontsize=10)
-    axD.set_ylabel(r"$A_{MP}$ (95% CI)")
+    axD.set_title("D. Architecture-by-condition interaction", fontsize=10)
+    axD.set_ylabel(r"$I = A^{\mathrm{normal}} - A^{\mathrm{C1}}$ (95% CI)", fontsize=9)
+    axD.set_xlabel("Participant", fontsize=9)
     axD.set_xticks(x); axD.set_xticklabels(subjects)
     axD.legend(fontsize=7); axD.grid(True, axis="y", alpha=0.3)
+    axD.text(0.015, 0.035,
+             "Positive values indicate the architecture contrast is reduced under C1.",
+             transform=axD.transAxes, fontsize=7, style="italic", color="#444444",
+             bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                       edgecolor="#cccccc", alpha=0.9))
 
-    fig.suptitle("Figure 17. Stimulus-side context control (C1: same-story shuffled context)\n"
-                 "diagnostic · uncorrected · story-paired bootstrap · NOT in the confirmatory family",
-                 fontsize=11, fontweight="bold", y=0.99)
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    fig.suptitle("Figure 17. Effects of Stimulus-Side Context Perturbation "
+                 "on Total Context Gain",
+                 fontsize=12, fontweight="bold", y=0.995)
+    fig.tight_layout(rect=[0, 0, 1, 0.965])
 
     outdir.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
