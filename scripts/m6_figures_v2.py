@@ -127,7 +127,7 @@ def fig2(results, est, subject, outdir):
                     core_vals += [lo, hi]
         ax.set_xticks([0, 1, 2]); ax.set_xticklabels(["8", "32", "128"])
         ax.set_title(title, fontsize=FS_PANEL_TITLE)
-        ax.set_xlabel("Context Length (tokens)", fontsize=FS_AXIS)
+        ax.set_xlabel("Context Length H (raw words)", fontsize=FS_AXIS)
         style_axes(ax)
     safe_lim(ax_ifg, FIG2_YLIM_CORE, core_vals, context="fig2(a,b)")
     ax_ifg.set_ylabel("Encoding Score, $r$", fontsize=FS_AXIS)
@@ -146,7 +146,7 @@ def fig2(results, est, subject, outdir):
                 awd_vals += [lo, hi]
     ax_awd.set_xticks([0, 1, 2]); ax_awd.set_xticklabels(["8", "32", "128"])
     ax_awd.set_title("(c) AWD-LSTM Reference", fontsize=FS_PANEL_TITLE)
-    ax_awd.set_xlabel("Context Length (tokens)", fontsize=FS_AXIS)
+    ax_awd.set_xlabel("Context Length H (raw words)", fontsize=FS_AXIS)
     ax_awd.set_ylabel("Encoding Score, $r$", fontsize=FS_AXIS)
     safe_lim(ax_awd, FIG2_YLIM_AWD, awd_vals, context="fig2(c)")
     ax_awd.legend(fontsize=FS_LEGEND, loc="lower right", frameon=True,
@@ -206,7 +206,7 @@ def fig3(results, est, subject, outdir):
                 ax_a.plot([x, x], [lo, hi], color=st["color"], alpha=0.5, linewidth=LW_ERRBAR)
                 a_vals += [lo, hi]
     ax_a.set_xticks([0, 1, 2]); ax_a.set_xticklabels(["8", "32", "128"])
-    ax_a.set_xlabel("Context Length (tokens)", fontsize=FS_AXIS)
+    ax_a.set_xlabel("Context Length H (raw words)", fontsize=FS_AXIS)
     ax_a.set_ylabel("Encoding-Score Difference vs Pythia", fontsize=FS_AXIS)
     ax_a.set_title("(a) Matched-Context Architecture Contrasts", fontsize=FS_PANEL_TITLE)
     safe_lim(ax_a, FIG3A_YLIM, a_vals, context="fig3(a)")
@@ -312,7 +312,7 @@ def fig4(results, est, subject, outdir):
                  linewidth=LW_DATA * 0.75, alpha=0.8)
         a_vals += [v for v in pn + ps if v is not None]
     ax_a.set_xticks([0, 1, 2]); ax_a.set_xticklabels(["8", "32", "128"])
-    ax_a.set_xlabel("Context Length (tokens)", fontsize=FS_AXIS)
+    ax_a.set_xlabel("Context Length H (raw words)", fontsize=FS_AXIS)
     ax_a.set_ylabel("Encoding Score, $r$", fontsize=FS_AXIS)
     ax_a.set_title("(a) Encoding Performance", fontsize=FS_PANEL_TITLE)
     safe_lim(ax_a, FIG4A_YLIM, a_vals, context="fig4(a)")
