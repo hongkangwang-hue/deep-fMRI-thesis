@@ -1,0 +1,298 @@
+{
+  "spec_source": "V6.4.2 §2.3（主指标 L2 范数 + 有效维度；NLL 为辅助，本轮未做）",
+  "why_no_gpu": "两项主指标可从既有特征缓存直接计算；只有辅助指标 NLL 需要 GPU 重跑模型，且规范明确其不可单独作为退化判据。",
+  "core_comparison": "ctx1 在 H8→H128 的变化 减去 normal 的对应变化（逐故事配对 DiD）",
+  "by_model": {
+    "pythia": {
+      "metrics": {
+        "l2_norm_median": {
+          "normal_H_change": {
+            "median": 0.7798120407105174,
+            "p2_5": 0.37606066211254274,
+            "p97_5": 1.2395769496405704,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 2.8443365158979574,
+            "p2_5": 2.4665669766277034,
+            "p97_5": 3.2742390409556994,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 2.1288927003196996,
+            "p2_5": 1.478843611848262,
+            "p97_5": 2.5342594953357644,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 23.95977438052394,
+            "normal_H128": 24.7422264840174,
+            "ctx1_H8": 24.197268339378073,
+            "ctx1_H128": 27.074983885735993
+          }
+        },
+        "participation_ratio": {
+          "normal_H_change": {
+            "median": 1.5649098821946565,
+            "p2_5": 0.6694821237183063,
+            "p97_5": 3.0146622568124894,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": -0.2656618978339602,
+            "p2_5": -0.5289007510573022,
+            "p97_5": -0.14344415414770778,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": -1.8254019874008904,
+            "p2_5": -3.402921963142579,
+            "p97_5": -0.8160886304362226,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 3.56725665032923,
+            "normal_H128": 5.021887372125621,
+            "ctx1_H8": 2.167066922956374,
+            "ctx1_H128": 1.8647971075215344
+          }
+        },
+        "evr_at_100": {
+          "normal_H_change": {
+            "median": -0.0006394605574963075,
+            "p2_5": -0.003907502745530001,
+            "p97_5": 0.0044424802817874766,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 0.015663685343153655,
+            "p2_5": 0.003511839156583091,
+            "p97_5": 0.02216187663648338,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 0.01661326423601084,
+            "p2_5": 0.0032932418915932794,
+            "p97_5": 0.022894764749309262,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 0.9482160804276287,
+            "normal_H128": 0.947249391126882,
+            "ctx1_H8": 0.9540384314318153,
+            "ctx1_H128": 0.9695428558113848
+          }
+        }
+      },
+      "verdict": {
+        "conclusion": "H_dependent_degradation_detected",
+        "flagged_main_metrics": [
+          "l2_norm_median",
+          "participation_ratio"
+        ],
+        "required_action": "主指标 ['l2_norm_median', 'participation_ratio'] 显示 ctx1 下的 H 依赖变化显著不同于 normal → 必须在 Results 与 Limitations 写明 D_m 与 I_MP 受此混淆影响，并把相关结论下调为「方向性提示」。",
+        "nll_auxiliary_status": "not_computed_this_round（需 GPU；未做须在 Limitations 注明）"
+      }
+    },
+    "rwkv": {
+      "metrics": {
+        "l2_norm_median": {
+          "normal_H_change": {
+            "median": 6.66099219521891,
+            "p2_5": -8.455016595308313,
+            "p97_5": 19.7535803960839,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 43.74179948369556,
+            "p2_5": 25.68604484479415,
+            "p97_5": 54.3842290561436,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 35.49868561624385,
+            "p2_5": 21.22090078136291,
+            "p97_5": 49.25607988140437,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 994.263831394793,
+            "normal_H128": 1000.0941542400745,
+            "ctx1_H8": 929.9733082283236,
+            "ctx1_H128": 972.8344980787754
+          }
+        },
+        "participation_ratio": {
+          "normal_H_change": {
+            "median": 0.022302089030074912,
+            "p2_5": 0.006407230211900672,
+            "p97_5": 0.04353788040683875,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": -0.009928323893555913,
+            "p2_5": -0.015169331711620427,
+            "p97_5": -0.005151950132851002,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": -0.03155090175960762,
+            "p2_5": -0.052924235044528464,
+            "p97_5": -0.012355637919711296,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 1.1182317636397952,
+            "normal_H128": 1.1375172389297863,
+            "ctx1_H8": 1.0520590402687646,
+            "ctx1_H128": 1.0431847539938686
+          }
+        },
+        "evr_at_100": {
+          "normal_H_change": {
+            "median": -4.876219259342118e-05,
+            "p2_5": -0.0007394569782758097,
+            "p97_5": 0.00030611640374891835,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 0.001240935062277626,
+            "p2_5": 0.00023108080366423533,
+            "p97_5": 0.002009068443746171,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 0.0013295949161100662,
+            "p2_5": 0.00018541347529366092,
+            "p97_5": 0.002423635827068882,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 0.994522222181535,
+            "normal_H128": 0.9943079686319294,
+            "ctx1_H8": 0.997021138080272,
+            "ctx1_H128": 0.998240070444024
+          }
+        }
+      },
+      "verdict": {
+        "conclusion": "H_dependent_degradation_detected",
+        "flagged_main_metrics": [
+          "l2_norm_median",
+          "participation_ratio"
+        ],
+        "required_action": "主指标 ['l2_norm_median', 'participation_ratio'] 显示 ctx1 下的 H 依赖变化显著不同于 normal → 必须在 Results 与 Limitations 写明 D_m 与 I_MP 受此混淆影响，并把相关结论下调为「方向性提示」。",
+        "nll_auxiliary_status": "not_computed_this_round（需 GPU；未做须在 Limitations 注明）"
+      }
+    },
+    "mamba": {
+      "metrics": {
+        "l2_norm_median": {
+          "normal_H_change": {
+            "median": 3.2568431559421356,
+            "p2_5": 1.7132310530598738,
+            "p97_5": 5.012211742018796,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 6.751630378189503,
+            "p2_5": 5.18409623900109,
+            "p97_5": 8.30301184920293,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 3.3017270263152483,
+            "p2_5": 1.8162933313312308,
+            "p97_5": 4.932841085068811,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 69.67334596392706,
+            "normal_H128": 72.94986666497553,
+            "ctx1_H8": 65.23275978473806,
+            "ctx1_H128": 71.97292255968289
+          }
+        },
+        "participation_ratio": {
+          "normal_H_change": {
+            "median": 0.5522441245038472,
+            "p2_5": 0.22439185865694383,
+            "p97_5": 1.0380754646681747,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": -0.15685784111899692,
+            "p2_5": -0.26454090578282113,
+            "p97_5": -0.08459016635341955,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": -0.6938464313407617,
+            "p2_5": -1.2511408775440347,
+            "p97_5": -0.31543193267359904,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 2.611465833200918,
+            "normal_H128": 3.1353642280462375,
+            "ctx1_H8": 1.7079455403199035,
+            "ctx1_H128": 1.5584066764792577
+          }
+        },
+        "evr_at_100": {
+          "normal_H_change": {
+            "median": -0.003262973383052259,
+            "p2_5": -0.0072398407854149475,
+            "p97_5": -4.7271595893783574e-07,
+            "n_stories": 83
+          },
+          "ctx1_H_change": {
+            "median": 0.00737848510096295,
+            "p2_5": 0.0018223620593554035,
+            "p97_5": 0.01003835024383027,
+            "n_stories": 83
+          },
+          "ood_h_dependence_did": {
+            "median": 0.011117042367325025,
+            "p2_5": 0.0024477436546876397,
+            "p97_5": 0.016134833651487792,
+            "n_stories": 83,
+            "ci_excludes_zero": true,
+            "reading": "偏离0 = ctx1 下该指标随 H 的变化幅度与 normal 不同 → 退化具 H 依赖性 → D_m / I_MP 受混淆，配对不能消除"
+          },
+          "absolute_medians": {
+            "normal_H8": 0.9451992874566806,
+            "normal_H128": 0.9419155929850681,
+            "ctx1_H8": 0.9644597374608812,
+            "ctx1_H128": 0.9720407178589886
+          }
+        }
+      },
+      "verdict": {
+        "conclusion": "H_dependent_degradation_detected",
+        "flagged_main_metrics": [
+          "l2_norm_median",
+          "participation_ratio"
+        ],
+        "required_action": "主指标 ['l2_norm_median', 'participation_ratio'] 显示 ctx1 下的 H 依赖变化显著不同于 normal → 必须在 Results 与 Limitations 写明 D_m 与 I_MP 受此混淆影响，并把相关结论下调为「方向性提示」。",
+        "nll_auxiliary_status": "not_computed_this_round（需 GPU；未做须在 Limitations 注明）"
+      }
+    }
+  }
+}
