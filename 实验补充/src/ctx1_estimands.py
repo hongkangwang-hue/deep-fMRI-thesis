@@ -38,6 +38,10 @@ def ctx1_estimands(rt: dict, roi: str = "left_IFG") -> dict[str, float]:
         out[f"normal_delta_total_{m}_{tag}"] = _delta_total(rt, m, "normal", roi)
         out[f"D_{m}_{tag}"] = (out[f"normal_delta_total_{m}_{tag}"]
                                - out[f"ctx1_delta_total_{m}_{tag}"])
+        # 原始 r8/r128 点（供 Figure 17 Panel A 展示绝对水平；同样走 bootstrap 拿 CI）
+        for H in (8, 128):
+            for cond in ("normal", "ctx1"):
+                out[f"r_{m}_H{H}_{cond}_{tag}"] = _r(rt, m, H, cond, roi)
 
     # 架构差值：normal 与 ctx1 条件下各自的 Mamba−Pythia / RWKV−Pythia
     out[f"A_MP_normal_{tag}"] = (out[f"normal_delta_total_mamba_{tag}"]

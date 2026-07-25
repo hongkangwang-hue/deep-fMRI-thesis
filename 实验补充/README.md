@@ -28,9 +28,18 @@
 | 3 | 打乱上下文特征重提取 | GPU | ✅ 已在服务器跑完（3模型×H{8,128}×83故事，`cache/features_ctx1/`，normal缓存未动） |
 | 4 | ctx1 条件 Ridge 重拟合 | Ridge | 🟡 代码已写好，本地已验证复用逻辑正确，**待你确认后上服务器跑** |
 | 5 | 统计量 `D_m`/`I_MP` + bootstrap CI | 轻量CPU | 🟡 代码已写好（`src/ctx1_estimands.py`+`scripts/m5s_context_control_stats.py`），本地端到端 smoke 通过，**待步骤 4 出 cells 后跑** |
-| 6 | 论文 Figure 17 / Table 9 | 无 | ⏸ 待步骤 5 完成 |
+| 6 | 论文 Figure 17 / Table 9 | 无 | 🟡 代码已写好（`scripts/m6s_context_control_figure.py`），本地端到端 smoke（含真实渲染 PNG/PDF）通过，**待步骤 5 出数后跑** |
 
 Step 0–2 全部本地零算力，已产出真实结果（见 `results/`）。
+
+**Step 5/6 一条龙（Step 4 出 cells 后，纯 CPU，本地或服务器均可）**：
+```
+python 实验补充/scripts/m5s_context_control_stats.py --subject UTS01   # 三被试各一次
+python 实验补充/scripts/m5s_context_control_stats.py --subject UTS02
+python 实验补充/scripts/m5s_context_control_stats.py --subject UTS03
+python 实验补充/scripts/m6s_context_control_figure.py                  # 出 Table 9 + Figure 17
+```
+产出：`results/{m5s_stats/<subj>/m5s_results.json, tables/table9_*.{csv,md}, figures/figure17_*.{png,pdf}}`。
 
 **Step 3 代码状态**：`scripts/m4s_extract_perturbed_features.py` 已写好，结构与
 `../scripts/m1_extract_features.py` 逐行对应。本地已验证（无需 torch/GPU）：
