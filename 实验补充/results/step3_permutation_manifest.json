@@ -1,0 +1,587 @@
+{
+  "condition": "ctx1",
+  "master_seed": 20260724,
+  "stories": [
+    {
+      "story": "adollshouse",
+      "n_words": 1656,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/adollshouse.npy",
+      "permutation_sha256": "b4ab4b38fa99b9b311f25766233c6874eaeffff5174126111aae69715d222abe"
+    },
+    {
+      "story": "adventuresinsayingyes",
+      "n_words": 2309,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/adventuresinsayingyes.npy",
+      "permutation_sha256": "d8bc5de64d64d15f97f83238c67d1bef822c6d96a70ae5448d22a8266e569d6a"
+    },
+    {
+      "story": "afatherscover",
+      "n_words": 1182,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/afatherscover.npy",
+      "permutation_sha256": "7dedcc4a5c1c3eb9e63a89d9c9f115aead38e1f808170b54cc918c2b0b53bd3a"
+    },
+    {
+      "story": "againstthewind",
+      "n_words": 838,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/againstthewind.npy",
+      "permutation_sha256": "4efc032957753e5587c2b7d1fd4ec487389f1186ca0c1491e4442c1346efaf34"
+    },
+    {
+      "story": "alternateithicatom",
+      "n_words": 2174,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/alternateithicatom.npy",
+      "permutation_sha256": "f3a6d26e910fcabc5103b5936829cfb446953b4a753f5378cf415b3275a1c99b"
+    },
+    {
+      "story": "avatar",
+      "n_words": 1469,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/avatar.npy",
+      "permutation_sha256": "35e8e645652de092245d29347c20026dc38dbd73cc3bece6c576efec9709360e"
+    },
+    {
+      "story": "backsideofthestorm",
+      "n_words": 1964,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/backsideofthestorm.npy",
+      "permutation_sha256": "a25218baf7fc82722f772deeb59dd8ff081b57b1c8c1d86e46287a6a9f65952b"
+    },
+    {
+      "story": "becomingindian",
+      "n_words": 2619,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/becomingindian.npy",
+      "permutation_sha256": "52f5d7d6693244b2a433b43234b672849878d0e3102987b5a888dfbe16c09ca3"
+    },
+    {
+      "story": "beneaththemushroomcloud",
+      "n_words": 1916,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/beneaththemushroomcloud.npy",
+      "permutation_sha256": "5b2ce0518e07bf4d5e631355dd247b1f80e4c7c1e7cfed8717d3a5aefc7decd4"
+    },
+    {
+      "story": "birthofanation",
+      "n_words": 1590,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/birthofanation.npy",
+      "permutation_sha256": "2b38da35a42f63adfad425a5798b3f67b72bc35decd2534c3f07c35bce135132"
+    },
+    {
+      "story": "bluehope",
+      "n_words": 1941,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/bluehope.npy",
+      "permutation_sha256": "504800593387167a96307756bb51153cf66c681cf421cb3a8631df9b421f7ffc"
+    },
+    {
+      "story": "breakingupintheageofgoogle",
+      "n_words": 3476,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/breakingupintheageofgoogle.npy",
+      "permutation_sha256": "3b525eafa34e4657eb40403a70c071ddf5ac83ad639ba061a0ce81f4aba44994"
+    },
+    {
+      "story": "buck",
+      "n_words": 1677,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/buck.npy",
+      "permutation_sha256": "5ce7529ac048cc35de8214ab4a661de5e14dc0dc02c87107aecd4274fb7c2f8c"
+    },
+    {
+      "story": "catfishingstrangerstofindmyself",
+      "n_words": 1522,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/catfishingstrangerstofindmyself.npy",
+      "permutation_sha256": "e525dbfa862649c332be44afc55333b39b129bf985d89afb4013c6bd52068949"
+    },
+    {
+      "story": "cautioneating",
+      "n_words": 1587,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/cautioneating.npy",
+      "permutation_sha256": "8ffdf488a148201383253aabf6c9d35b04e9ed7f0ae6782f5b119d721c66942e"
+    },
+    {
+      "story": "christmas1940",
+      "n_words": 1261,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/christmas1940.npy",
+      "permutation_sha256": "eb513a2ff160e7a8ccd6207dfaf60e3d478fbe0cc3d5cd0e21993c83733d171e"
+    },
+    {
+      "story": "cocoonoflove",
+      "n_words": 1984,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/cocoonoflove.npy",
+      "permutation_sha256": "8eca52d8d89540ee8d10759961b3306c2b0d7221e1cc8988a5d3e2d160c02318"
+    },
+    {
+      "story": "comingofageondeathrow",
+      "n_words": 2212,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/comingofageondeathrow.npy",
+      "permutation_sha256": "f9e120a13e78684abb1a8d0ed9e78654db81bb38577410991d6c94d84fbf315e"
+    },
+    {
+      "story": "exorcism",
+      "n_words": 2949,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/exorcism.npy",
+      "permutation_sha256": "b0d1a908719ebea6f39afe3965cc45e0b983b382c2731296ee5d47c83c11c52f"
+    },
+    {
+      "story": "eyespy",
+      "n_words": 2336,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/eyespy.npy",
+      "permutation_sha256": "f4fa3f8ce5aecd3bac3369cc037cd3a6ef306cd9e423fa6f047f8ed3b73e6c08"
+    },
+    {
+      "story": "firetestforlove",
+      "n_words": 2286,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/firetestforlove.npy",
+      "permutation_sha256": "d03a19e3506de8b7d2d97c228f8202c39a1415b30988722fed7956869ae3bdcc"
+    },
+    {
+      "story": "food",
+      "n_words": 2064,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/food.npy",
+      "permutation_sha256": "c7055b782ea14190d82b967860bf820afdb55829104d24e6d470684e62acadad"
+    },
+    {
+      "story": "forgettingfear",
+      "n_words": 1240,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/forgettingfear.npy",
+      "permutation_sha256": "4ab246c2ff13f4173eb37c9e8d31c76fe877c1c70e31acd1e3f241b3c8eb5e12"
+    },
+    {
+      "story": "fromboyhoodtofatherhood",
+      "n_words": 2755,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/fromboyhoodtofatherhood.npy",
+      "permutation_sha256": "6b2e55f908bcc0692f31178aa8782de465cecf31ac2f567e83509d8796d5d961"
+    },
+    {
+      "story": "gangstersandcookies",
+      "n_words": 1547,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/gangstersandcookies.npy",
+      "permutation_sha256": "66b27bfe2d164d552d0514882070326536b8b34ae174a9ad7fd3490d555413a8"
+    },
+    {
+      "story": "goingthelibertyway",
+      "n_words": 2471,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/goingthelibertyway.npy",
+      "permutation_sha256": "cbffe83e95d50025abeefce8d28035722bb0672668435f5eb1acd7d867c6744a"
+    },
+    {
+      "story": "goldiethegoldfish",
+      "n_words": 1680,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/goldiethegoldfish.npy",
+      "permutation_sha256": "9e0ac95f474b64655eb974d0e539f92fe91374824e97d169b20286afc491a0fc"
+    },
+    {
+      "story": "golfclubbing",
+      "n_words": 1211,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/golfclubbing.npy",
+      "permutation_sha256": "5a8d3a9ad99f38459ee2bccd7bba1eaeae68327aea0620d781a76aad655ee22b"
+    },
+    {
+      "story": "gpsformylostidentity",
+      "n_words": 1650,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/gpsformylostidentity.npy",
+      "permutation_sha256": "4bf94fd56237c5b51725cba50ca1aa68552c64ef78ea58b74e5dac2175ff02e9"
+    },
+    {
+      "story": "hangtime",
+      "n_words": 1927,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/hangtime.npy",
+      "permutation_sha256": "304e1e323296d1465d2307c187e6cd70fc7eb47fa7525bb81342ac535cdff436"
+    },
+    {
+      "story": "haveyoumethimyet",
+      "n_words": 2985,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/haveyoumethimyet.npy",
+      "permutation_sha256": "788c88f45d6a52f5d801398851f3b0c4b8353076775efd53e14678c237e25835"
+    },
+    {
+      "story": "howtodraw",
+      "n_words": 1964,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/howtodraw.npy",
+      "permutation_sha256": "6f13e5a4acc0fab8cbd93c0538ed18fa132f0dfd8b0aae933fd5c03db0206007"
+    },
+    {
+      "story": "ifthishaircouldtalk",
+      "n_words": 1854,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/ifthishaircouldtalk.npy",
+      "permutation_sha256": "17030a5402ba49ca7415276a3d355d961bcc1723d85b71d68077d6cc71a6843d"
+    },
+    {
+      "story": "inamoment",
+      "n_words": 966,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/inamoment.npy",
+      "permutation_sha256": "d6dae2fa4a9c1d59ef46b9907241bf4944a61b73f1301b5dc2cd0f478f241832"
+    },
+    {
+      "story": "itsabox",
+      "n_words": 1708,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/itsabox.npy",
+      "permutation_sha256": "348d97e23a0bf235608fdb8cda0d3fd5eee891707a37f4242819c99b3b5618d4"
+    },
+    {
+      "story": "jugglingandjesus",
+      "n_words": 887,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/jugglingandjesus.npy",
+      "permutation_sha256": "5cbb06b9c32c26f68d5247e5a922a3fe169afc9d5eafa2832f74892c82a750c9"
+    },
+    {
+      "story": "kiksuya",
+      "n_words": 1699,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/kiksuya.npy",
+      "permutation_sha256": "9fa8a0283439deb1422d4c91c79e0a5546970f2c192788ff394a1542e9e8bf9e"
+    },
+    {
+      "story": "leavingbaghdad",
+      "n_words": 1976,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/leavingbaghdad.npy",
+      "permutation_sha256": "5aa38502e76b9b3fe4184203104230de0203fab62b35000bb7c19ec6c584d7dc"
+    },
+    {
+      "story": "legacy",
+      "n_words": 1893,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/legacy.npy",
+      "permutation_sha256": "8bbf59e6e545baf89cb3393c7936e5ecf2d688a712f9d76426a16ded69b2d81d"
+    },
+    {
+      "story": "life",
+      "n_words": 2209,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/life.npy",
+      "permutation_sha256": "93d5fabf2b9fbc8b3a380079a8c9859d846a790f13942ce80fd4baa26b9cbb07"
+    },
+    {
+      "story": "lifeanddeathontheoregontrail",
+      "n_words": 2389,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/lifeanddeathontheoregontrail.npy",
+      "permutation_sha256": "ea4fdc05b0496be2c6cccdac71e3c4f776a823c946ebebb7e7f681ce2b32b19a"
+    },
+    {
+      "story": "lifereimagined",
+      "n_words": 1800,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/lifereimagined.npy",
+      "permutation_sha256": "ef3b1ef805fbd0930a7ae30b2604a6153ba3957c92d9d2f9d03d6be98355d8ee"
+    },
+    {
+      "story": "listo",
+      "n_words": 2371,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/listo.npy",
+      "permutation_sha256": "6f413d2554c1f4a7aefefebfab6ba8dceeffcc0db04511d5530ef07ed87ffba3"
+    },
+    {
+      "story": "mayorofthefreaks",
+      "n_words": 3274,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/mayorofthefreaks.npy",
+      "permutation_sha256": "1fa70cedf586b7d6535b8b609dbb0965b870115a8c5f2e19235275c67b4e533d"
+    },
+    {
+      "story": "metsmagic",
+      "n_words": 1477,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/metsmagic.npy",
+      "permutation_sha256": "22c859abbef7ac5bc6052c0a9bd5abf8634431d6c4acfe90ecf29e49c87bbe7f"
+    },
+    {
+      "story": "mybackseatviewofagreatromance",
+      "n_words": 1794,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/mybackseatviewofagreatromance.npy",
+      "permutation_sha256": "3a8b810fcae0ff648d75f98ca219190785df261fa033c263a037f8192e0ccfde"
+    },
+    {
+      "story": "myfathershands",
+      "n_words": 942,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/myfathershands.npy",
+      "permutation_sha256": "406b1411d17b01bfaa49d4398f24906d20ce313a427b4fbfcd40f32e999cb3b6"
+    },
+    {
+      "story": "myfirstdaywiththeyankees",
+      "n_words": 2786,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/myfirstdaywiththeyankees.npy",
+      "permutation_sha256": "9a36487cbe39f76be8eb8518b4806413f7fabf15004a6ec04c40160453d82978"
+    },
+    {
+      "story": "naked",
+      "n_words": 3218,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/naked.npy",
+      "permutation_sha256": "ee956d5e8283aa8666f4649cf9a4f95a30e4d04a4c7b0e3993d59ac4bb86a039"
+    },
+    {
+      "story": "notontheusualtour",
+      "n_words": 1431,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/notontheusualtour.npy",
+      "permutation_sha256": "d3ee654cf39be3cdd992c3392d1f8482c49344924be7e7beed91354eb471d132"
+    },
+    {
+      "story": "odetostepfather",
+      "n_words": 2675,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/odetostepfather.npy",
+      "permutation_sha256": "74fe062fcabe98c9452db33a82e054649f28dd160772c428a5df129be18ea7b4"
+    },
+    {
+      "story": "onlyonewaytofindout",
+      "n_words": 1889,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/onlyonewaytofindout.npy",
+      "permutation_sha256": "38781d1a41995b3fcf832255aeaaccd4784556ade7ebd054f10f3145db4972d9"
+    },
+    {
+      "story": "penpal",
+      "n_words": 1592,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/penpal.npy",
+      "permutation_sha256": "fa9fdbe0133d5382d170919e835e43eb97620dfcd250092ff4c2af5fd615a9d0"
+    },
+    {
+      "story": "quietfire",
+      "n_words": 1905,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/quietfire.npy",
+      "permutation_sha256": "ba6ca3999b2167435fa9736a3a4d7efc17102bc3e21bc30df25411a81dce40bd"
+    },
+    {
+      "story": "reachingoutbetweenthebars",
+      "n_words": 1490,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/reachingoutbetweenthebars.npy",
+      "permutation_sha256": "2f41a778740de2bad83e0c7f2a0c878bdec66d56414cdd8c5770ea10f4e938ee"
+    },
+    {
+      "story": "shoppinginchina",
+      "n_words": 1731,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/shoppinginchina.npy",
+      "permutation_sha256": "2a69c05d16bd1cec29b65ff69d4ba8c6c6008190e4ea6ebb7f2f00f4ce03dca6"
+    },
+    {
+      "story": "singlewomanseekingmanwich",
+      "n_words": 1486,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/singlewomanseekingmanwich.npy",
+      "permutation_sha256": "aceed611704d7b7f45118a4ce0e17b5b76f4d110af1ccb16623b0428aba41abb"
+    },
+    {
+      "story": "sloth",
+      "n_words": 2403,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/sloth.npy",
+      "permutation_sha256": "df59850dd578b7efecd35ecdd37c29c736bfdd5be72c97ee19a6fddcb5d4a336"
+    },
+    {
+      "story": "souls",
+      "n_words": 1868,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/souls.npy",
+      "permutation_sha256": "f27372209ed4af6bb1a66bb1abf2b97dc74496afa3131741b210b168706c776d"
+    },
+    {
+      "story": "stagefright",
+      "n_words": 2067,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/stagefright.npy",
+      "permutation_sha256": "69a2a20f767e09a5c4d39663304a09f7d574f85787e93db1de8cc9bda79a73fc"
+    },
+    {
+      "story": "stumblinginthedark",
+      "n_words": 2681,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/stumblinginthedark.npy",
+      "permutation_sha256": "060871ba3a7a6d8f9cb2e5eb32308d40d48f7f33b690ba163d902977d92fab9d"
+    },
+    {
+      "story": "superheroesjustforeachother",
+      "n_words": 1440,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/superheroesjustforeachother.npy",
+      "permutation_sha256": "71257c66bb544a111642bfeea1fe234e0d6ddfc308807b51e7cf40a41fe32271"
+    },
+    {
+      "story": "sweetaspie",
+      "n_words": 697,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/sweetaspie.npy",
+      "permutation_sha256": "886c75c637209784b57bf735a87f38db8394ab44522f32b8ca2eebb44d3b60b5"
+    },
+    {
+      "story": "swimmingwithastronauts",
+      "n_words": 2127,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/swimmingwithastronauts.npy",
+      "permutation_sha256": "35d6f09cb220117efe14265ee666396a53fa6d3fbec3e864b99673173c24e0d9"
+    },
+    {
+      "story": "thatthingonmyarm",
+      "n_words": 2073,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thatthingonmyarm.npy",
+      "permutation_sha256": "09a62706689732cef743d2263564bdadf5e5ec3d4b876f7aa4066809e157dc05"
+    },
+    {
+      "story": "theadvancedbeginner",
+      "n_words": 1624,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/theadvancedbeginner.npy",
+      "permutation_sha256": "837e9a0e6a9292dfaf84b6f22afebba42135c8c9182f2efbd549d2c0250a7ef3"
+    },
+    {
+      "story": "theclosetthatateeverything",
+      "n_words": 1928,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/theclosetthatateeverything.npy",
+      "permutation_sha256": "6292ada940b1abcf1a3f57fc88d614fce1ac9e30e3a1272295e4ff80362c5a77"
+    },
+    {
+      "story": "thecurse",
+      "n_words": 2054,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thecurse.npy",
+      "permutation_sha256": "3ecb203a0b1e892b889a5f3b098e836c16880057c95c613e67db04eb6cd6802e"
+    },
+    {
+      "story": "thefreedomridersandme",
+      "n_words": 1606,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thefreedomridersandme.npy",
+      "permutation_sha256": "0f1ea6eefbe3e0bb16fe25e049715a228ea9474628654b891748dbdf15719549"
+    },
+    {
+      "story": "theinterview",
+      "n_words": 1079,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/theinterview.npy",
+      "permutation_sha256": "27c647fd2819c2ff60c08cbe5e91bdc5fe86d1a092b0d670eea037df91228264"
+    },
+    {
+      "story": "thepostmanalwayscalls",
+      "n_words": 2220,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thepostmanalwayscalls.npy",
+      "permutation_sha256": "f2210000c93c59a4730c87c7b40c73c98f61dae56b4e8bf31bb661438e21f853"
+    },
+    {
+      "story": "theshower",
+      "n_words": 1383,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/theshower.npy",
+      "permutation_sha256": "ba8e79e37de1e1fc74c86dc23b4c9117ae1622651a50ecc77fded7cfb554dede"
+    },
+    {
+      "story": "thetiniestbouquet",
+      "n_words": 964,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thetiniestbouquet.npy",
+      "permutation_sha256": "101bed580c4aca942c67f090993dac27bb7c8d175088a7c912898c92c0790de1"
+    },
+    {
+      "story": "thetriangleshirtwaistconnection",
+      "n_words": 1448,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thetriangleshirtwaistconnection.npy",
+      "permutation_sha256": "f1dc436e785b808196e58b67cbb664204597e822dc822f253a657746431cd7d8"
+    },
+    {
+      "story": "threemonths",
+      "n_words": 2062,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/threemonths.npy",
+      "permutation_sha256": "c22ef27a8968b749ea335d257c21cf3f9a1a8ca12e62e307ce4a7d787eaa1b82"
+    },
+    {
+      "story": "thumbsup",
+      "n_words": 3083,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/thumbsup.npy",
+      "permutation_sha256": "d00abf889933bf63a3c629c0d11bd23fca4d52246963e1de46a3854ca704ad17"
+    },
+    {
+      "story": "tildeath",
+      "n_words": 2297,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/tildeath.npy",
+      "permutation_sha256": "2679063951a9b9e5cdb16855439449334fe056aeb237a3742352d3c93a6acff7"
+    },
+    {
+      "story": "treasureisland",
+      "n_words": 1763,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/treasureisland.npy",
+      "permutation_sha256": "7b9c4f89b612a31694ec94c50ad8882f214bc5de87ddf28037f47d67e4baeae1"
+    },
+    {
+      "story": "undertheinfluence",
+      "n_words": 1641,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/undertheinfluence.npy",
+      "permutation_sha256": "b02021ca5d201231907ce9dcd147b0d035251c7bbdb0be42abf8fb019a587707"
+    },
+    {
+      "story": "vixenandtheussr",
+      "n_words": 2074,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/vixenandtheussr.npy",
+      "permutation_sha256": "bb5830fa24882306fbeb55d898a11bc389760e50363d4cbd37d7ac116ef6bbe3"
+    },
+    {
+      "story": "waitingtogo",
+      "n_words": 1587,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/waitingtogo.npy",
+      "permutation_sha256": "34bd2ef322f731a72cbc1152a4f2a20568f7a05726cefc9b757800a8d6d70b22"
+    },
+    {
+      "story": "whenmothersbullyback",
+      "n_words": 1488,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/whenmothersbullyback.npy",
+      "permutation_sha256": "c31a807e5f7020a5044a8f7f53d839250e56fa9a4e0ae347484f2922fc8136d5"
+    },
+    {
+      "story": "wildwomenanddancingqueens",
+      "n_words": 1218,
+      "master_seed": 20260724,
+      "permutation_file": "/root/autodl-tmp/deep-fMRI-dataset/cache/permutations_ctx1/wildwomenanddancingqueens.npy",
+      "permutation_sha256": "98d2c92fe1d5dfdd4d310016115c25e7b9aae097455312e0910db392c2dd2498"
+    }
+  ]
+}

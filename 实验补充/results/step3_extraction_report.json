@@ -1,0 +1,7597 @@
+{
+  "condition": "ctx1",
+  "stories": [
+    "adollshouse",
+    "adventuresinsayingyes",
+    "afatherscover",
+    "againstthewind",
+    "alternateithicatom",
+    "avatar",
+    "backsideofthestorm",
+    "becomingindian",
+    "beneaththemushroomcloud",
+    "birthofanation",
+    "bluehope",
+    "breakingupintheageofgoogle",
+    "buck",
+    "catfishingstrangerstofindmyself",
+    "cautioneating",
+    "christmas1940",
+    "cocoonoflove",
+    "comingofageondeathrow",
+    "exorcism",
+    "eyespy",
+    "firetestforlove",
+    "food",
+    "forgettingfear",
+    "fromboyhoodtofatherhood",
+    "gangstersandcookies",
+    "goingthelibertyway",
+    "goldiethegoldfish",
+    "golfclubbing",
+    "gpsformylostidentity",
+    "hangtime",
+    "haveyoumethimyet",
+    "howtodraw",
+    "ifthishaircouldtalk",
+    "inamoment",
+    "itsabox",
+    "jugglingandjesus",
+    "kiksuya",
+    "leavingbaghdad",
+    "legacy",
+    "life",
+    "lifeanddeathontheoregontrail",
+    "lifereimagined",
+    "listo",
+    "mayorofthefreaks",
+    "metsmagic",
+    "mybackseatviewofagreatromance",
+    "myfathershands",
+    "myfirstdaywiththeyankees",
+    "naked",
+    "notontheusualtour",
+    "odetostepfather",
+    "onlyonewaytofindout",
+    "penpal",
+    "quietfire",
+    "reachingoutbetweenthebars",
+    "shoppinginchina",
+    "singlewomanseekingmanwich",
+    "sloth",
+    "souls",
+    "stagefright",
+    "stumblinginthedark",
+    "superheroesjustforeachother",
+    "sweetaspie",
+    "swimmingwithastronauts",
+    "thatthingonmyarm",
+    "theadvancedbeginner",
+    "theclosetthatateeverything",
+    "thecurse",
+    "thefreedomridersandme",
+    "theinterview",
+    "thepostmanalwayscalls",
+    "theshower",
+    "thetiniestbouquet",
+    "thetriangleshirtwaistconnection",
+    "threemonths",
+    "thumbsup",
+    "tildeath",
+    "treasureisland",
+    "undertheinfluence",
+    "vixenandtheussr",
+    "waitingtogo",
+    "whenmothersbullyback",
+    "wildwomenanddancingqueens"
+  ],
+  "H_list": [
+    8,
+    128
+  ],
+  "models": {
+    "pythia": {
+      "audit": {
+        "model_id": "EleutherAI/pythia-160m",
+        "revision": "main",
+        "hidden_width": 768,
+        "n_layers": 12,
+        "is_recurrent": false
+      },
+      "by_story": {
+        "adollshouse": {
+          "8": {
+            "n_targets": 1528,
+            "seconds": 0.92,
+            "sec_per_1k": 0.6,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1528,
+            "seconds": 7.32,
+            "sec_per_1k": 4.79,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "adventuresinsayingyes": {
+          "8": {
+            "n_targets": 2181,
+            "seconds": 1.24,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2181,
+            "seconds": 10.28,
+            "sec_per_1k": 4.72,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "afatherscover": {
+          "8": {
+            "n_targets": 1054,
+            "seconds": 0.66,
+            "sec_per_1k": 0.63,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1054,
+            "seconds": 4.96,
+            "sec_per_1k": 4.71,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "againstthewind": {
+          "8": {
+            "n_targets": 710,
+            "seconds": 0.4,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 710,
+            "seconds": 3.06,
+            "sec_per_1k": 4.32,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "alternateithicatom": {
+          "8": {
+            "n_targets": 2046,
+            "seconds": 1.16,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2046,
+            "seconds": 9.64,
+            "sec_per_1k": 4.71,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "avatar": {
+          "8": {
+            "n_targets": 1341,
+            "seconds": 0.75,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1341,
+            "seconds": 5.98,
+            "sec_per_1k": 4.46,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "backsideofthestorm": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 1.03,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 8.4,
+            "sec_per_1k": 4.57,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "becomingindian": {
+          "8": {
+            "n_targets": 2491,
+            "seconds": 1.38,
+            "sec_per_1k": 0.55,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2491,
+            "seconds": 11.16,
+            "sec_per_1k": 4.48,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "beneaththemushroomcloud": {
+          "8": {
+            "n_targets": 1788,
+            "seconds": 1.03,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1788,
+            "seconds": 8.15,
+            "sec_per_1k": 4.56,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "birthofanation": {
+          "8": {
+            "n_targets": 1462,
+            "seconds": 0.83,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1462,
+            "seconds": 6.39,
+            "sec_per_1k": 4.37,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "bluehope": {
+          "8": {
+            "n_targets": 1813,
+            "seconds": 1.01,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1813,
+            "seconds": 8.03,
+            "sec_per_1k": 4.43,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "breakingupintheageofgoogle": {
+          "8": {
+            "n_targets": 3348,
+            "seconds": 1.92,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3348,
+            "seconds": 15.85,
+            "sec_per_1k": 4.73,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "buck": {
+          "8": {
+            "n_targets": 1549,
+            "seconds": 0.86,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1549,
+            "seconds": 6.82,
+            "sec_per_1k": 4.4,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "catfishingstrangerstofindmyself": {
+          "8": {
+            "n_targets": 1394,
+            "seconds": 0.8,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1394,
+            "seconds": 6.1,
+            "sec_per_1k": 4.38,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cautioneating": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 0.81,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 6.3,
+            "sec_per_1k": 4.32,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "christmas1940": {
+          "8": {
+            "n_targets": 1133,
+            "seconds": 0.64,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1133,
+            "seconds": 4.98,
+            "sec_per_1k": 4.39,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cocoonoflove": {
+          "8": {
+            "n_targets": 1856,
+            "seconds": 1.02,
+            "sec_per_1k": 0.55,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1856,
+            "seconds": 8.12,
+            "sec_per_1k": 4.38,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "comingofageondeathrow": {
+          "8": {
+            "n_targets": 2084,
+            "seconds": 1.18,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2084,
+            "seconds": 9.44,
+            "sec_per_1k": 4.53,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "exorcism": {
+          "8": {
+            "n_targets": 2821,
+            "seconds": 1.57,
+            "sec_per_1k": 0.55,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2821,
+            "seconds": 12.67,
+            "sec_per_1k": 4.49,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "eyespy": {
+          "8": {
+            "n_targets": 2208,
+            "seconds": 1.36,
+            "sec_per_1k": 0.62,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2208,
+            "seconds": 10.04,
+            "sec_per_1k": 4.55,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "firetestforlove": {
+          "8": {
+            "n_targets": 2158,
+            "seconds": 1.19,
+            "sec_per_1k": 0.55,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2158,
+            "seconds": 9.64,
+            "sec_per_1k": 4.47,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "food": {
+          "8": {
+            "n_targets": 1936,
+            "seconds": 1.1,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1936,
+            "seconds": 8.5,
+            "sec_per_1k": 4.39,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "forgettingfear": {
+          "8": {
+            "n_targets": 1112,
+            "seconds": 0.63,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1112,
+            "seconds": 4.94,
+            "sec_per_1k": 4.45,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "fromboyhoodtofatherhood": {
+          "8": {
+            "n_targets": 2627,
+            "seconds": 1.48,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2627,
+            "seconds": 11.99,
+            "sec_per_1k": 4.56,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gangstersandcookies": {
+          "8": {
+            "n_targets": 1419,
+            "seconds": 0.85,
+            "sec_per_1k": 0.6,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1419,
+            "seconds": 6.22,
+            "sec_per_1k": 4.38,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goingthelibertyway": {
+          "8": {
+            "n_targets": 2343,
+            "seconds": 1.31,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2343,
+            "seconds": 10.69,
+            "sec_per_1k": 4.56,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goldiethegoldfish": {
+          "8": {
+            "n_targets": 1552,
+            "seconds": 0.93,
+            "sec_per_1k": 0.6,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1552,
+            "seconds": 6.92,
+            "sec_per_1k": 4.46,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "golfclubbing": {
+          "8": {
+            "n_targets": 1083,
+            "seconds": 0.6,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1083,
+            "seconds": 4.7,
+            "sec_per_1k": 4.34,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gpsformylostidentity": {
+          "8": {
+            "n_targets": 1522,
+            "seconds": 0.85,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1522,
+            "seconds": 6.83,
+            "sec_per_1k": 4.48,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "hangtime": {
+          "8": {
+            "n_targets": 1799,
+            "seconds": 1.01,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1799,
+            "seconds": 8.12,
+            "sec_per_1k": 4.52,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "haveyoumethimyet": {
+          "8": {
+            "n_targets": 2857,
+            "seconds": 1.59,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2857,
+            "seconds": 13.03,
+            "sec_per_1k": 4.56,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "howtodraw": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 1.06,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 8.16,
+            "sec_per_1k": 4.44,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "ifthishaircouldtalk": {
+          "8": {
+            "n_targets": 1726,
+            "seconds": 0.97,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1726,
+            "seconds": 7.78,
+            "sec_per_1k": 4.51,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "inamoment": {
+          "8": {
+            "n_targets": 838,
+            "seconds": 0.48,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 838,
+            "seconds": 3.73,
+            "sec_per_1k": 4.46,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "itsabox": {
+          "8": {
+            "n_targets": 1580,
+            "seconds": 0.88,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1580,
+            "seconds": 7.07,
+            "sec_per_1k": 4.48,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "jugglingandjesus": {
+          "8": {
+            "n_targets": 759,
+            "seconds": 0.44,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 759,
+            "seconds": 3.39,
+            "sec_per_1k": 4.47,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "kiksuya": {
+          "8": {
+            "n_targets": 1571,
+            "seconds": 0.89,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1571,
+            "seconds": 6.98,
+            "sec_per_1k": 4.44,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "leavingbaghdad": {
+          "8": {
+            "n_targets": 1848,
+            "seconds": 1.04,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1848,
+            "seconds": 8.13,
+            "sec_per_1k": 4.4,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "legacy": {
+          "8": {
+            "n_targets": 1765,
+            "seconds": 1.0,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1765,
+            "seconds": 7.71,
+            "sec_per_1k": 4.37,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "life": {
+          "8": {
+            "n_targets": 2081,
+            "seconds": 1.19,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2081,
+            "seconds": 9.26,
+            "sec_per_1k": 4.45,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifeanddeathontheoregontrail": {
+          "8": {
+            "n_targets": 2261,
+            "seconds": 1.27,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2261,
+            "seconds": 10.18,
+            "sec_per_1k": 4.5,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifereimagined": {
+          "8": {
+            "n_targets": 1672,
+            "seconds": 0.94,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1672,
+            "seconds": 7.53,
+            "sec_per_1k": 4.5,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "listo": {
+          "8": {
+            "n_targets": 2243,
+            "seconds": 1.44,
+            "sec_per_1k": 0.64,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2243,
+            "seconds": 9.96,
+            "sec_per_1k": 4.44,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mayorofthefreaks": {
+          "8": {
+            "n_targets": 3146,
+            "seconds": 1.76,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3146,
+            "seconds": 14.17,
+            "sec_per_1k": 4.5,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "metsmagic": {
+          "8": {
+            "n_targets": 1349,
+            "seconds": 0.76,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1349,
+            "seconds": 5.84,
+            "sec_per_1k": 4.33,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mybackseatviewofagreatromance": {
+          "8": {
+            "n_targets": 1666,
+            "seconds": 0.95,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1666,
+            "seconds": 7.49,
+            "sec_per_1k": 4.49,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfathershands": {
+          "8": {
+            "n_targets": 814,
+            "seconds": 0.47,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 814,
+            "seconds": 3.57,
+            "sec_per_1k": 4.39,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfirstdaywiththeyankees": {
+          "8": {
+            "n_targets": 2658,
+            "seconds": 1.49,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2658,
+            "seconds": 12.32,
+            "sec_per_1k": 4.63,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "naked": {
+          "8": {
+            "n_targets": 3090,
+            "seconds": 1.72,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3090,
+            "seconds": 14.0,
+            "sec_per_1k": 4.53,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "notontheusualtour": {
+          "8": {
+            "n_targets": 1303,
+            "seconds": 0.74,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1303,
+            "seconds": 5.77,
+            "sec_per_1k": 4.43,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "odetostepfather": {
+          "8": {
+            "n_targets": 2547,
+            "seconds": 1.42,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2547,
+            "seconds": 11.21,
+            "sec_per_1k": 4.4,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "onlyonewaytofindout": {
+          "8": {
+            "n_targets": 1761,
+            "seconds": 0.99,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1761,
+            "seconds": 7.79,
+            "sec_per_1k": 4.42,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "penpal": {
+          "8": {
+            "n_targets": 1464,
+            "seconds": 0.82,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1464,
+            "seconds": 6.38,
+            "sec_per_1k": 4.36,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "quietfire": {
+          "8": {
+            "n_targets": 1777,
+            "seconds": 1.01,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1777,
+            "seconds": 7.84,
+            "sec_per_1k": 4.41,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "reachingoutbetweenthebars": {
+          "8": {
+            "n_targets": 1362,
+            "seconds": 0.78,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1362,
+            "seconds": 6.03,
+            "sec_per_1k": 4.43,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "shoppinginchina": {
+          "8": {
+            "n_targets": 1603,
+            "seconds": 0.9,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1603,
+            "seconds": 7.18,
+            "sec_per_1k": 4.48,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "singlewomanseekingmanwich": {
+          "8": {
+            "n_targets": 1358,
+            "seconds": 0.76,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1358,
+            "seconds": 6.13,
+            "sec_per_1k": 4.51,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sloth": {
+          "8": {
+            "n_targets": 2275,
+            "seconds": 1.29,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2275,
+            "seconds": 10.31,
+            "sec_per_1k": 4.53,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "souls": {
+          "8": {
+            "n_targets": 1740,
+            "seconds": 0.97,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1740,
+            "seconds": 7.7,
+            "sec_per_1k": 4.42,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stagefright": {
+          "8": {
+            "n_targets": 1939,
+            "seconds": 1.08,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1939,
+            "seconds": 8.54,
+            "sec_per_1k": 4.41,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stumblinginthedark": {
+          "8": {
+            "n_targets": 2553,
+            "seconds": 1.47,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2553,
+            "seconds": 11.91,
+            "sec_per_1k": 4.66,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "superheroesjustforeachother": {
+          "8": {
+            "n_targets": 1312,
+            "seconds": 0.77,
+            "sec_per_1k": 0.59,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1312,
+            "seconds": 5.93,
+            "sec_per_1k": 4.52,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sweetaspie": {
+          "8": {
+            "n_targets": 569,
+            "seconds": 0.33,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 569,
+            "seconds": 2.54,
+            "sec_per_1k": 4.46,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "swimmingwithastronauts": {
+          "8": {
+            "n_targets": 1999,
+            "seconds": 1.13,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1999,
+            "seconds": 9.02,
+            "sec_per_1k": 4.51,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thatthingonmyarm": {
+          "8": {
+            "n_targets": 1945,
+            "seconds": 1.09,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1945,
+            "seconds": 8.8,
+            "sec_per_1k": 4.53,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theadvancedbeginner": {
+          "8": {
+            "n_targets": 1496,
+            "seconds": 0.84,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1496,
+            "seconds": 6.58,
+            "sec_per_1k": 4.4,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theclosetthatateeverything": {
+          "8": {
+            "n_targets": 1800,
+            "seconds": 1.01,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1800,
+            "seconds": 7.94,
+            "sec_per_1k": 4.41,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thecurse": {
+          "8": {
+            "n_targets": 1926,
+            "seconds": 1.12,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1926,
+            "seconds": 8.76,
+            "sec_per_1k": 4.55,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thefreedomridersandme": {
+          "8": {
+            "n_targets": 1478,
+            "seconds": 0.83,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1478,
+            "seconds": 6.57,
+            "sec_per_1k": 4.45,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theinterview": {
+          "8": {
+            "n_targets": 951,
+            "seconds": 0.54,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 951,
+            "seconds": 4.15,
+            "sec_per_1k": 4.36,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thepostmanalwayscalls": {
+          "8": {
+            "n_targets": 2092,
+            "seconds": 1.18,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2092,
+            "seconds": 9.39,
+            "sec_per_1k": 4.49,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theshower": {
+          "8": {
+            "n_targets": 1255,
+            "seconds": 0.71,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1255,
+            "seconds": 5.48,
+            "sec_per_1k": 4.37,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetiniestbouquet": {
+          "8": {
+            "n_targets": 836,
+            "seconds": 0.47,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 836,
+            "seconds": 3.64,
+            "sec_per_1k": 4.35,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetriangleshirtwaistconnection": {
+          "8": {
+            "n_targets": 1320,
+            "seconds": 0.75,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1320,
+            "seconds": 5.9,
+            "sec_per_1k": 4.47,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "threemonths": {
+          "8": {
+            "n_targets": 1934,
+            "seconds": 1.08,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1934,
+            "seconds": 8.41,
+            "sec_per_1k": 4.35,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thumbsup": {
+          "8": {
+            "n_targets": 2955,
+            "seconds": 1.69,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2955,
+            "seconds": 14.0,
+            "sec_per_1k": 4.74,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "tildeath": {
+          "8": {
+            "n_targets": 2169,
+            "seconds": 1.25,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2169,
+            "seconds": 9.64,
+            "sec_per_1k": 4.44,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "treasureisland": {
+          "8": {
+            "n_targets": 1635,
+            "seconds": 0.92,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1635,
+            "seconds": 7.26,
+            "sec_per_1k": 4.44,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "undertheinfluence": {
+          "8": {
+            "n_targets": 1513,
+            "seconds": 0.86,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1513,
+            "seconds": 6.66,
+            "sec_per_1k": 4.4,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "vixenandtheussr": {
+          "8": {
+            "n_targets": 1946,
+            "seconds": 1.1,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1946,
+            "seconds": 8.63,
+            "sec_per_1k": 4.43,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "waitingtogo": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 0.82,
+            "sec_per_1k": 0.56,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 6.69,
+            "sec_per_1k": 4.59,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "whenmothersbullyback": {
+          "8": {
+            "n_targets": 1360,
+            "seconds": 0.78,
+            "sec_per_1k": 0.58,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1360,
+            "seconds": 6.14,
+            "sec_per_1k": 4.51,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "wildwomenanddancingqueens": {
+          "8": {
+            "n_targets": 1090,
+            "seconds": 0.63,
+            "sec_per_1k": 0.57,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1090,
+            "seconds": 4.87,
+            "sec_per_1k": 4.47,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        }
+      }
+    },
+    "rwkv": {
+      "audit": {
+        "model_id": "RWKV/rwkv-4-169m-pile",
+        "revision": "main",
+        "hidden_width": 768,
+        "n_layers": 12,
+        "is_recurrent": true
+      },
+      "by_story": {
+        "adollshouse": {
+          "8": {
+            "n_targets": 1528,
+            "seconds": 2.87,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1528,
+            "seconds": 27.7,
+            "sec_per_1k": 18.13,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "adventuresinsayingyes": {
+          "8": {
+            "n_targets": 2181,
+            "seconds": 3.84,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2181,
+            "seconds": 38.6,
+            "sec_per_1k": 17.7,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "afatherscover": {
+          "8": {
+            "n_targets": 1054,
+            "seconds": 1.95,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1054,
+            "seconds": 18.91,
+            "sec_per_1k": 17.94,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "againstthewind": {
+          "8": {
+            "n_targets": 710,
+            "seconds": 1.32,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 710,
+            "seconds": 12.97,
+            "sec_per_1k": 18.27,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "alternateithicatom": {
+          "8": {
+            "n_targets": 2046,
+            "seconds": 3.81,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2046,
+            "seconds": 37.29,
+            "sec_per_1k": 18.23,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "avatar": {
+          "8": {
+            "n_targets": 1341,
+            "seconds": 2.48,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1341,
+            "seconds": 24.39,
+            "sec_per_1k": 18.19,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "backsideofthestorm": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 3.42,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 33.45,
+            "sec_per_1k": 18.22,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "becomingindian": {
+          "8": {
+            "n_targets": 2491,
+            "seconds": 4.63,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2491,
+            "seconds": 45.27,
+            "sec_per_1k": 18.17,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "beneaththemushroomcloud": {
+          "8": {
+            "n_targets": 1788,
+            "seconds": 3.51,
+            "sec_per_1k": 1.97,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1788,
+            "seconds": 33.06,
+            "sec_per_1k": 18.49,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "birthofanation": {
+          "8": {
+            "n_targets": 1462,
+            "seconds": 2.77,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1462,
+            "seconds": 26.45,
+            "sec_per_1k": 18.09,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "bluehope": {
+          "8": {
+            "n_targets": 1813,
+            "seconds": 3.39,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1813,
+            "seconds": 32.82,
+            "sec_per_1k": 18.1,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "breakingupintheageofgoogle": {
+          "8": {
+            "n_targets": 3348,
+            "seconds": 6.17,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3348,
+            "seconds": 61.31,
+            "sec_per_1k": 18.31,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "buck": {
+          "8": {
+            "n_targets": 1549,
+            "seconds": 2.84,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1549,
+            "seconds": 28.01,
+            "sec_per_1k": 18.09,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "catfishingstrangerstofindmyself": {
+          "8": {
+            "n_targets": 1394,
+            "seconds": 2.65,
+            "sec_per_1k": 1.9,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1394,
+            "seconds": 25.31,
+            "sec_per_1k": 18.16,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cautioneating": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 2.67,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 25.9,
+            "sec_per_1k": 17.75,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "christmas1940": {
+          "8": {
+            "n_targets": 1133,
+            "seconds": 2.19,
+            "sec_per_1k": 1.93,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1133,
+            "seconds": 21.49,
+            "sec_per_1k": 18.97,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cocoonoflove": {
+          "8": {
+            "n_targets": 1856,
+            "seconds": 3.35,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1856,
+            "seconds": 32.72,
+            "sec_per_1k": 17.63,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "comingofageondeathrow": {
+          "8": {
+            "n_targets": 2084,
+            "seconds": 3.92,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2084,
+            "seconds": 38.21,
+            "sec_per_1k": 18.33,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "exorcism": {
+          "8": {
+            "n_targets": 2821,
+            "seconds": 5.18,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2821,
+            "seconds": 50.76,
+            "sec_per_1k": 17.99,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "eyespy": {
+          "8": {
+            "n_targets": 2208,
+            "seconds": 4.17,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2208,
+            "seconds": 41.21,
+            "sec_per_1k": 18.66,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "firetestforlove": {
+          "8": {
+            "n_targets": 2158,
+            "seconds": 4.02,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2158,
+            "seconds": 39.19,
+            "sec_per_1k": 18.16,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "food": {
+          "8": {
+            "n_targets": 1936,
+            "seconds": 3.64,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1936,
+            "seconds": 35.37,
+            "sec_per_1k": 18.27,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "forgettingfear": {
+          "8": {
+            "n_targets": 1112,
+            "seconds": 2.07,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1112,
+            "seconds": 20.22,
+            "sec_per_1k": 18.18,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "fromboyhoodtofatherhood": {
+          "8": {
+            "n_targets": 2627,
+            "seconds": 4.88,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2627,
+            "seconds": 48.04,
+            "sec_per_1k": 18.29,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gangstersandcookies": {
+          "8": {
+            "n_targets": 1419,
+            "seconds": 2.74,
+            "sec_per_1k": 1.93,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1419,
+            "seconds": 25.89,
+            "sec_per_1k": 18.24,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goingthelibertyway": {
+          "8": {
+            "n_targets": 2343,
+            "seconds": 4.26,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2343,
+            "seconds": 42.24,
+            "sec_per_1k": 18.03,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goldiethegoldfish": {
+          "8": {
+            "n_targets": 1552,
+            "seconds": 2.92,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1552,
+            "seconds": 28.48,
+            "sec_per_1k": 18.35,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "golfclubbing": {
+          "8": {
+            "n_targets": 1083,
+            "seconds": 1.97,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1083,
+            "seconds": 19.48,
+            "sec_per_1k": 17.99,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gpsformylostidentity": {
+          "8": {
+            "n_targets": 1522,
+            "seconds": 2.8,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1522,
+            "seconds": 27.32,
+            "sec_per_1k": 17.95,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "hangtime": {
+          "8": {
+            "n_targets": 1799,
+            "seconds": 3.37,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1799,
+            "seconds": 33.34,
+            "sec_per_1k": 18.53,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "haveyoumethimyet": {
+          "8": {
+            "n_targets": 2857,
+            "seconds": 5.16,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2857,
+            "seconds": 54.01,
+            "sec_per_1k": 18.9,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "howtodraw": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 3.38,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 33.18,
+            "sec_per_1k": 18.07,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "ifthishaircouldtalk": {
+          "8": {
+            "n_targets": 1726,
+            "seconds": 3.25,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1726,
+            "seconds": 32.04,
+            "sec_per_1k": 18.57,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "inamoment": {
+          "8": {
+            "n_targets": 838,
+            "seconds": 1.53,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 838,
+            "seconds": 14.99,
+            "sec_per_1k": 17.89,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "itsabox": {
+          "8": {
+            "n_targets": 1580,
+            "seconds": 2.85,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1580,
+            "seconds": 28.15,
+            "sec_per_1k": 17.81,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "jugglingandjesus": {
+          "8": {
+            "n_targets": 759,
+            "seconds": 1.45,
+            "sec_per_1k": 1.91,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 759,
+            "seconds": 13.84,
+            "sec_per_1k": 18.24,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "kiksuya": {
+          "8": {
+            "n_targets": 1571,
+            "seconds": 2.98,
+            "sec_per_1k": 1.9,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1571,
+            "seconds": 28.73,
+            "sec_per_1k": 18.29,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "leavingbaghdad": {
+          "8": {
+            "n_targets": 1848,
+            "seconds": 3.6,
+            "sec_per_1k": 1.95,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1848,
+            "seconds": 33.04,
+            "sec_per_1k": 17.88,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "legacy": {
+          "8": {
+            "n_targets": 1765,
+            "seconds": 3.22,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1765,
+            "seconds": 32.84,
+            "sec_per_1k": 18.61,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "life": {
+          "8": {
+            "n_targets": 2081,
+            "seconds": 3.72,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2081,
+            "seconds": 37.09,
+            "sec_per_1k": 17.82,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifeanddeathontheoregontrail": {
+          "8": {
+            "n_targets": 2261,
+            "seconds": 4.18,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2261,
+            "seconds": 41.46,
+            "sec_per_1k": 18.34,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifereimagined": {
+          "8": {
+            "n_targets": 1672,
+            "seconds": 3.05,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1672,
+            "seconds": 29.7,
+            "sec_per_1k": 17.76,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "listo": {
+          "8": {
+            "n_targets": 2243,
+            "seconds": 4.15,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2243,
+            "seconds": 41.12,
+            "sec_per_1k": 18.33,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mayorofthefreaks": {
+          "8": {
+            "n_targets": 3146,
+            "seconds": 5.93,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3146,
+            "seconds": 57.93,
+            "sec_per_1k": 18.41,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "metsmagic": {
+          "8": {
+            "n_targets": 1349,
+            "seconds": 2.5,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1349,
+            "seconds": 24.73,
+            "sec_per_1k": 18.33,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mybackseatviewofagreatromance": {
+          "8": {
+            "n_targets": 1666,
+            "seconds": 3.35,
+            "sec_per_1k": 2.01,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1666,
+            "seconds": 32.14,
+            "sec_per_1k": 19.29,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfathershands": {
+          "8": {
+            "n_targets": 814,
+            "seconds": 1.5,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 814,
+            "seconds": 14.64,
+            "sec_per_1k": 17.98,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfirstdaywiththeyankees": {
+          "8": {
+            "n_targets": 2658,
+            "seconds": 5.02,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2658,
+            "seconds": 50.29,
+            "sec_per_1k": 18.92,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "naked": {
+          "8": {
+            "n_targets": 3090,
+            "seconds": 5.96,
+            "sec_per_1k": 1.93,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3090,
+            "seconds": 56.47,
+            "sec_per_1k": 18.28,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "notontheusualtour": {
+          "8": {
+            "n_targets": 1303,
+            "seconds": 2.47,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1303,
+            "seconds": 23.41,
+            "sec_per_1k": 17.96,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "odetostepfather": {
+          "8": {
+            "n_targets": 2547,
+            "seconds": 4.67,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2547,
+            "seconds": 46.59,
+            "sec_per_1k": 18.29,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "onlyonewaytofindout": {
+          "8": {
+            "n_targets": 1761,
+            "seconds": 3.3,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1761,
+            "seconds": 32.08,
+            "sec_per_1k": 18.22,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "penpal": {
+          "8": {
+            "n_targets": 1464,
+            "seconds": 2.69,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1464,
+            "seconds": 26.29,
+            "sec_per_1k": 17.95,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "quietfire": {
+          "8": {
+            "n_targets": 1777,
+            "seconds": 3.3,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1777,
+            "seconds": 32.14,
+            "sec_per_1k": 18.09,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "reachingoutbetweenthebars": {
+          "8": {
+            "n_targets": 1362,
+            "seconds": 2.6,
+            "sec_per_1k": 1.91,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1362,
+            "seconds": 25.21,
+            "sec_per_1k": 18.51,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "shoppinginchina": {
+          "8": {
+            "n_targets": 1603,
+            "seconds": 3.03,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1603,
+            "seconds": 28.87,
+            "sec_per_1k": 18.01,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "singlewomanseekingmanwich": {
+          "8": {
+            "n_targets": 1358,
+            "seconds": 2.51,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1358,
+            "seconds": 24.31,
+            "sec_per_1k": 17.9,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sloth": {
+          "8": {
+            "n_targets": 2275,
+            "seconds": 4.29,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2275,
+            "seconds": 41.83,
+            "sec_per_1k": 18.39,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "souls": {
+          "8": {
+            "n_targets": 1740,
+            "seconds": 3.24,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1740,
+            "seconds": 31.67,
+            "sec_per_1k": 18.2,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stagefright": {
+          "8": {
+            "n_targets": 1939,
+            "seconds": 3.61,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1939,
+            "seconds": 35.91,
+            "sec_per_1k": 18.52,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stumblinginthedark": {
+          "8": {
+            "n_targets": 2553,
+            "seconds": 4.89,
+            "sec_per_1k": 1.91,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2553,
+            "seconds": 47.37,
+            "sec_per_1k": 18.55,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "superheroesjustforeachother": {
+          "8": {
+            "n_targets": 1312,
+            "seconds": 2.5,
+            "sec_per_1k": 1.91,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1312,
+            "seconds": 23.83,
+            "sec_per_1k": 18.16,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sweetaspie": {
+          "8": {
+            "n_targets": 569,
+            "seconds": 1.11,
+            "sec_per_1k": 1.95,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 569,
+            "seconds": 10.68,
+            "sec_per_1k": 18.77,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "swimmingwithastronauts": {
+          "8": {
+            "n_targets": 1999,
+            "seconds": 3.6,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1999,
+            "seconds": 35.5,
+            "sec_per_1k": 17.76,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thatthingonmyarm": {
+          "8": {
+            "n_targets": 1945,
+            "seconds": 3.5,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1945,
+            "seconds": 34.5,
+            "sec_per_1k": 17.74,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theadvancedbeginner": {
+          "8": {
+            "n_targets": 1496,
+            "seconds": 2.78,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1496,
+            "seconds": 27.11,
+            "sec_per_1k": 18.12,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theclosetthatateeverything": {
+          "8": {
+            "n_targets": 1800,
+            "seconds": 3.29,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1800,
+            "seconds": 31.96,
+            "sec_per_1k": 17.75,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thecurse": {
+          "8": {
+            "n_targets": 1926,
+            "seconds": 3.79,
+            "sec_per_1k": 1.97,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1926,
+            "seconds": 36.03,
+            "sec_per_1k": 18.71,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thefreedomridersandme": {
+          "8": {
+            "n_targets": 1478,
+            "seconds": 2.71,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1478,
+            "seconds": 26.57,
+            "sec_per_1k": 17.98,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theinterview": {
+          "8": {
+            "n_targets": 951,
+            "seconds": 1.73,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 951,
+            "seconds": 16.78,
+            "sec_per_1k": 17.64,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thepostmanalwayscalls": {
+          "8": {
+            "n_targets": 2092,
+            "seconds": 3.8,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2092,
+            "seconds": 37.6,
+            "sec_per_1k": 17.97,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theshower": {
+          "8": {
+            "n_targets": 1255,
+            "seconds": 2.34,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1255,
+            "seconds": 22.85,
+            "sec_per_1k": 18.21,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetiniestbouquet": {
+          "8": {
+            "n_targets": 836,
+            "seconds": 1.56,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 836,
+            "seconds": 15.36,
+            "sec_per_1k": 18.37,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetriangleshirtwaistconnection": {
+          "8": {
+            "n_targets": 1320,
+            "seconds": 2.44,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1320,
+            "seconds": 23.87,
+            "sec_per_1k": 18.09,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "threemonths": {
+          "8": {
+            "n_targets": 1934,
+            "seconds": 3.41,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1934,
+            "seconds": 33.9,
+            "sec_per_1k": 17.53,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thumbsup": {
+          "8": {
+            "n_targets": 2955,
+            "seconds": 5.62,
+            "sec_per_1k": 1.9,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2955,
+            "seconds": 56.01,
+            "sec_per_1k": 18.95,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "tildeath": {
+          "8": {
+            "n_targets": 2169,
+            "seconds": 4.27,
+            "sec_per_1k": 1.97,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2169,
+            "seconds": 41.84,
+            "sec_per_1k": 19.29,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "treasureisland": {
+          "8": {
+            "n_targets": 1635,
+            "seconds": 3.22,
+            "sec_per_1k": 1.97,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1635,
+            "seconds": 31.18,
+            "sec_per_1k": 19.07,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "undertheinfluence": {
+          "8": {
+            "n_targets": 1513,
+            "seconds": 2.77,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1513,
+            "seconds": 27.27,
+            "sec_per_1k": 18.02,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "vixenandtheussr": {
+          "8": {
+            "n_targets": 1946,
+            "seconds": 3.88,
+            "sec_per_1k": 1.99,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1946,
+            "seconds": 37.13,
+            "sec_per_1k": 19.08,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "waitingtogo": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 2.7,
+            "sec_per_1k": 1.85,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 26.4,
+            "sec_per_1k": 18.09,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "whenmothersbullyback": {
+          "8": {
+            "n_targets": 1360,
+            "seconds": 2.66,
+            "sec_per_1k": 1.96,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1360,
+            "seconds": 25.3,
+            "sec_per_1k": 18.61,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "wildwomenanddancingqueens": {
+          "8": {
+            "n_targets": 1090,
+            "seconds": 2.09,
+            "sec_per_1k": 1.92,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1090,
+            "seconds": 20.06,
+            "sec_per_1k": 18.41,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        }
+      }
+    },
+    "mamba": {
+      "audit": {
+        "model_id": "state-spaces/mamba-130m-hf",
+        "revision": "main",
+        "hidden_width": 768,
+        "n_layers": 24,
+        "is_recurrent": true
+      },
+      "by_story": {
+        "adollshouse": {
+          "8": {
+            "n_targets": 1528,
+            "seconds": 2.73,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1528,
+            "seconds": 22.94,
+            "sec_per_1k": 15.01,
+            "main_shape": [
+              1528,
+              768
+            ],
+            "final_shape": [
+              1528,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "adventuresinsayingyes": {
+          "8": {
+            "n_targets": 2181,
+            "seconds": 3.8,
+            "sec_per_1k": 1.74,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2181,
+            "seconds": 31.95,
+            "sec_per_1k": 14.65,
+            "main_shape": [
+              2181,
+              768
+            ],
+            "final_shape": [
+              2181,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "afatherscover": {
+          "8": {
+            "n_targets": 1054,
+            "seconds": 1.87,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1054,
+            "seconds": 15.23,
+            "sec_per_1k": 14.45,
+            "main_shape": [
+              1054,
+              768
+            ],
+            "final_shape": [
+              1054,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "againstthewind": {
+          "8": {
+            "n_targets": 710,
+            "seconds": 1.27,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 710,
+            "seconds": 10.54,
+            "sec_per_1k": 14.84,
+            "main_shape": [
+              710,
+              768
+            ],
+            "final_shape": [
+              710,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "alternateithicatom": {
+          "8": {
+            "n_targets": 2046,
+            "seconds": 3.63,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2046,
+            "seconds": 30.51,
+            "sec_per_1k": 14.91,
+            "main_shape": [
+              2046,
+              768
+            ],
+            "final_shape": [
+              2046,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "avatar": {
+          "8": {
+            "n_targets": 1341,
+            "seconds": 2.4,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1341,
+            "seconds": 20.03,
+            "sec_per_1k": 14.94,
+            "main_shape": [
+              1341,
+              768
+            ],
+            "final_shape": [
+              1341,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "backsideofthestorm": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 3.27,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 27.22,
+            "sec_per_1k": 14.82,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "becomingindian": {
+          "8": {
+            "n_targets": 2491,
+            "seconds": 4.42,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2491,
+            "seconds": 36.92,
+            "sec_per_1k": 14.82,
+            "main_shape": [
+              2491,
+              768
+            ],
+            "final_shape": [
+              2491,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "beneaththemushroomcloud": {
+          "8": {
+            "n_targets": 1788,
+            "seconds": 3.33,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1788,
+            "seconds": 27.09,
+            "sec_per_1k": 15.15,
+            "main_shape": [
+              1788,
+              768
+            ],
+            "final_shape": [
+              1788,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "birthofanation": {
+          "8": {
+            "n_targets": 1462,
+            "seconds": 2.62,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1462,
+            "seconds": 21.84,
+            "sec_per_1k": 14.94,
+            "main_shape": [
+              1462,
+              768
+            ],
+            "final_shape": [
+              1462,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "bluehope": {
+          "8": {
+            "n_targets": 1813,
+            "seconds": 3.29,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1813,
+            "seconds": 26.96,
+            "sec_per_1k": 14.87,
+            "main_shape": [
+              1813,
+              768
+            ],
+            "final_shape": [
+              1813,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "breakingupintheageofgoogle": {
+          "8": {
+            "n_targets": 3348,
+            "seconds": 5.98,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3348,
+            "seconds": 50.57,
+            "sec_per_1k": 15.1,
+            "main_shape": [
+              3348,
+              768
+            ],
+            "final_shape": [
+              3348,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "buck": {
+          "8": {
+            "n_targets": 1549,
+            "seconds": 2.82,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1549,
+            "seconds": 22.94,
+            "sec_per_1k": 14.81,
+            "main_shape": [
+              1549,
+              768
+            ],
+            "final_shape": [
+              1549,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "catfishingstrangerstofindmyself": {
+          "8": {
+            "n_targets": 1394,
+            "seconds": 2.51,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1394,
+            "seconds": 20.63,
+            "sec_per_1k": 14.8,
+            "main_shape": [
+              1394,
+              768
+            ],
+            "final_shape": [
+              1394,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cautioneating": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 2.58,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 21.99,
+            "sec_per_1k": 15.07,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "christmas1940": {
+          "8": {
+            "n_targets": 1133,
+            "seconds": 2.2,
+            "sec_per_1k": 1.94,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1133,
+            "seconds": 17.83,
+            "sec_per_1k": 15.74,
+            "main_shape": [
+              1133,
+              768
+            ],
+            "final_shape": [
+              1133,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "cocoonoflove": {
+          "8": {
+            "n_targets": 1856,
+            "seconds": 3.22,
+            "sec_per_1k": 1.74,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1856,
+            "seconds": 26.96,
+            "sec_per_1k": 14.53,
+            "main_shape": [
+              1856,
+              768
+            ],
+            "final_shape": [
+              1856,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "comingofageondeathrow": {
+          "8": {
+            "n_targets": 2084,
+            "seconds": 3.8,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2084,
+            "seconds": 31.47,
+            "sec_per_1k": 15.1,
+            "main_shape": [
+              2084,
+              768
+            ],
+            "final_shape": [
+              2084,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "exorcism": {
+          "8": {
+            "n_targets": 2821,
+            "seconds": 5.04,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2821,
+            "seconds": 42.01,
+            "sec_per_1k": 14.89,
+            "main_shape": [
+              2821,
+              768
+            ],
+            "final_shape": [
+              2821,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "eyespy": {
+          "8": {
+            "n_targets": 2208,
+            "seconds": 4.0,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2208,
+            "seconds": 33.9,
+            "sec_per_1k": 15.35,
+            "main_shape": [
+              2208,
+              768
+            ],
+            "final_shape": [
+              2208,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "firetestforlove": {
+          "8": {
+            "n_targets": 2158,
+            "seconds": 3.8,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2158,
+            "seconds": 31.66,
+            "sec_per_1k": 14.67,
+            "main_shape": [
+              2158,
+              768
+            ],
+            "final_shape": [
+              2158,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "food": {
+          "8": {
+            "n_targets": 1936,
+            "seconds": 3.51,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1936,
+            "seconds": 29.26,
+            "sec_per_1k": 15.12,
+            "main_shape": [
+              1936,
+              768
+            ],
+            "final_shape": [
+              1936,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "forgettingfear": {
+          "8": {
+            "n_targets": 1112,
+            "seconds": 1.98,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1112,
+            "seconds": 16.61,
+            "sec_per_1k": 14.94,
+            "main_shape": [
+              1112,
+              768
+            ],
+            "final_shape": [
+              1112,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "fromboyhoodtofatherhood": {
+          "8": {
+            "n_targets": 2627,
+            "seconds": 4.74,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2627,
+            "seconds": 39.58,
+            "sec_per_1k": 15.07,
+            "main_shape": [
+              2627,
+              768
+            ],
+            "final_shape": [
+              2627,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gangstersandcookies": {
+          "8": {
+            "n_targets": 1419,
+            "seconds": 2.57,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1419,
+            "seconds": 21.14,
+            "sec_per_1k": 14.9,
+            "main_shape": [
+              1419,
+              768
+            ],
+            "final_shape": [
+              1419,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goingthelibertyway": {
+          "8": {
+            "n_targets": 2343,
+            "seconds": 4.18,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2343,
+            "seconds": 34.95,
+            "sec_per_1k": 14.92,
+            "main_shape": [
+              2343,
+              768
+            ],
+            "final_shape": [
+              2343,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "goldiethegoldfish": {
+          "8": {
+            "n_targets": 1552,
+            "seconds": 2.83,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1552,
+            "seconds": 23.66,
+            "sec_per_1k": 15.25,
+            "main_shape": [
+              1552,
+              768
+            ],
+            "final_shape": [
+              1552,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "golfclubbing": {
+          "8": {
+            "n_targets": 1083,
+            "seconds": 1.92,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1083,
+            "seconds": 16.07,
+            "sec_per_1k": 14.84,
+            "main_shape": [
+              1083,
+              768
+            ],
+            "final_shape": [
+              1083,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "gpsformylostidentity": {
+          "8": {
+            "n_targets": 1522,
+            "seconds": 2.71,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1522,
+            "seconds": 22.17,
+            "sec_per_1k": 14.56,
+            "main_shape": [
+              1522,
+              768
+            ],
+            "final_shape": [
+              1522,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "hangtime": {
+          "8": {
+            "n_targets": 1799,
+            "seconds": 3.26,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1799,
+            "seconds": 27.31,
+            "sec_per_1k": 15.18,
+            "main_shape": [
+              1799,
+              768
+            ],
+            "final_shape": [
+              1799,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "haveyoumethimyet": {
+          "8": {
+            "n_targets": 2857,
+            "seconds": 4.99,
+            "sec_per_1k": 1.75,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2857,
+            "seconds": 42.97,
+            "sec_per_1k": 15.04,
+            "main_shape": [
+              2857,
+              768
+            ],
+            "final_shape": [
+              2857,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "howtodraw": {
+          "8": {
+            "n_targets": 1836,
+            "seconds": 3.32,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1836,
+            "seconds": 27.51,
+            "sec_per_1k": 14.99,
+            "main_shape": [
+              1836,
+              768
+            ],
+            "final_shape": [
+              1836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "ifthishaircouldtalk": {
+          "8": {
+            "n_targets": 1726,
+            "seconds": 3.12,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1726,
+            "seconds": 26.14,
+            "sec_per_1k": 15.15,
+            "main_shape": [
+              1726,
+              768
+            ],
+            "final_shape": [
+              1726,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "inamoment": {
+          "8": {
+            "n_targets": 838,
+            "seconds": 1.52,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 838,
+            "seconds": 12.22,
+            "sec_per_1k": 14.58,
+            "main_shape": [
+              838,
+              768
+            ],
+            "final_shape": [
+              838,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "itsabox": {
+          "8": {
+            "n_targets": 1580,
+            "seconds": 2.8,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1580,
+            "seconds": 23.16,
+            "sec_per_1k": 14.66,
+            "main_shape": [
+              1580,
+              768
+            ],
+            "final_shape": [
+              1580,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "jugglingandjesus": {
+          "8": {
+            "n_targets": 759,
+            "seconds": 1.4,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 759,
+            "seconds": 11.45,
+            "sec_per_1k": 15.08,
+            "main_shape": [
+              759,
+              768
+            ],
+            "final_shape": [
+              759,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "kiksuya": {
+          "8": {
+            "n_targets": 1571,
+            "seconds": 2.85,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1571,
+            "seconds": 23.44,
+            "sec_per_1k": 14.92,
+            "main_shape": [
+              1571,
+              768
+            ],
+            "final_shape": [
+              1571,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "leavingbaghdad": {
+          "8": {
+            "n_targets": 1848,
+            "seconds": 3.23,
+            "sec_per_1k": 1.75,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1848,
+            "seconds": 26.92,
+            "sec_per_1k": 14.57,
+            "main_shape": [
+              1848,
+              768
+            ],
+            "final_shape": [
+              1848,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "legacy": {
+          "8": {
+            "n_targets": 1765,
+            "seconds": 3.1,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1765,
+            "seconds": 25.89,
+            "sec_per_1k": 14.67,
+            "main_shape": [
+              1765,
+              768
+            ],
+            "final_shape": [
+              1765,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "life": {
+          "8": {
+            "n_targets": 2081,
+            "seconds": 3.58,
+            "sec_per_1k": 1.72,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2081,
+            "seconds": 30.6,
+            "sec_per_1k": 14.7,
+            "main_shape": [
+              2081,
+              768
+            ],
+            "final_shape": [
+              2081,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifeanddeathontheoregontrail": {
+          "8": {
+            "n_targets": 2261,
+            "seconds": 4.05,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2261,
+            "seconds": 34.22,
+            "sec_per_1k": 15.13,
+            "main_shape": [
+              2261,
+              768
+            ],
+            "final_shape": [
+              2261,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "lifereimagined": {
+          "8": {
+            "n_targets": 1672,
+            "seconds": 2.95,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1672,
+            "seconds": 24.54,
+            "sec_per_1k": 14.68,
+            "main_shape": [
+              1672,
+              768
+            ],
+            "final_shape": [
+              1672,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "listo": {
+          "8": {
+            "n_targets": 2243,
+            "seconds": 3.98,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2243,
+            "seconds": 33.39,
+            "sec_per_1k": 14.89,
+            "main_shape": [
+              2243,
+              768
+            ],
+            "final_shape": [
+              2243,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mayorofthefreaks": {
+          "8": {
+            "n_targets": 3146,
+            "seconds": 5.76,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3146,
+            "seconds": 47.75,
+            "sec_per_1k": 15.18,
+            "main_shape": [
+              3146,
+              768
+            ],
+            "final_shape": [
+              3146,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "metsmagic": {
+          "8": {
+            "n_targets": 1349,
+            "seconds": 2.46,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1349,
+            "seconds": 20.33,
+            "sec_per_1k": 15.07,
+            "main_shape": [
+              1349,
+              768
+            ],
+            "final_shape": [
+              1349,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "mybackseatviewofagreatromance": {
+          "8": {
+            "n_targets": 1666,
+            "seconds": 3.15,
+            "sec_per_1k": 1.89,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1666,
+            "seconds": 26.24,
+            "sec_per_1k": 15.75,
+            "main_shape": [
+              1666,
+              768
+            ],
+            "final_shape": [
+              1666,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfathershands": {
+          "8": {
+            "n_targets": 814,
+            "seconds": 1.43,
+            "sec_per_1k": 1.75,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 814,
+            "seconds": 11.96,
+            "sec_per_1k": 14.7,
+            "main_shape": [
+              814,
+              768
+            ],
+            "final_shape": [
+              814,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "myfirstdaywiththeyankees": {
+          "8": {
+            "n_targets": 2658,
+            "seconds": 4.81,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2658,
+            "seconds": 41.12,
+            "sec_per_1k": 15.47,
+            "main_shape": [
+              2658,
+              768
+            ],
+            "final_shape": [
+              2658,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "naked": {
+          "8": {
+            "n_targets": 3090,
+            "seconds": 5.5,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 3090,
+            "seconds": 46.52,
+            "sec_per_1k": 15.06,
+            "main_shape": [
+              3090,
+              768
+            ],
+            "final_shape": [
+              3090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "notontheusualtour": {
+          "8": {
+            "n_targets": 1303,
+            "seconds": 2.38,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1303,
+            "seconds": 19.38,
+            "sec_per_1k": 14.88,
+            "main_shape": [
+              1303,
+              768
+            ],
+            "final_shape": [
+              1303,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "odetostepfather": {
+          "8": {
+            "n_targets": 2547,
+            "seconds": 4.49,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2547,
+            "seconds": 38.26,
+            "sec_per_1k": 15.02,
+            "main_shape": [
+              2547,
+              768
+            ],
+            "final_shape": [
+              2547,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "onlyonewaytofindout": {
+          "8": {
+            "n_targets": 1761,
+            "seconds": 3.17,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1761,
+            "seconds": 26.31,
+            "sec_per_1k": 14.94,
+            "main_shape": [
+              1761,
+              768
+            ],
+            "final_shape": [
+              1761,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "penpal": {
+          "8": {
+            "n_targets": 1464,
+            "seconds": 2.65,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1464,
+            "seconds": 21.63,
+            "sec_per_1k": 14.77,
+            "main_shape": [
+              1464,
+              768
+            ],
+            "final_shape": [
+              1464,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "quietfire": {
+          "8": {
+            "n_targets": 1777,
+            "seconds": 3.17,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1777,
+            "seconds": 26.5,
+            "sec_per_1k": 14.91,
+            "main_shape": [
+              1777,
+              768
+            ],
+            "final_shape": [
+              1777,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "reachingoutbetweenthebars": {
+          "8": {
+            "n_targets": 1362,
+            "seconds": 2.48,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1362,
+            "seconds": 20.93,
+            "sec_per_1k": 15.37,
+            "main_shape": [
+              1362,
+              768
+            ],
+            "final_shape": [
+              1362,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "shoppinginchina": {
+          "8": {
+            "n_targets": 1603,
+            "seconds": 2.85,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1603,
+            "seconds": 23.45,
+            "sec_per_1k": 14.63,
+            "main_shape": [
+              1603,
+              768
+            ],
+            "final_shape": [
+              1603,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "singlewomanseekingmanwich": {
+          "8": {
+            "n_targets": 1358,
+            "seconds": 2.37,
+            "sec_per_1k": 1.75,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1358,
+            "seconds": 19.94,
+            "sec_per_1k": 14.69,
+            "main_shape": [
+              1358,
+              768
+            ],
+            "final_shape": [
+              1358,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sloth": {
+          "8": {
+            "n_targets": 2275,
+            "seconds": 4.12,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2275,
+            "seconds": 34.63,
+            "sec_per_1k": 15.22,
+            "main_shape": [
+              2275,
+              768
+            ],
+            "final_shape": [
+              2275,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "souls": {
+          "8": {
+            "n_targets": 1740,
+            "seconds": 3.09,
+            "sec_per_1k": 1.77,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1740,
+            "seconds": 25.67,
+            "sec_per_1k": 14.76,
+            "main_shape": [
+              1740,
+              768
+            ],
+            "final_shape": [
+              1740,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stagefright": {
+          "8": {
+            "n_targets": 1939,
+            "seconds": 3.47,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1939,
+            "seconds": 29.23,
+            "sec_per_1k": 15.08,
+            "main_shape": [
+              1939,
+              768
+            ],
+            "final_shape": [
+              1939,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "stumblinginthedark": {
+          "8": {
+            "n_targets": 2553,
+            "seconds": 4.64,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2553,
+            "seconds": 39.04,
+            "sec_per_1k": 15.29,
+            "main_shape": [
+              2553,
+              768
+            ],
+            "final_shape": [
+              2553,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "superheroesjustforeachother": {
+          "8": {
+            "n_targets": 1312,
+            "seconds": 2.37,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1312,
+            "seconds": 19.47,
+            "sec_per_1k": 14.84,
+            "main_shape": [
+              1312,
+              768
+            ],
+            "final_shape": [
+              1312,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "sweetaspie": {
+          "8": {
+            "n_targets": 569,
+            "seconds": 1.06,
+            "sec_per_1k": 1.87,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 569,
+            "seconds": 8.84,
+            "sec_per_1k": 15.54,
+            "main_shape": [
+              569,
+              768
+            ],
+            "final_shape": [
+              569,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "swimmingwithastronauts": {
+          "8": {
+            "n_targets": 1999,
+            "seconds": 3.48,
+            "sec_per_1k": 1.74,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1999,
+            "seconds": 29.39,
+            "sec_per_1k": 14.7,
+            "main_shape": [
+              1999,
+              768
+            ],
+            "final_shape": [
+              1999,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thatthingonmyarm": {
+          "8": {
+            "n_targets": 1945,
+            "seconds": 3.38,
+            "sec_per_1k": 1.74,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1945,
+            "seconds": 28.37,
+            "sec_per_1k": 14.59,
+            "main_shape": [
+              1945,
+              768
+            ],
+            "final_shape": [
+              1945,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theadvancedbeginner": {
+          "8": {
+            "n_targets": 1496,
+            "seconds": 2.71,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1496,
+            "seconds": 22.59,
+            "sec_per_1k": 15.1,
+            "main_shape": [
+              1496,
+              768
+            ],
+            "final_shape": [
+              1496,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theclosetthatateeverything": {
+          "8": {
+            "n_targets": 1800,
+            "seconds": 3.22,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1800,
+            "seconds": 26.35,
+            "sec_per_1k": 14.64,
+            "main_shape": [
+              1800,
+              768
+            ],
+            "final_shape": [
+              1800,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thecurse": {
+          "8": {
+            "n_targets": 1926,
+            "seconds": 3.52,
+            "sec_per_1k": 1.83,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1926,
+            "seconds": 29.66,
+            "sec_per_1k": 15.4,
+            "main_shape": [
+              1926,
+              768
+            ],
+            "final_shape": [
+              1926,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thefreedomridersandme": {
+          "8": {
+            "n_targets": 1478,
+            "seconds": 2.63,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1478,
+            "seconds": 21.59,
+            "sec_per_1k": 14.61,
+            "main_shape": [
+              1478,
+              768
+            ],
+            "final_shape": [
+              1478,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theinterview": {
+          "8": {
+            "n_targets": 951,
+            "seconds": 1.7,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 951,
+            "seconds": 13.92,
+            "sec_per_1k": 14.64,
+            "main_shape": [
+              951,
+              768
+            ],
+            "final_shape": [
+              951,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thepostmanalwayscalls": {
+          "8": {
+            "n_targets": 2092,
+            "seconds": 3.69,
+            "sec_per_1k": 1.76,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2092,
+            "seconds": 31.13,
+            "sec_per_1k": 14.88,
+            "main_shape": [
+              2092,
+              768
+            ],
+            "final_shape": [
+              2092,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "theshower": {
+          "8": {
+            "n_targets": 1255,
+            "seconds": 2.26,
+            "sec_per_1k": 1.8,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1255,
+            "seconds": 18.85,
+            "sec_per_1k": 15.02,
+            "main_shape": [
+              1255,
+              768
+            ],
+            "final_shape": [
+              1255,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetiniestbouquet": {
+          "8": {
+            "n_targets": 836,
+            "seconds": 1.52,
+            "sec_per_1k": 1.82,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 836,
+            "seconds": 12.57,
+            "sec_per_1k": 15.04,
+            "main_shape": [
+              836,
+              768
+            ],
+            "final_shape": [
+              836,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thetriangleshirtwaistconnection": {
+          "8": {
+            "n_targets": 1320,
+            "seconds": 2.35,
+            "sec_per_1k": 1.78,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1320,
+            "seconds": 19.78,
+            "sec_per_1k": 14.98,
+            "main_shape": [
+              1320,
+              768
+            ],
+            "final_shape": [
+              1320,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "threemonths": {
+          "8": {
+            "n_targets": 1934,
+            "seconds": 3.34,
+            "sec_per_1k": 1.73,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1934,
+            "seconds": 27.74,
+            "sec_per_1k": 14.34,
+            "main_shape": [
+              1934,
+              768
+            ],
+            "final_shape": [
+              1934,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "thumbsup": {
+          "8": {
+            "n_targets": 2955,
+            "seconds": 5.45,
+            "sec_per_1k": 1.84,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2955,
+            "seconds": 46.36,
+            "sec_per_1k": 15.69,
+            "main_shape": [
+              2955,
+              768
+            ],
+            "final_shape": [
+              2955,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "tildeath": {
+          "8": {
+            "n_targets": 2169,
+            "seconds": 3.78,
+            "sec_per_1k": 1.74,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 2169,
+            "seconds": 31.44,
+            "sec_per_1k": 14.49,
+            "main_shape": [
+              2169,
+              768
+            ],
+            "final_shape": [
+              2169,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "treasureisland": {
+          "8": {
+            "n_targets": 1635,
+            "seconds": 2.93,
+            "sec_per_1k": 1.79,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1635,
+            "seconds": 24.48,
+            "sec_per_1k": 14.97,
+            "main_shape": [
+              1635,
+              768
+            ],
+            "final_shape": [
+              1635,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "undertheinfluence": {
+          "8": {
+            "n_targets": 1513,
+            "seconds": 2.73,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1513,
+            "seconds": 22.31,
+            "sec_per_1k": 14.75,
+            "main_shape": [
+              1513,
+              768
+            ],
+            "final_shape": [
+              1513,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "vixenandtheussr": {
+          "8": {
+            "n_targets": 1946,
+            "seconds": 3.62,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1946,
+            "seconds": 30.25,
+            "sec_per_1k": 15.55,
+            "main_shape": [
+              1946,
+              768
+            ],
+            "final_shape": [
+              1946,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "waitingtogo": {
+          "8": {
+            "n_targets": 1459,
+            "seconds": 2.63,
+            "sec_per_1k": 1.81,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1459,
+            "seconds": 21.67,
+            "sec_per_1k": 14.85,
+            "main_shape": [
+              1459,
+              768
+            ],
+            "final_shape": [
+              1459,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "whenmothersbullyback": {
+          "8": {
+            "n_targets": 1360,
+            "seconds": 2.56,
+            "sec_per_1k": 1.88,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1360,
+            "seconds": 20.71,
+            "sec_per_1k": 15.23,
+            "main_shape": [
+              1360,
+              768
+            ],
+            "final_shape": [
+              1360,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        },
+        "wildwomenanddancingqueens": {
+          "8": {
+            "n_targets": 1090,
+            "seconds": 2.03,
+            "sec_per_1k": 1.86,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          },
+          "128": {
+            "n_targets": 1090,
+            "seconds": 16.75,
+            "sec_per_1k": 15.36,
+            "main_shape": [
+              1090,
+              768
+            ],
+            "final_shape": [
+              1090,
+              768
+            ],
+            "unk_rate": 0.0
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "phase": "M4S ctx1 ridge refit (stimulus-side context control)",
+  "condition": "ctx1",
+  "subject": "UTS01",
+  "models": [
+    "pythia",
+    "rwkv",
+    "mamba"
+  ],
+  "H_list": [
+    8,
+    128
+  ],
+  "fold_names": [
+    "fold_0",
+    "fold_1",
+    "fold_2"
+  ],
+  "expected_units": 18,
+  "units_done": 18,
+  "verdict": {
+    "all_units_complete": true,
+    "all_mask_bit_identical_to_normal": true,
+    "no_nan_inf": true
+  },
+  "total_minutes": 54.9
+}

@@ -1,0 +1,348 @@
+{
+  "metric_primary": "lag1_cosine_median (cos of adjacent TR representations, median per story, computed after Lanczos and before FIR)",
+  "metric_supplementary": "lag1_featurewise_corr_mean",
+  "spec_source": "V6.4.2 §2.2（指标/容差带/精度区间/审计三规则与 k=1.0 均照搬冻结原文）",
+  "timing_disclosure": "本诊断的实现与执行晚于 Step 5 的 D_m/I_MP 结果产出。指标定义与阈值取自ctx1 运行前即已冻结的 V6.4.2 §2.2，未做任何事后调参；但论文须如实写明该诊断为补做，且 compare_across_models / h_dependence 两项为事后新增的描述性分析。",
+  "scope_note": "H=[8, 128]、layer=main（对齐 ctx1 实际运行范围）；C2 未执行故不涉及",
+  "by_model_H": {
+    "pythia_H8": {
+      "normal_tolerance_band": {
+        "median": 0.871524708015676,
+        "sd": 0.011676255041623744,
+        "p2_5": 0.8511801709373122,
+        "p97_5": 0.891996415272883,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.8691776084587768,
+        "median_ci_hi": 0.8778561250535695,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.9158551207794974,
+      "paired_delta_lag1": {
+        "median": -0.04198739426464171,
+        "p2_5": -0.05229919814505801,
+        "p97_5": -0.03338550202397811,
+        "sd": 0.004656672966596211,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.04198739426464171,
+          "sd_story_normal": 0.011676255041623744,
+          "threshold": 0.011676255041623744
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.9158551207794974,
+          "normal_band_p2_5": 0.8511801709373122,
+          "normal_band_p97_5": 0.891996415272883
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    },
+    "pythia_H128": {
+      "normal_tolerance_band": {
+        "median": 0.855537596015145,
+        "sd": 0.01759338391706187,
+        "p2_5": 0.820964442527266,
+        "p97_5": 0.8865250797301849,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.8500614295665729,
+        "median_ci_hi": 0.8607983451873917,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.9484601524245533,
+      "paired_delta_lag1": {
+        "median": -0.09206404518057743,
+        "p2_5": -0.11238830745869846,
+        "p97_5": -0.06811474486848354,
+        "sd": 0.012123407224683748,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.09206404518057743,
+          "sd_story_normal": 0.01759338391706187,
+          "threshold": 0.01759338391706187
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.9484601524245533,
+          "normal_band_p2_5": 0.820964442527266,
+          "normal_band_p97_5": 0.8865250797301849
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    },
+    "rwkv_H8": {
+      "normal_tolerance_band": {
+        "median": 0.9897702192417601,
+        "sd": 0.0011350048391706039,
+        "p2_5": 0.9877315456857835,
+        "p97_5": 0.9918818158741438,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.989360543403511,
+        "median_ci_hi": 0.9901923668551138,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.9947536067346381,
+      "paired_delta_lag1": {
+        "median": -0.004900853191261545,
+        "p2_5": -0.006166088278778697,
+        "p97_5": -0.003866322170782216,
+        "sd": 0.0005918916772935453,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.004900853191261545,
+          "sd_story_normal": 0.0011350048391706039,
+          "threshold": 0.0011350048391706039
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.9947536067346381,
+          "normal_band_p2_5": 0.9877315456857835,
+          "normal_band_p97_5": 0.9918818158741438
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    },
+    "rwkv_H128": {
+      "normal_tolerance_band": {
+        "median": 0.9904664070326632,
+        "sd": 0.0013092966040316504,
+        "p2_5": 0.987990585905395,
+        "p97_5": 0.9927413019053968,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.9900161203222553,
+        "median_ci_hi": 0.9909963039536264,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.9973480866347773,
+      "paired_delta_lag1": {
+        "median": -0.0069380131743272955,
+        "p2_5": -0.008916286870433809,
+        "p97_5": -0.005139743932184432,
+        "sd": 0.0010238597677072897,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.0069380131743272955,
+          "sd_story_normal": 0.0013092966040316504,
+          "threshold": 0.0013092966040316504
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.9973480866347773,
+          "normal_band_p2_5": 0.987990585905395,
+          "normal_band_p97_5": 0.9927413019053968
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    },
+    "mamba_H8": {
+      "normal_tolerance_band": {
+        "median": 0.8982236868068678,
+        "sd": 0.013153330747625872,
+        "p2_5": 0.8707092755697681,
+        "p97_5": 0.9200911479718535,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.8920902301365858,
+        "median_ci_hi": 0.901941093230941,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.9400015156905774,
+      "paired_delta_lag1": {
+        "median": -0.04140636330301395,
+        "p2_5": -0.05325647742498346,
+        "p97_5": -0.03232153258547239,
+        "sd": 0.005563242885211248,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.04140636330301395,
+          "sd_story_normal": 0.013153330747625872,
+          "threshold": 0.013153330747625872
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.9400015156905774,
+          "normal_band_p2_5": 0.8707092755697681,
+          "normal_band_p97_5": 0.9200911479718535
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    },
+    "mamba_H128": {
+      "normal_tolerance_band": {
+        "median": 0.8884677409392029,
+        "sd": 0.015380749870416995,
+        "p2_5": 0.8552282874589486,
+        "p97_5": 0.9140358609056303,
+        "n_stories": 83
+      },
+      "normal_precision_interval": {
+        "median_ci_lo": 0.8859384229477656,
+        "median_ci_hi": 0.8928362705126316,
+        "n_boot": 1000,
+        "usage": "descriptive_only_never_a_threshold"
+      },
+      "ctx1_median": 0.959580367864665,
+      "paired_delta_lag1": {
+        "median": -0.06940312982586605,
+        "p2_5": -0.0878537577118938,
+        "p97_5": -0.05401234750954959,
+        "sd": 0.009408704294302822,
+        "n_stories": 83
+      },
+      "audit_triggers": {
+        "rule1_median_delta_exceeds_k_sd": {
+          "triggered": false,
+          "k": 1.0,
+          "median_delta": -0.06940312982586605,
+          "sd_story_normal": 0.015380749870416995,
+          "threshold": 0.015380749870416995
+        },
+        "rule2_ctx1_median_outside_normal_band": {
+          "triggered": true,
+          "ctx1_median": 0.959580367864665,
+          "normal_band_p2_5": 0.8552282874589486,
+          "normal_band_p97_5": 0.9140358609056303
+        },
+        "rule3_outlier_stories_3sd": {
+          "triggered": false,
+          "outlier_stories": [],
+          "note": "「明显双峰」§2.2 未指定检验方法，未事后发明阈值；自动判定仅依据 3SD 离群故事，分布形状见逐故事表。"
+        },
+        "any_triggered": true
+      }
+    }
+  },
+  "post_hoc_cross_model": {
+    "H8": {
+      "post_hoc": true,
+      "reference_model": "pythia",
+      "motivation": "check whether differential smoothness loss confounds I_MP",
+      "rwkv_minus_pythia": {
+        "median": 0.0372024707594919,
+        "p2_5": 0.02936606205820155,
+        "p97_5": 0.046949895283182976,
+        "n_stories": 83,
+        "reading": "<0 表示该模型比参照模型掉的平滑度更少，即参照模型(pythia)特征统计受打乱影响更大"
+      },
+      "mamba_minus_pythia": {
+        "median": -8.547049780693872e-05,
+        "p2_5": -0.009037170759655393,
+        "p97_5": 0.010916647321937862,
+        "n_stories": 83,
+        "reading": "<0 表示该模型比参照模型掉的平滑度更少，即参照模型(pythia)特征统计受打乱影响更大"
+      }
+    },
+    "H128": {
+      "post_hoc": true,
+      "reference_model": "pythia",
+      "motivation": "check whether differential smoothness loss confounds I_MP",
+      "rwkv_minus_pythia": {
+        "median": 0.08522161429753328,
+        "p2_5": 0.06288340732558113,
+        "p97_5": 0.10347722384467241,
+        "n_stories": 83,
+        "reading": "<0 表示该模型比参照模型掉的平滑度更少，即参照模型(pythia)特征统计受打乱影响更大"
+      },
+      "mamba_minus_pythia": {
+        "median": 0.021798128701023378,
+        "p2_5": 0.012277022840113266,
+        "p97_5": 0.03522840993519331,
+        "n_stories": 83,
+        "reading": "<0 表示该模型比参照模型掉的平滑度更少，即参照模型(pythia)特征统计受打乱影响更大"
+      }
+    }
+  },
+  "post_hoc_h_dependence": {
+    "pythia": {
+      "post_hoc": true,
+      "motivation": "does shuffling disrupt feature structure more at larger H",
+      "delta_H128_minus_H8": {
+        "median": -0.049821727541183414,
+        "p2_5": -0.06635901511244628,
+        "p97_5": -0.030718722612455437,
+        "n_stories": 83,
+        "reading": ">0 表示 H=128 下打乱造成的平滑度损失比 H=8 更大（OOD 随 H 累积的迹象）"
+      }
+    },
+    "rwkv": {
+      "post_hoc": true,
+      "motivation": "does shuffling disrupt feature structure more at larger H",
+      "delta_H128_minus_H8": {
+        "median": -0.0019252971246050965,
+        "p2_5": -0.0031007995569372116,
+        "p97_5": -0.0008706883239227691,
+        "n_stories": 83,
+        "reading": ">0 表示 H=128 下打乱造成的平滑度损失比 H=8 更大（OOD 随 H 累积的迹象）"
+      }
+    },
+    "mamba": {
+      "post_hoc": true,
+      "motivation": "does shuffling disrupt feature structure more at larger H",
+      "delta_H128_minus_H8": {
+        "median": -0.027058234301027162,
+        "p2_5": -0.038904775326898816,
+        "p97_5": -0.01848249400625549,
+        "n_stories": 83,
+        "reading": ">0 表示 H=128 下打乱造成的平滑度损失比 H=8 更大（OOD 随 H 累积的迹象）"
+      }
+    }
+  }
+}

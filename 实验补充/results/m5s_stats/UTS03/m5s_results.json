@@ -1,0 +1,260 @@
+{
+  "phase": "M5S stimulus-side context control (ctx1) paired bootstrap",
+  "status": "all diagnostic / uncorrected / non-confirmatory (V6.4.2 §7.1/§7.5)",
+  "subject": "UTS03",
+  "n_boot": 1000,
+  "seed": 20260701,
+  "normal_source": "/root/autodl-tmp/deep-fMRI-dataset/results/m4_full_matrix/UTS03/cells",
+  "ctx1_source": "/root/autodl-tmp/deep-fMRI-dataset/results/m4s_ridge/UTS03/cells",
+  "estimands": {
+    "ctx1_delta_total_pythia_ifg": {
+      "point": -0.0031690566481941684,
+      "ci_lo": -0.005260445947452935,
+      "ci_hi": -0.000966805400729385,
+      "ci_width": 0.004293640546723551,
+      "bootstrap_sd": 0.0011478333466725607,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "normal_delta_total_pythia_ifg": {
+      "point": 0.003536361183287623,
+      "ci_lo": 0.0019505636888987828,
+      "ci_hi": 0.0050787484922191085,
+      "ci_width": 0.0031281848033203256,
+      "bootstrap_sd": 0.0008159817639958427,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "D_pythia_ifg": {
+      "point": 0.006705417831481791,
+      "ci_lo": 0.003873736043133908,
+      "ci_hi": 0.00932595851986844,
+      "ci_width": 0.0054522224767345326,
+      "bootstrap_sd": 0.00139195418726446,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_pythia_H8_normal_ifg": {
+      "point": 0.12866932951840693,
+      "ci_lo": 0.12099850279807317,
+      "ci_hi": 0.13552871243456957,
+      "ci_width": 0.0145302096364964,
+      "bootstrap_sd": 0.0038345535169386482,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_pythia_H8_ctx1_ifg": {
+      "point": 0.09187620399573312,
+      "ci_lo": 0.08636603254262862,
+      "ci_hi": 0.09683110456500307,
+      "ci_width": 0.010465072022374455,
+      "bootstrap_sd": 0.002710101440479452,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_pythia_H128_normal_ifg": {
+      "point": 0.13220569070169455,
+      "ci_lo": 0.124291954337253,
+      "ci_hi": 0.13935822337973322,
+      "ci_width": 0.015066269042480221,
+      "bootstrap_sd": 0.003908383057079855,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_pythia_H128_ctx1_ifg": {
+      "point": 0.08870714734753896,
+      "ci_lo": 0.08357793529827395,
+      "ci_hi": 0.09361316580418108,
+      "ci_width": 0.010035230505907128,
+      "bootstrap_sd": 0.002535593880726954,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "ctx1_delta_total_rwkv_ifg": {
+      "point": -0.0025948673952058687,
+      "ci_lo": -0.0050557395608613566,
+      "ci_hi": -0.00024607082316548525,
+      "ci_width": 0.004809668737695871,
+      "bootstrap_sd": 0.0012512358616934777,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "normal_delta_total_rwkv_ifg": {
+      "point": 0.0006414232122938512,
+      "ci_lo": -0.0007965514900002985,
+      "ci_hi": 0.002180351576054363,
+      "ci_width": 0.0029769030660546617,
+      "bootstrap_sd": 0.0007302426104651801,
+      "ci_excludes_zero": false,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "D_rwkv_ifg": {
+      "point": 0.00323629060749972,
+      "ci_lo": 0.0005438358618080754,
+      "ci_hi": 0.006105615061291335,
+      "ci_width": 0.005561779199483259,
+      "bootstrap_sd": 0.001455244855649006,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_rwkv_H8_normal_ifg": {
+      "point": 0.1273535831855049,
+      "ci_lo": 0.11982038016581116,
+      "ci_hi": 0.13428116697335007,
+      "ci_width": 0.014460786807538914,
+      "bootstrap_sd": 0.0037791052630739624,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_rwkv_H8_ctx1_ifg": {
+      "point": 0.08427146148772235,
+      "ci_lo": 0.07928335514139563,
+      "ci_hi": 0.08894629591001285,
+      "ci_width": 0.00966294076861722,
+      "bootstrap_sd": 0.0024827180903438033,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_rwkv_H128_normal_ifg": {
+      "point": 0.12799500639779876,
+      "ci_lo": 0.12037037606451555,
+      "ci_hi": 0.13508208396549132,
+      "ci_width": 0.01471170790097577,
+      "bootstrap_sd": 0.0038170641817347373,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_rwkv_H128_ctx1_ifg": {
+      "point": 0.08167659409251649,
+      "ci_lo": 0.0767243101527935,
+      "ci_hi": 0.08620937641090869,
+      "ci_width": 0.009485066258115182,
+      "bootstrap_sd": 0.0024557958485915353,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "ctx1_delta_total_mamba_ifg": {
+      "point": 0.0002692841010525915,
+      "ci_lo": -0.0012870635230928743,
+      "ci_hi": 0.002008615846592106,
+      "ci_width": 0.0032956793696849803,
+      "bootstrap_sd": 0.0008605372744900087,
+      "ci_excludes_zero": false,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "normal_delta_total_mamba_ifg": {
+      "point": 0.006373438313512142,
+      "ci_lo": 0.0047284769102846754,
+      "ci_hi": 0.007995562423225033,
+      "ci_width": 0.003267085512940357,
+      "bootstrap_sd": 0.0008352718715947718,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "D_mamba_ifg": {
+      "point": 0.0061041542124595505,
+      "ci_lo": 0.0036901444104826446,
+      "ci_hi": 0.008326935363533725,
+      "ci_width": 0.00463679095305108,
+      "bootstrap_sd": 0.0012032269823132303,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_mamba_H8_normal_ifg": {
+      "point": 0.13145495331765136,
+      "ci_lo": 0.12365351678629752,
+      "ci_hi": 0.13859244275837548,
+      "ci_width": 0.014938925972077965,
+      "bootstrap_sd": 0.003931309221347174,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_mamba_H8_ctx1_ifg": {
+      "point": 0.09582802920127052,
+      "ci_lo": 0.09035972575444529,
+      "ci_hi": 0.10106077225652342,
+      "ci_width": 0.010701046502078135,
+      "bootstrap_sd": 0.0027279466384556744,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_mamba_H128_normal_ifg": {
+      "point": 0.1378283916311635,
+      "ci_lo": 0.12979178219958615,
+      "ci_hi": 0.14512929811780592,
+      "ci_width": 0.015337515918219774,
+      "bootstrap_sd": 0.004033510014869239,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "r_mamba_H128_ctx1_ifg": {
+      "point": 0.09609731330232311,
+      "ci_lo": 0.09081237274139321,
+      "ci_hi": 0.10131776754436327,
+      "ci_width": 0.010505394802970053,
+      "bootstrap_sd": 0.002721175131404402,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "A_MP_normal_ifg": {
+      "point": 0.002837077130224519,
+      "ci_lo": 0.0011420387143198062,
+      "ci_hi": 0.004316806181874459,
+      "ci_width": 0.003174767467554653,
+      "bootstrap_sd": 0.0007973993404287169,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "A_RP_normal_ifg": {
+      "point": -0.0028949379709937717,
+      "ci_lo": -0.004320638893110407,
+      "ci_hi": -0.0015456488229073917,
+      "ci_width": 0.002774990070203015,
+      "bootstrap_sd": 0.000694555964397918,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "A_MP_ctx1_ifg": {
+      "point": 0.00343834074924676,
+      "ci_lo": 0.000914022772474181,
+      "ci_hi": 0.006013438684735079,
+      "ci_width": 0.005099415912260898,
+      "bootstrap_sd": 0.0013315013186893144,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "A_RP_ctx1_ifg": {
+      "point": 0.0005741892529882997,
+      "ci_lo": -0.0021887742179666665,
+      "ci_hi": 0.0032147767106223235,
+      "ci_width": 0.0054035509285889904,
+      "bootstrap_sd": 0.0014204069821162429,
+      "ci_excludes_zero": false,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "I_MP_ifg": {
+      "point": -0.0006012636190222409,
+      "ci_lo": -0.003683932206517165,
+      "ci_hi": 0.002498644708361006,
+      "ci_width": 0.006182576914878171,
+      "bootstrap_sd": 0.0015631344785685627,
+      "ci_excludes_zero": false,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    },
+    "I_RP_ifg": {
+      "point": -0.0034691272239820714,
+      "ci_lo": -0.006030268216006313,
+      "ci_hi": -0.0006206655152430993,
+      "ci_width": 0.005409602700763213,
+      "bootstrap_sd": 0.001381815064196795,
+      "ci_excludes_zero": true,
+      "status": "diagnostic_uncorrected_non_confirmatory"
+    }
+  },
+  "core_report_names": [
+    "D_pythia_ifg",
+    "D_mamba_ifg",
+    "I_MP_ifg"
+  ],
+  "interpretation_note": "D_m>0 且 CI 排除 0 = 该模型 Context Gain 依赖完整语言结构（打乱后下降）；I_MP 为三级嵌套差值，CI 跨 0 应解读为'精度不足，尚不能判断方向'，非'无交互'（V6.4.2 §7.3E/§7.4）。§2.4 词形重复偏差系统性压低 D_m，故 D_m 显著为正时结论更稳。"
+}
