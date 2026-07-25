@@ -39,6 +39,7 @@ run_fold 产出的 scoring_mask 逐元素比对，记录 n_mask_difference（应
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import sys
 import time
@@ -60,6 +61,7 @@ from src.ridge.pipeline import (                                                
     LAMBDA_GRID, DELAYS_S, TR_SECONDS, AFTER_S,
 )
 from src.models.feature_cache import load_features                              # noqa: E402
+from src.fmri.trfile import load_respdict, trimmed_tr_times                     # noqa: E402
 
 CONDITION = "ctx1"
 CORE_MODELS = ["pythia", "rwkv", "mamba"]
@@ -93,17 +95,21 @@ def _fold_summary(fr) -> dict:
     }
 
 
-def normal_scoring_masks(normal_story_data: dict, test_stories: list[str]) -> dict:
-    """对每个 test 故事，用与 run_fold 第 5 步完全相同的算子（apply_fir +
-    common_scoring_mask）算 normal 条件的评分 mask。不做 Ridge/PCA——mask 只
-    依赖 tr_times 与 FIR 边缘有效性（位置量，与特征数值无关），故无需拟合。"""
+def reference_scoring_masks(respdict: dict, test_stories: list[str]) -> dict:
+    """从 respdict 直接算每个 test 故事的评分 mask，**不加载任何特征或 BOLD**。
+
+    mask = common_scoring_mask(tr_times, fir_valid, after_s)，其中：
+      - tr_times = trimmed_tr_times(respdict[story])  —— 只依赖 respdict
+      - fir_valid = apply_fir 的边缘有效性，只依赖 TR 行数 T=len(tr_times)（位置量）
+    两者都由 respdict[story] 唯一决定，与特征数值/条件无关，故这是 normal 条件
+    评分 mask 的权威参照。用它替代"组装整份 normal BOLD 再取 mask"——后者会为
+    每个单元多加载一份 (T×体素) 的响应矩阵，是 UTS02/03 内存打满的根因。"""
     masks = {}
     for s in test_stories:
-        sd = normal_story_data[s]
-        T = sd.X.shape[0]
-        # apply_fir 的 valid 只由行数与 FIR 位移决定，与数值无关；用零矩阵取其 valid。
+        trt = trimmed_tr_times(respdict[s])
+        T = len(trt)
         _, valid = apply_fir(np.zeros((T, 1)), delays_s=DELAYS_S, tr=TR_SECONDS)
-        masks[s] = common_scoring_mask(sd.tr_times, valid, after_s=AFTER_S)
+        masks[s] = common_scoring_mask(trt, valid, after_s=AFTER_S)
     return masks
 
 
@@ -135,12 +141,16 @@ def process_cell(model: str, H: int, fold_name: str, fold: dict, subject: str,
 
     fr = run_fold(ctx1_data, train_s, test_s, solver, roi_columns=roi_cols,
                   seed=seed, tag=tag)
+    ctx1_masks = {ss.story: ss.scoring_mask.copy() for ss in fr.story_scores}
 
-    # 2) mask 核验：独立组装 normal 的 test 故事特征，算 normal mask，逐元素比对
-    normal_test_data = assemble_all(test_s, model, H, "main", subject, cache_dir_normal,
-                                    data_dir, respdict_path, word_index_path, voxel_mask=voxel_mask)
-    normal_masks = normal_scoring_masks(normal_test_data, test_s)
-    ctx1_masks = {ss.story: ss.scoring_mask for ss in fr.story_scores}
+    # 立刻释放 ctx1 组装的大数组（83 故事 × 体素的 X/Y），降低 RAM 峰值——
+    # UTS02/03 体素多(94k/95k)，不显式释放会把内存顶爆导致进程卡死。
+    del ctx1_data
+    gc.collect()
+
+    # 2) mask 核验：从 respdict 直接算 normal 参照 mask（零重内存，不加载 BOLD）
+    respdict = load_respdict(respdict_path)
+    normal_masks = reference_scoring_masks(respdict, test_s)
     per_story_n_diff = {}
     bit_identical = True
     for s in test_s:
@@ -192,6 +202,8 @@ def process_cell(model: str, H: int, fold_name: str, fold: dict, subject: str,
     r_show = "  ".join(f"{n}={v:.4f}" for n, v in cell["ctx1"]["roi_r"].items())
     print(f"  [{model}/H{H}/{fold_name}] 完成 {cell['elapsed_seconds']}s  {r_show}  "
           f"mask_identical={bit_identical}", flush=True)
+    del fr
+    gc.collect()   # 单元间彻底回收，避免跨单元内存累积（UTS02/03 体素多尤其重要）
     return cell
 
 
