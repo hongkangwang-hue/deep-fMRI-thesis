@@ -49,6 +49,19 @@ LABEL = {"pythia": "Pythia", "mamba": "Mamba", "rwkv": "RWKV"}
 HS = [8, 128]
 
 
+def _flip(did: dict) -> tuple[float, float, float]:
+    """把 §2.3 计算的 DiD（ctx1 − normal）翻成 normal − C1 方向，返回 (点估计, lo, hi)。
+
+    为什么翻：正向轴更好读，而且 normal − C1 与 Figure 17 Panel B 的
+    D_m = Δr_total^normal − Δr_total^C1 形式一致——两张图共用同一套符号约定，
+    "正值 = C1 条件下更差"到处成立。取负时 CI 上下界要互换。
+
+    注意：ood_diagnostic.json 里存的仍是原始 DiD（ctx1 − normal），本函数只
+    影响图表呈现；公式已写在轴标签与表头里，不存在歧义。
+    """
+    return -did["median"], -did["p97_5"], -did["p2_5"]
+
+
 def _md(df: pd.DataFrame) -> str:
     cols = list(df.columns)
     out = ["| " + " | ".join(map(str, cols)) + " |",
@@ -137,43 +150,58 @@ def main():
     xs = np.arange(len(MODELS))
     for i, m in enumerate(MODELS):
         d = ood["by_model"][m]["metrics"]["participation_ratio"]["ood_h_dependence_did"]
-        axC.bar(i, d["median"], 0.55, color=COLOR[m], alpha=0.9,
+        pt, lo, hi = _flip(d)
+        axC.bar(i, pt, 0.55, color=COLOR[m], alpha=0.9,
                 edgecolor="k", linewidth=0.5)
-        axC.plot([i, i], [d["p2_5"], d["p97_5"]], color="k", linewidth=1.3)
-        # 数值标注：RWKV 的柱极小(−0.03)但同样显著，不标会被误看成"无数据"
+        axC.plot([i, i], [lo, hi], color="k", linewidth=1.3)
+        # 数值标注：RWKV 的柱极小(0.03)但同样显著，不标会被误看成"无数据"
         star = "*" if d["ci_excludes_zero"] else ""
-        axC.annotate(f"{d['median']:+.3f}{star}", (i, d["p2_5"]),
-                     textcoords="offset points", xytext=(0, -13),
+        axC.annotate(f"{pt:+.3f}{star}", (i, hi),
+                     textcoords="offset points", xytext=(0, 5),
                      ha="center", fontsize=8.5)
     axC.axhline(0, color="k", linewidth=0.8, linestyle=":")
     axC.margins(y=0.18)
     axC.set_xticks(xs)
     axC.set_xticklabels([LABEL[m] for m in MODELS])
     axC.set_xlabel("Model", fontsize=9)
-    axC.set_ylabel(r"PR interaction: $\Delta PR_{\mathrm{C1}} - \Delta PR_{\mathrm{normal}}$"
-                   " (95% CI)", fontsize=9)
+    axC.set_ylabel(r"$\Delta PR_{\mathrm{normal}} - \Delta PR_{\mathrm{C1}}$ (95% CI)",
+                   fontsize=9)
     axC.set_title("C. H-dependent shift in effective dimensionality\n"
                   r"$\Delta PR = PR_{H=128} - PR_{H=8}$", fontsize=10)
     axC.grid(True, axis="y", alpha=0.3)
+    # 与 Figure 17 Panel B 的 D_m 同一读法（都是 normal 减 C1，正值都表示 C1 更差）。
+    # 放右上：翻正后柱子从 0 往上长，左下会被 Pythia 的柱子压住（实测渲染后修正）。
+    axC.text(0.98, 0.96,
+             "Positive values indicate a smaller dimensionality increase under C1.",
+             transform=axC.transAxes, fontsize=7, style="italic", color="#444444",
+             ha="right", va="top",
+             bbox=dict(boxstyle="round,pad=0.25", facecolor="white",
+                       edgecolor="#cccccc", alpha=0.9))
 
     # ── Panel D：秩序一致性（PR 塌缩 vs D_m）──────────────────────────
     pr_did, dm_mean, dm_err = [], [], []
     for m in MODELS:
-        pr_did.append(
-            ood["by_model"][m]["metrics"]["participation_ratio"]["ood_h_dependence_did"]["median"])
+        d = ood["by_model"][m]["metrics"]["participation_ratio"]["ood_h_dependence_did"]
+        pr_did.append(_flip(d)[0])          # 与 Panel C 同一方向（normal − C1，正向）
         vals = [dm[s][f"D_{m}_ifg"]["point"] for s in dm if f"D_{m}_ifg" in dm[s]]
         dm_mean.append(float(np.mean(vals)) if vals else np.nan)
         dm_err.append(float(np.std(vals)) if len(vals) > 1 else 0.0)
+    xmax = max(v for v in pr_did if np.isfinite(v))
     for i, m in enumerate(MODELS):
         axD.errorbar(pr_did[i], dm_mean[i], yerr=dm_err[i], fmt="o",
                      color=COLOR[m], markersize=11, capsize=4, linewidth=1.5)
+        # 最右侧的点把标签放到左边，否则会顶出坐标区（实测渲染后修正）
+        right_most = pr_did[i] > 0.75 * xmax
         axD.annotate(LABEL[m], (pr_did[i], dm_mean[i]),
-                     textcoords="offset points", xytext=(9, 6), fontsize=9)
+                     textcoords="offset points",
+                     xytext=(-12, 9) if right_most else (9, 6),
+                     ha="right" if right_most else "left", fontsize=9)
+    axD.margins(x=0.10)
     axD.axhline(0, color="k", linewidth=0.8, linestyle=":")
-    # 与 Panel C 保持同一符号约定（原始 DiD，与 Table 10 及正文数字一致），
-    # 只在轴标签里说明方向，避免同一量在一张图里出现两种符号。
-    axD.set_xlabel(r"PR interaction, $\Delta PR_{\mathrm{C1}} - \Delta PR_{\mathrm{normal}}$"
-                   "  (more negative = larger dimensionality shift)", fontsize=9)
+    # 与 Panel C 同一符号约定（normal − C1，正向），Table 10 的 PR 列也同步翻转，
+    # 保证图↔表交叉对照时符号一致。
+    axD.set_xlabel(r"$\Delta PR_{\mathrm{normal}} - \Delta PR_{\mathrm{C1}}$"
+                   "  (larger = smaller dimensionality increase under C1)", fontsize=9)
     axD.set_ylabel(r"Mean context-gain reduction, $D_m$ (mean ± SD over participants)",
                    fontsize=9)
     axD.set_title("D. Descriptive relation between dimensionality shift\nand gain reduction",
@@ -212,13 +240,19 @@ def main():
             a = met[metric]["absolute_medians"]
             d = met[metric]["ood_h_dependence_did"]
             row[f"{short} normal H8→H128"] = f"{a['normal_H8']:.4g} → {a['normal_H128']:.4g}"
-            row[f"{short} ctx1 H8→H128"] = f"{a['ctx1_H8']:.4g} → {a['ctx1_H128']:.4g}"
-            row[f"{short} DiD [95% CI]"] = (
-                f"{d['median']:+.4g} [{d['p2_5']:+.4g}, {d['p97_5']:+.4g}]"
-                + ("*" if d["ci_excludes_zero"] else ""))
+            row[f"{short} C1 H8→H128"] = f"{a['ctx1_H8']:.4g} → {a['ctx1_H128']:.4g}"
+            star = "*" if d["ci_excludes_zero"] else ""
+            if metric == "participation_ratio":
+                # PR 与 Figure 18 的 Panel C/D 同向（normal − C1，正向），避免图表符号打架
+                pt, lo, hi = _flip(d)
+                row[f"{short} Δnormal−ΔC1 [95% CI]"] = f"{pt:+.4g} [{lo:+.4g}, {hi:+.4g}]{star}"
+            else:
+                # L2/evr 保持计算时的原始方向；表头写明公式，不留歧义
+                row[f"{short} ΔC1−Δnormal [95% CI]"] = (
+                    f"{d['median']:+.4g} [{d['p2_5']:+.4g}, {d['p97_5']:+.4g}]{star}")
         for H in HS:
             b = lag1["by_model_H"][f"{m}_H{H}"]
-            row[f"lag-1 H{H} (normal→ctx1)"] = (
+            row[f"lag-1 H{H} (normal→C1)"] = (
                 f"{b['normal_tolerance_band']['median']:.4f} → {b['ctx1_median']:.4f}")
         row["verdict"] = ood["by_model"][m]["verdict"]["conclusion"]
         rows.append(row)
