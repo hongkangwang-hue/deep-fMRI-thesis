@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-08-17 21:39:34",
+  "device": "cpu",
+  "git_commit": "3ecfb87",
+  "story": "adollshouse",
+  "n_words_story": 1656,
+  "n_eligible": 1528,
+  "target_local_id": 300,
+  "target_word": "FRONT",
+  "H_list": [
+    8,
+    32,
+    128
+  ],
+  "H_test": 8,
+  "filler_n_words": 120,
+  "windows": [
+    {
+      "H": 8,
+      "n_words": 9,
+      "n_subtokens": 9,
+      "n_target_subtokens": 1,
+      "display": "STOP AND IT WAS LIKE  [...1 words...]  OUT IN FRONT"
+    },
+    {
+      "H": 32,
+      "n_words": 33,
+      "n_subtokens": 33,
+      "n_target_subtokens": 1,
+      "display": "MY PARENTS AND UH I  [...25 words...]  OUT IN FRONT"
+    },
+    {
+      "H": 128,
+      "n_words": 129,
+      "n_subtokens": 132,
+      "n_target_subtokens": 1,
+      "display": "MEET YOUR PARENTS AND I  [...121 words...]  OUT IN FRONT"
+    }
+  ],
+  "readout": {
+    "H": 8,
+    "span_start": 8,
+    "span_end": 9,
+    "layer_main": 8,
+    "layer_final": 11,
+    "shape_main": [
+      768
+    ],
+    "shape_final": [
+      768
+    ],
+    "n_tokens": 9,
+    "target_token_index": 8,
+    "n_target_subtokens": 1
+  },
+  "models": [
+    {
+      "name": "pythia",
+      "model_id": "EleutherAI/pythia-160m",
+      "layer_main": 8,
+      "load_s": 4.4,
+      "cold_diff": 0.0,
+      "cold_same": true,
+      "leak_diff": 6.3745293617248535,
+      "leak_note": "经 past_key_values",
+      "cat_diff": 6.3752593994140625
+    },
+    {
+      "name": "rwkv",
+      "model_id": "RWKV/rwkv-4-169m-pile",
+      "layer_main": 8,
+      "load_s": 2.7,
+      "cold_diff": 0.0,
+      "cold_same": true,
+      "leak_diff": 28.68144989013672,
+      "leak_note": "经 state",
+      "cat_diff": 28.681419372558594
+    },
+    {
+      "name": "mamba",
+      "model_id": "state-spaces/mamba-130m-hf",
+      "layer_main": 16,
+      "load_s": 3.0,
+      "cold_diff": 0.0,
+      "cold_same": true,
+      "leak_diff": null,
+      "leak_note": "ValueError",
+      "cat_diff": 3.2912051677703857
+    }
+  ],
+  "pythia_load_s": 11.2
+}

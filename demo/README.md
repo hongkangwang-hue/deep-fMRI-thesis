@@ -20,11 +20,35 @@ conda activate deepfmri          # 或 source activate deepfmri
 
 | 脚本 | 需要 GPU | 实测耗时 | 依赖数据 |
 |---|---|---|---|
-| D1 | 是(3 个模型真实前向) | **7.5 s** | HF 本地权重 + `frozen/word_index.parquet` |
+| **D1(默认,读缓存)** | 否 | **0.08 s** | `demo/cached_results/d1_results.json` |
+| D1 `--live`(现场真算) | 建议开卡 | GPU **7.5 s** / 无卡 CPU **120 s** | HF 本地权重 + `frozen/word_index.parquet` |
 | D2 | 否(纯 CPU) | **2.9 s** | `cache/features/` + `frozen/` + `results/m4_full_matrix/` + BOLD |
 | D3 | 否(纯 CPU) | **4.7 s** | `results/m4_full_matrix/` + `results/m5_stats/` |
 
-三个脚本都远低于 60 秒预算,**录屏时无需剪辑等待**。
+**录屏时三个脚本合计约 8 秒,完全不需要等待。**
+
+### D1 为什么默认读缓存
+
+D1 是唯一需要真实模型前向的演示。开卡时只要 7.5 秒,但**无卡模式下 CPU 前向要 120 秒**
+(实测),录屏会出现两分钟静默。因此 D1 默认从 `demo/cached_results/d1_results.json` 读取
+并渲染,**0.08 秒**出结果。
+
+该缓存不是手写数字,而是 `--live` 模式真实计算后自动落盘的,内含生成时间、设备、
+git commit,输出顶部会明确标注:
+
+```
+⚠ 以下数值读取自缓存：demo/cached_results/d1_results.json
+   该缓存由 --live 模式真实计算后落盘，非手写数字：
+     生成时间 = 2026-08-17 21:39:34   设备 = cpu   代码版本 = 3ecfb87
+   现场重算请加 --live（GPU 约 7 s；无卡 CPU 约 120 s）
+```
+
+两种模式的输出格式**完全一致**(同一套 `render()` 函数),所以答辩时若被要求现场重算,
+直接 `bash demo/run.sh d1-live` 即可,画面内容不变。
+
+> D2/D3 **保持现场真跑**:它们本来就只要 2.9 s / 4.7 s,而且真跑的说服力强得多——
+> D2 是运行时拦截真实 `run_fold` 的 fit 调用,D3 是真的跑满 1000 次重采样。
+> 这两处"现场算出来"正是演示的价值所在,不建议改成读缓存。
 
 ---
 
@@ -33,10 +57,12 @@ conda activate deepfmri          # 或 source activate deepfmri
 **务必使用 `demo/run.sh` 启动器,不要直接 `python3 demo/dX.py`。**
 
 ```bash
-bash demo/run.sh d1     # D1
-bash demo/run.sh d2     # D2
-bash demo/run.sh d3     # D3
-bash demo/run.sh all    # 依次跑三个(录屏建议分三段单独录)
+bash demo/run.sh d1        # D1(读缓存,0.08s)  ← 录屏用这个
+bash demo/run.sh d2        # D2(现场真跑,2.9s)
+bash demo/run.sh d3        # D3(现场真跑,4.7s)
+bash demo/run.sh all       # 依次跑三个(录屏建议分三段单独录)
+
+bash demo/run.sh d1-live   # D1 现场真算并更新缓存(GPU~7s / 无卡CPU~120s)
 ```
 
 ### 为什么必须用 run.sh(三个实测踩到的坑)
@@ -206,7 +232,8 @@ UTS03               0.003175               0.004445     1.4×
 
 | 演示 | 计算/读取 |
 |---|---|
-| D1 | 三个模型的真实前向(现场计算);目标词取自 `frozen/word_index.parquet` |
+| D1(默认) | 读 `demo/cached_results/d1_results.json` —— 由 `--live` 真实前向后落盘,输出顶部标注来源与生成时间 |
+| D1 `--live` | 三个模型的真实前向(现场计算);目标词取自 `frozen/word_index.parquet` |
 | D2(a) | 读 `cache/features/`(M1 已提取)+ 现场做 Lanczos/FIR/掩码 |
 | D2(b) | 现场调用真实 `run_fold` + 读 M4/audit 落盘记录 |
 | D3 | 读 M4 story 级分数 + 现场跑 1000 次重采样(不重跑特征提取/ridge) |

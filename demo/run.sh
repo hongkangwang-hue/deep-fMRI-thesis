@@ -34,9 +34,10 @@ D2=demo/d2_alignment_and_no_leakage.py
 D3=demo/d3_paired_bootstrap.py
 
 case "${1:-all}" in
-  d1)  python3 -u "$D1" ;;
-  d2)  python3 -u "$D2" ;;
-  d3)  python3 -u "$D3" ;;
+  d1)       python3 -u "$D1" ;;            # 读缓存，秒级（录屏用这个）
+  d1-live)  python3 -u "$D1" --live ;;     # 现场真算：GPU~7s / 无卡CPU~120s，并更新缓存
+  d2)       python3 -u "$D2" ;;
+  d3)       python3 -u "$D3" ;;
   all)
     python3 -u "$D1"
     echo; echo; sleep 1
@@ -45,7 +46,7 @@ case "${1:-all}" in
     python3 -u "$D3"
     ;;
   *)
-    echo "用法: bash demo/run.sh [d1|d2|d3|all]" >&2
+    echo "用法: bash demo/run.sh [d1|d1-live|d2|d3|all]" >&2
     exit 2
     ;;
 esac
