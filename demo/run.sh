@@ -33,6 +33,11 @@ D1=demo/d1_window_and_strict_upper_bound.py
 D2=demo/d2_alignment_and_no_leakage.py
 D3=demo/d3_paired_bootstrap.py
 
+# T series: English, compact, data-first (second version)
+T1=demo/t_d1_window_bound.py
+T2=demo/t_d2_alignment_leakage.py
+T3=demo/t_d3_paired_bootstrap.py
+
 case "${1:-all}" in
   d1)       python3 -u "$D1" ;;            # 读缓存，秒级（录屏用这个）
   d1-live)  python3 -u "$D1" --live ;;     # 现场真算：GPU~7s / 无卡CPU~120s，并更新缓存
@@ -54,13 +59,38 @@ case "${1:-all}" in
     echo; echo; sleep 1
     python3 -u "$D3"
     ;;
+  t1)       python3 -u "$T1" ;;            # English, cached
+  t1-live)  python3 -u "$T1" --live ;;     # English, live forward passes
+  t2)       python3 -u "$T2" ;;
+  t3)       python3 -u "$T3" ;;
+  t-all)
+    python3 -u "$T1"
+    echo; echo; sleep 1
+    python3 -u "$T2"
+    echo; echo; sleep 1
+    python3 -u "$T3"
+    ;;
+  t-live)
+    python3 -u "$T1" --live
+    echo; echo; sleep 1
+    python3 -u "$T2"
+    echo; echo; sleep 1
+    python3 -u "$T3"
+    ;;
   *)
-    echo "用法: bash demo/run.sh [d1|d1-live|d2|d3|all|live]" >&2
-    echo "  d1       D1 读缓存（0.08s）" >&2
-    echo "  d1-live  D1 现场真算（开卡~7.5s / 无卡CPU~120s）并更新缓存" >&2
-    echo "  d2 / d3  现场真算（2.9s / 4.7s）" >&2
-    echo "  all      三个依次跑，D1 用缓存（合计~8s）" >&2
-    echo "  live     三个依次跑，D1 现场真算（合计~15s，建议开卡）" >&2
+    echo "用法: bash demo/run.sh <target>" >&2
+    echo "  中文版（第一版）:" >&2
+    echo "    d1        读缓存（0.08s）" >&2
+    echo "    d1-live   现场真算（开卡~7.5s / 无卡CPU~120s）并更新缓存" >&2
+    echo "    d2 / d3   现场真算（2.9s / 4.7s）" >&2
+    echo "    all       三个依次跑，D1 用缓存" >&2
+    echo "    live      三个依次跑，D1 现场真算" >&2
+    echo "  英文精简版（第二版，T 系列）:" >&2
+    echo "    t1        读缓存" >&2
+    echo "    t1-live   现场真算并更新缓存" >&2
+    echo "    t2 / t3   现场真算" >&2
+    echo "    t-all     三个依次跑，T1 用缓存" >&2
+    echo "    t-live    三个依次跑，T1 现场真算" >&2
     exit 2
     ;;
 esac
