@@ -61,10 +61,33 @@ TARGET = "mamba_minus_pythia_delta_total_ifg_main"
 
 # 论文表 4 的三行（Mamba − Pythia 总 Context Gain），用于逐一核对
 PAPER_TABLE4 = {
-    "UTS01": dict(point=+0.0014, lo=+0.0001, hi=+0.0027, p="0.042"),
-    "UTS02": dict(point=+0.0044, lo=+0.0026, hi=+0.0060, p="<0.001"),
-    "UTS03": dict(point=+0.0028, lo=+0.0011, hi=+0.0043, p="0.004"),
+    "UTS01": dict(point=+0.0014, lo=+0.0001, hi=+0.0027, p_paper="0.042"),
+    "UTS02": dict(point=+0.0044, lo=+0.0026, hi=+0.0060, p_paper="<0.001"),
+    "UTS03": dict(point=+0.0028, lo=+0.0011, hi=+0.0043, p_paper="0.004"),
 }
+
+
+def crossing_count(values: np.ndarray) -> tuple[int, int]:
+    """返回 (k, B_eff)：k = 落在 0 较少一侧的 draw 数，与 bootstrap_two_sided_p 同源。
+
+    对应 src/stats/bootstrap.py::bootstrap_two_sided_p 的
+    p = min(1, 2·min(P(θ*≤0), P(θ*≥0)))，此处只是把分子的计数取出来显示。
+    """
+    v = values[np.isfinite(values)]
+    return min(int((v <= 0).sum()), int((v >= 0).sum())), int(v.size)
+
+
+def fmt_p_resolution_aware(pv: float, k: int, n_boot: int) -> str:
+    """按 bootstrap 分辨率如实格式化 p 值。
+
+    B 次重采样的双尾 p 只能取 0, 2/B, 4/B, … 这些离散值。k=0 时代码返回的是**精确
+    的 0.0**，但真实 p 不可能为 0——能声明的只是「比 B 次抽样可分辨的最小非零值
+    更小」，即 p < 2/B（B=1000 时为 0.002）。写 p<0.001 会暗示 B=2000 才有的分辨率，
+    属于过度声明。所有 Holm 判定不受影响（0.002 < 0.025 < 0.05）。
+    """
+    if k == 0:
+        return f"<{2.0 / n_boot:.3f}"
+    return f"{pv:.3f}"
 
 
 def show_pairing(data, seed: int) -> bool:
@@ -101,13 +124,13 @@ def show_pairing(data, seed: int) -> bool:
     say()
 
     same = all(np.array_equal(idx_used_m[f], idx_used_p[f]) for f in data.folds)
-    is_same_obj = idx_used_m is idx_used_p
-    ok = check(same, f"两个模型的抽样索引数组逐元素相等 = {same}")
-    ok &= check(is_same_obj,
-                f"实际上是**同一个索引对象**被传给所有 key（不是巧合相同）")
+    ok = check(same, "所有比较条件复用同一组逐元素相同的折内抽样索引")
+    say(f"       （实现上就是同一个数组被传给所有 key，故不存在「碰巧相同」的可能；"
+        f"统计上关键的是索引值相同）")
     say()
-    say("  → 故事难度的天然差异（有的故事就是更好预测）在两个模型间完全共享，")
-    say("    相减时被消掉。这就是千分之几的差值仍能给出稳定区间的原因。")
+    say("  → 同一故事抽样造成的共同波动由两个模型共享，因此在模型差值中大部分抵消，")
+    say("    从而降低差值估计的抽样方差；模型与故事之间特异的交互差异仍然保留。")
+    say("    这就是千分之几的差值仍能给出较窄区间的原因（并非故事效应被完全消除）。")
     return ok
 
 
@@ -180,20 +203,28 @@ def main() -> int:
         pt = point[TARGET]
         lo, hi = percentile_ci(arrs[TARGET])
         pv = bootstrap_two_sided_p(arrs[TARGET])
+        k, b_eff = crossing_count(arrs[TARGET])
         conf_p = {n: bootstrap_two_sided_p(arrs[n]) for n in CONFIRMATORY}
+        conf_k = {n: crossing_count(arrs[n])[0] for n in CONFIRMATORY}
         holm = holm_bonferroni(conf_p, alpha=alpha)
 
-        results[subj] = dict(point=pt, lo=lo, hi=hi, p=pv, holm=holm, data=data)
+        results[subj] = dict(point=pt, lo=lo, hi=hi, p=pv, k=k, b_eff=b_eff,
+                             holm=holm, conf_k=conf_k, data=data)
 
         paper = PAPER_TABLE4[subj]
         # 论文表按 4 位小数呈现，故核对到 4 位小数
         match = (round(pt, 4) == paper["point"] and round(lo, 4) == paper["lo"]
                  and round(hi, 4) == paper["hi"])
-        p_str = "<0.001" if pv < 0.001 else f"{pv:.3f}"
         say(f"{subj:<7} {pt:>+15.6f} {'[' + f'{lo:+.6f}, {hi:+.6f}' + ']':>26} "
-            f"{p_str:>9}   {paper['point']:>+14.4f} {'✓' if match else '✗':>7}")
+            f"{fmt_p_resolution_aware(pv, k, n_boot):>9}   "
+            f"{paper['point']:>+14.4f} {'✓' if match else '✗':>7}")
 
     say("-" * 96)
+    say(f"p 值分辨率：B={n_boot} 次重采样的双尾 p 只能取 0, 0.002, 0.004, … 这些离散值。")
+    say(f"当没有任何 draw 跨过零时，如实报告为 p<{2.0/n_boot:.3f}，而**不是** p<0.001")
+    say(f"（后者暗示 B=2000 才有的分辨率）。⚠ 论文表 4 与 Methods 目前写 p<0.001，")
+    say(f"建议一并修订为 p<{2.0/n_boot:.3f}；所有 Holm 判定不变"
+        f"（{2.0/n_boot:.3f} < 0.025 < 0.05）。")
     say()
 
     # 逐项差值明细
@@ -230,12 +261,13 @@ def main() -> int:
     say("-" * 96)
     for subj in SUBJECTS:
         for name, h in results[subj]["holm"].items():
-            p_str = "<0.001" if h["p"] < 0.001 else f"{h['p']:.3f}"
-            say(f"{subj:<7} {name:<42} {p_str:>9} {h['holm_threshold']:>10.4f} "
-                f"{str(h['reject']):>8}")
+            k = results[subj]["conf_k"][name]
+            say(f"{subj:<7} {name:<42} "
+                f"{fmt_p_resolution_aware(h['p'], k, n_boot):>9} "
+                f"{h['holm_threshold']:>10.4f} {str(h['reject']):>8}")
     say("-" * 96)
-    say("注：显示的是**原始**双尾 bootstrap p 值；Holm 是 step-down 过程，")
-    say("    “拒绝 H0”一栏才是经家族校正后的结论（两者不冗余）。")
+    say("注：显示的是**原始**双尾 bootstrap p 值（按 B 的分辨率如实标注）；Holm 是")
+    say("    step-down 过程，“拒绝 H0”一栏才是经家族校正后的结论（两者不冗余）。")
 
     # ══ 对照：不配对会怎样 ════════════════════════════════════════════════════
     section("(4) 对照实验：如果**不**配对（两个模型各自独立抽样）会怎样")
