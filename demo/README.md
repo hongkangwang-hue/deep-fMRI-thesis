@@ -57,13 +57,53 @@ git commit,输出顶部会明确标注:
 **务必使用 `demo/run.sh` 启动器,不要直接 `python3 demo/dX.py`。**
 
 ```bash
-bash demo/run.sh d1        # D1(读缓存,0.08s)  ← 录屏用这个
+bash demo/run.sh d1        # D1(读缓存,0.08s)
 bash demo/run.sh d2        # D2(现场真跑,2.9s)
 bash demo/run.sh d3        # D3(现场真跑,4.7s)
 bash demo/run.sh all       # 依次跑三个(录屏建议分三段单独录)
 
 bash demo/run.sh d1-live   # D1 现场真算并更新缓存(GPU~7s / 无卡CPU~120s)
+bash demo/run.sh live      # ★ 三个全部现场真算(需开卡,合计约 15s)
 ```
+
+---
+
+## 两种演示模式:选哪个
+
+**首先明确:D2 与 D3 在任何模式下都是现场真算的**,它们不读任何汇总结果:
+
+- D2 现场做 Lanczos 重采样 + FIR 展开 + 掩码构建,并**运行时 monkeypatch 拦截真实
+  `run_fold`** 的 `StandardScaler.fit` / `PCA.fit`,屏幕上的 `(754, 768)` 是当场观测到的;
+- D3 现场跑满 **1000 次** paired-story bootstrap 重采样(只是不重跑特征提取与 ridge,
+  那两步读 M4 已落盘的 story 级分数——这符合"能读缓存绝不重算"的要求)。
+
+唯一有区别的是 D1:
+
+| | 模式 A(默认) | 模式 B(全真现场) |
+|---|---|---|
+| 命令 | `bash demo/run.sh d1` | `bash demo/run.sh d1-live` |
+| D1 行为 | 读缓存 JSON 渲染 | **三个模型真实加载 + 真实前向** |
+| 耗时 | 0.08 s | **开卡 7.5 s** / 无卡 CPU 120 s |
+| 需要开卡 | 否 | **建议开卡** |
+| 三段合计 | 约 8 s | **约 15 s** |
+
+**要做全真现场演示,请开有卡模式**,然后:
+
+```bash
+bash demo/check_ready.sh          # 先自检(应显示"全部就绪")
+nvidia-smi                        # 确认 GPU 在线(录屏时这一行也值得留着)
+
+clear; bash demo/run.sh d1-live   # 三个模型真实前向,约 7.5 s
+clear; bash demo/run.sh d2        # 约 2.9 s
+clear; bash demo/run.sh d3        # 约 4.7 s
+```
+
+`d1-live` 的输出顶部会显示 `● 现场真实计算（--live）  设备 = cuda`,与读缓存模式的
+`⚠ 以下数值读取自缓存` 一眼可分。两种模式的其余输出格式完全一致(同一套 `render()`)。
+
+> **为什么全真模式建议开卡**:无卡模式下 D1 的 CPU 前向实测 **120 秒**(三个模型各做
+> 4 次 120–129 token 的前向),录屏会出现两分钟静默。开卡后同样的计算只要 7.5 秒。
+> 开卡几分钟的费用换来完全真实的现场演示,通常是值得的。
 
 ### 为什么必须用 run.sh(三个实测踩到的坑)
 

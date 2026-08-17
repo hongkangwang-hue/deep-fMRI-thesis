@@ -45,8 +45,22 @@ case "${1:-all}" in
     echo; echo; sleep 1
     python3 -u "$D3"
     ;;
+  live)
+    # 三个演示全部现场真算（D1 用 --live；D2/D3 本来就是现场计算）。
+    # 建议开有卡模式：D1 在 GPU 上约 7.5s，无卡 CPU 约 120s。
+    python3 -u "$D1" --live
+    echo; echo; sleep 1
+    python3 -u "$D2"
+    echo; echo; sleep 1
+    python3 -u "$D3"
+    ;;
   *)
-    echo "用法: bash demo/run.sh [d1|d1-live|d2|d3|all]" >&2
+    echo "用法: bash demo/run.sh [d1|d1-live|d2|d3|all|live]" >&2
+    echo "  d1       D1 读缓存（0.08s）" >&2
+    echo "  d1-live  D1 现场真算（开卡~7.5s / 无卡CPU~120s）并更新缓存" >&2
+    echo "  d2 / d3  现场真算（2.9s / 4.7s）" >&2
+    echo "  all      三个依次跑，D1 用缓存（合计~8s）" >&2
+    echo "  live     三个依次跑，D1 现场真算（合计~15s，建议开卡）" >&2
     exit 2
     ;;
 esac

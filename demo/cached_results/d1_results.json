@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-17 21:39:34",
-  "device": "cpu",
+  "generated_at": "2026-08-17 22:23:49",
+  "device": "cuda",
   "git_commit": "3ecfb87",
   "story": "adollshouse",
   "n_words_story": 1656,
@@ -58,35 +58,35 @@
       "name": "pythia",
       "model_id": "EleutherAI/pythia-160m",
       "layer_main": 8,
-      "load_s": 4.4,
+      "load_s": 0.4,
       "cold_diff": 0.0,
       "cold_same": true,
-      "leak_diff": 6.3745293617248535,
+      "leak_diff": 6.375222682952881,
       "leak_note": "经 past_key_values",
-      "cat_diff": 6.3752593994140625
+      "cat_diff": 6.37508487701416
     },
     {
       "name": "rwkv",
       "model_id": "RWKV/rwkv-4-169m-pile",
       "layer_main": 8,
-      "load_s": 2.7,
+      "load_s": 0.4,
       "cold_diff": 0.0,
       "cold_same": true,
-      "leak_diff": 28.68144989013672,
+      "leak_diff": 28.681396484375,
       "leak_note": "经 state",
-      "cat_diff": 28.681419372558594
+      "cat_diff": 28.681411743164062
     },
     {
       "name": "mamba",
       "model_id": "state-spaces/mamba-130m-hf",
       "layer_main": 16,
-      "load_s": 3.0,
+      "load_s": 0.3,
       "cold_diff": 0.0,
       "cold_same": true,
       "leak_diff": null,
       "leak_note": "ValueError",
-      "cat_diff": 3.2912051677703857
+      "cat_diff": 3.291203737258911
     }
   ],
-  "pythia_load_s": 11.2
+  "pythia_load_s": 2.3
 }
