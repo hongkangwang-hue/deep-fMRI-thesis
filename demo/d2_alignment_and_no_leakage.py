@@ -97,17 +97,26 @@ def part_a(cfg) -> None:
 
     n_resps = respdict[DEMO_STORY]
     tr_full = story_tr_times(n_resps)
-    say(f"{'3. TR 时间轴（等间隔 2s）':<38} {str(tr_full.shape):<26} "
-        f"respdict={n_resps}，减 pad {SIMULATE_PAD} 帧")
+    say(f"{'3. TR 时间轴（去 pad）':<38} {str(tr_full.shape):<26} "
+        f"respdict={n_resps} − pad {SIMULATE_PAD} 帧"
+        f"({SIMULATE_PAD * TR_SECONDS:.0f}s) = {len(tr_full)}")
 
     X_full = word_to_tr(vecs, data_times, tr_full)
     say(f"{'4. Lanczos 重采样 词→TR':<38} {str(X_full.shape):<26} "
-        f"不等间隔词 → 等间隔 TR 网格")
+        f"不等间隔词 → 等间隔 TR 网格（TR={TR_SECONDS:.0f}s）")
 
     X = X_full[TRIM_FIRST: len(X_full) - TRIM_LAST]
     trt = trimmed_tr_times(n_resps)
     say(f"{'5. 裁边 [10:-5]':<38} {str(X.shape):<26} "
-        f"去头 {TRIM_FIRST} 帧(30s)、去尾 {TRIM_LAST} 帧(10s)")
+        f"再去头 {TRIM_FIRST} 帧({TRIM_FIRST * TR_SECONDS:.0f}s)、"
+        f"去尾 {TRIM_LAST} 帧({TRIM_LAST * TR_SECONDS:.0f}s)")
+
+    # 与论文 "removed the first 15 and last 5 TRs" 的对账：单步是 20s，**累计**才是 30s
+    head_total = SIMULATE_PAD + TRIM_FIRST
+    say(f"{'   ↳ 相对原始响应的累计裁切':<38} "
+        f"{f'{n_resps}−{SIMULATE_PAD}−{TRIM_FIRST}−{TRIM_LAST}={X.shape[0]}':<26} "
+        f"累计去头 {head_total} 帧({head_total * TR_SECONDS:.0f}s)、"
+        f"去尾 {TRIM_LAST} 帧({TRIM_LAST * TR_SECONDS:.0f}s)")
 
     # 硬断言：X / Y / tr_times 三者行数必须相等（原代码 assemble_story 内的同一检查）
     ok_rows = (X.shape[0] == len(trt))
